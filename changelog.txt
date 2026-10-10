@@ -1,3 +1,21 @@
+📜 *ReadSW — Patch 10 Oktober 2026*
+📢 *INFORMASI PERBAIKAN*
+_📅 Sabtu, 10 Oktober 2026_
+━━━━━━━━━━━━━━━━━━━━━━
+🤖 *WILY BOT* — `V27.4`
+✨ *0 Fitur Baru*
+🔧 *1 Bug/Error Fix*
+🚀 *0 Perubahan*
+━━━━━━━━━━━━━━━━━━━━━━
+🐛 *BUG FIX*
+━━━━━━━━━━━━━━━━━━━━━━
+1. *PUSH.SH — Upload Gagal Saat Memisahkan Commit Runtime*
+   ~File runtime yang dipilih untuk upload bisa gagal di-stage ulang karena folder `data/` diabaikan oleh `.gitignore`.~
+   • Restaging memakai force hanya pada path runtime yang sudah masuk pilihan upload.
+   • `.env` dan `.token.secret` tetap dikecualikan dari restaging agar tidak ikut ter-upload.
+   • Detail error Git sekarang ditampilkan jika staging runtime masih gagal.
+> _Hasil: commit kode dan data runtime dapat dipisah tanpa membocorkan file rahasia._
+
 📜 *ReadSW — Patch 4 Oktober 2026*
 📢 *INFORMASI PERBAIKAN*
 _📅 Minggu, 4 Oktober 2026_

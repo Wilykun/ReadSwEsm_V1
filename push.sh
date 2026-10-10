@@ -2095,8 +2095,13 @@ commit_staged_groups() {
   local _path
   while IFS= read -r -d '' _path; do
     case "$_path" in
+      # File rahasia bisa muncul sebagai staged deletion saat prepare_stage
+      # menghapusnya dari index. Biarkan deletion ikut commit pertama; jangan
+      # reset lalu force-add ulang karena file lokalnya harus tetap rahasia.
+      .env|.token.secret)
+        _semantic_paths+=("$_path") ;;
       data/*|data_jadibot/*|sessions/*|logs/*|tmp/*|.cache/*|attached_assets/*|\
-      .push_history.log|.push_shortcut_history.txt|.env|.token.secret)
+      .push_history.log|.push_shortcut_history.txt)
         _runtime_paths+=("$_path") ;;
       *)
         _semantic_paths+=("$_path") ;;
@@ -2120,10 +2125,19 @@ commit_staged_groups() {
       return 1
     fi
 
-    if ! git add -A -- "${_runtime_paths[@]}" 2>/dev/null; then
+    local _runtime_add_err
+    _runtime_add_err=$(mktemp)
+    if ! git add -f -A -- "${_runtime_paths[@]}" 2>"$_runtime_add_err"; then
       echo -e "  ${C_RED}❌ Gagal men-stage ulang data runtime.${C_RESET}" >&2
+      if [ -s "$_runtime_add_err" ]; then
+        sed 's/^/    /' "$_runtime_add_err" | tail -10 >&2
+      else
+        echo -e "    ${C_DIM}Git tidak memberikan detail error.${C_RESET}" >&2
+      fi
+      rm -f "$_runtime_add_err"
       return 1
     fi
+    rm -f "$_runtime_add_err"
 
     local _runtime_msg
     _runtime_msg=$(append_commit_no "$(classify_commit)")
