@@ -6845,6 +6845,8 @@ commit_pending_changes() {
 # kerja di branch X dan upload ke main/V14/dll dengan konten yang sama persis.
 push_head_to_branch() {
   local branch="$1"
+  local _force_requested="no"
+  local _force_expected_sha=""
   echo ""
   echo -e "${C_BOLD}${USER}/${REPO} → ${C_GREEN}${branch}${C_RESET}${C_BOLD} (upload HEAD ${HEAD_SHA})${C_RESET}"
 
@@ -6888,6 +6890,8 @@ push_head_to_branch() {
         echo -e "  ${C_CYAN}↩ Branch ${C_BOLD}${branch}${C_RESET}${C_CYAN} di-skip${C_RESET}"
         return 0
       fi
+      _force_requested="yes"
+      _force_expected_sha="$remote_sha"
       echo -e "  ${C_YELLOW}⚡ Force push dipilih — lanjut...${C_RESET}"
       echo ""
     fi
@@ -6905,30 +6909,63 @@ push_head_to_branch() {
   # Build detail file/folder (real-time dari last commit)
   local _push_detail; _push_detail=$(_build_push_detail 2>/dev/null || true)
 
-  # Coba normal push dulu (fast-forward).
+  # Jalankan tepat sesuai pilihan user. Force push langsung memakai lease ke
+  # SHA remote yang ditampilkan sebelum konfirmasi, bukan mencoba push normal
+  # lalu membuat commit graft yang justru mempertahankan histori remote.
   local _tg_ts; _tg_ts=$(date '+%H:%M:%S %d %b %Y')
-  progress_start "Upload → ${branch}" 10 "📤"
-  git push origin "HEAD:refs/heads/${branch}" >"$push_log" 2>&1
-  local _push_rc=$?
-  progress_stop "$( [ $_push_rc -eq 0 ] && echo ok || echo fail )"
+  local _push_rc
+  if [ "$_force_requested" = "yes" ]; then
+    progress_start "Force Upload → ${branch}" 12 "⚡"
+    git push --force-with-lease="refs/heads/${branch}:${_force_expected_sha}" \
+      origin "HEAD:refs/heads/${branch}" >"$push_log" 2>&1
+    _push_rc=$?
+    progress_stop "$( [ $_push_rc -eq 0 ] && echo ok || echo fail )"
+  else
+    progress_start "Upload → ${branch}" 10 "📤"
+    git push origin "HEAD:refs/heads/${branch}" >"$push_log" 2>&1
+    _push_rc=$?
+    progress_stop "$( [ $_push_rc -eq 0 ] && echo ok || echo fail )"
+  fi
   if [ $_push_rc -eq 0 ]; then
-    echo -e "  ${C_GREEN}🎉 Sukses!${C_RESET} ${C_BOLD}${branch}${C_RESET} ${C_DIM}(${HEAD_SHA})${C_RESET}"
+    local _ok_heading="PUSH BERHASIL"
+    local _ok_note=""
+    local _ok_status="OK"
+    if [ "$_force_requested" = "yes" ]; then
+      _ok_heading="PUSH BERHASIL (FORCE)"
+      _ok_note="⚠️ Force push — histori remote ditimpa"
+      _ok_status="OK(force)"
+      echo -e "  ${C_GREEN}⚡ Force push sukses!${C_RESET} ${C_BOLD}${branch}${C_RESET} ${C_DIM}(${HEAD_SHA})${C_RESET}"
+    else
+      echo -e "  ${C_GREEN}🎉 Sukses!${C_RESET} ${C_BOLD}${branch}${C_RESET} ${C_DIM}(${HEAD_SHA})${C_RESET}"
+    fi
     echo -e "  ${C_BLUE}🔗 https://github.com/${REPO_OWNER}/${REPO}/tree/${branch}${C_RESET}"
-    log_push_event "$branch" "OK" "$_log_msg" "$_log_files"
+    log_push_event "$branch" "$_ok_status" "$_log_msg" "$_log_files"
     local _btn_pbr
     _btn_pbr=$(_tg_keyboard \
       "$(_tg_row "$(_tg_btn "🔗 Lihat Branch" "$(_gh_web '/tree/${branch}')")" "$(_tg_btn "📊 Commits" "$(_gh_web '/commits/${branch}')")")" \
       "$(_tg_row "$(_tg_btn "🔀 Compare" "$(_gh_web '/compare')")" "$(_tg_btn "📥 Pull Request" "$(_gh_web '/pulls')")")")
     local _log_msg_tg; _log_msg_tg=$(tg_linkify_commit "$_log_msg" "$(git rev-parse HEAD 2>/dev/null || echo '')")
-    send_telegram_photo "https://w.wallhaven.cc/full/yj/wallhaven-yje2lk.png" "✅ <b>PUSH BERHASIL</b>
+    send_telegram_photo "https://w.wallhaven.cc/full/yj/wallhaven-yje2lk.png" "✅ <b>${_ok_heading}</b>
 ━━━━━━━━━━━━━━━━━━━━
 📁 <code>${USER}/${REPO}</code>
 🌿 Branch: <code>${branch}</code>
 📝 ${_log_msg_tg}
 ${_push_detail}
+${_ok_note}
 🕐 ${_tg_ts}" "$_btn_pbr"
     auto_create_pr "$branch" "$_log_msg" &
     return 0
+  fi
+
+  # Jangan lanjut ke graft/force fallback bila force dipilih: pilihan ini
+  # harus mengganti histori remote secara langsung atau gagal dengan detail.
+  if [ "$_force_requested" = "yes" ]; then
+    echo -e "  ${C_RED}❌ Force push gagal; histori remote tidak diubah otomatis.${C_RESET}"
+    echo -e "  ${C_DIM}── error log ──${C_RESET}"
+    sed 's/^/    /' "$push_log" | tail -10
+    log_push_event "$branch" "FAIL(force)" "$_log_msg" "$_log_files"
+    rm -f "$push_log"
+    return 1
   fi
 
   # Gagal — kemungkinan non-fast-forward.

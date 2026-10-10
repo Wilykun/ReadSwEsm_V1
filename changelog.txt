@@ -4,7 +4,7 @@ _📅 Sabtu, 10 Oktober 2026_
 ━━━━━━━━━━━━━━━━━━━━━━
 🤖 *WILY BOT* — `V27.4`
 ✨ *0 Fitur Baru*
-🔧 *1 Bug/Error Fix*
+🔧 *2 Bug/Error Fix*
 🚀 *0 Perubahan*
 ━━━━━━━━━━━━━━━━━━━━━━
 🐛 *BUG FIX*
@@ -15,6 +15,11 @@ _📅 Sabtu, 10 Oktober 2026_
    • `.env` dan `.token.secret` tetap dikecualikan dari restaging agar tidak ikut ter-upload.
    • Detail error Git sekarang ditampilkan jika staging runtime masih gagal.
 > _Hasil: commit kode dan data runtime dapat dipisah tanpa membocorkan file rahasia._
+2. *PUSH.SH — Pilihan Force Push Menjalankan Force Push Sungguhan*
+   ~Pilihan `f` hanya menjadi konfirmasi; script masih mencoba push biasa dan graft histori remote.~
+   • Force push langsung memakai `--force-with-lease` terhadap SHA remote yang terlihat saat konfirmasi.
+   • Jika GitHub menolak, script menampilkan alasan dan tidak membuat graft atau fallback force tersembunyi.
+> _Hasil: pilihan `f` menimpa branch remote sesuai konfirmasi, atau berhenti dengan error yang jelas._
 
 📜 *ReadSW — Patch 4 Oktober 2026*
 📢 *INFORMASI PERBAIKAN*
