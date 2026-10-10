@@ -2538,14 +2538,14 @@ preview_staged_confirm() {
   done
 
   # Prompt compact satu baris langsung setelah header
-  printf "  ${C_GREEN}y/1${C_RESET} › lanjut push  ${C_RED}0${C_RESET} › batal  ${C_DIM}────────────${C_RESET}  ${C_BOLD}▸ ${C_RESET}"
+  printf "  ${C_GREEN}Enter${C_RESET} › lanjut push  ${C_RED}0${C_RESET} › batal  ${C_DIM}────────────${C_RESET}  ${C_BOLD}▸ ${C_RESET}"
 
   local _ans
   read -r _ans </dev/tty
   echo ""
   _ans=$(echo "$_ans" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
   case "$_ans" in
-    y|1|yes|push) ;;
+    ""|y|1|yes|push) ;;
     *)
     echo -e "  ${C_YELLOW}↩ Dibatalkan — tidak ada yang di-commit.${C_RESET}"
     sleep 1

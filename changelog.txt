@@ -5,7 +5,7 @@ _📅 Sabtu, 10 Oktober 2026_
 🤖 *WILY BOT* — `V27.4`
 ✨ *0 Fitur Baru*
 🔧 *2 Bug/Error Fix*
-🚀 *0 Perubahan*
+🚀 *1 Perubahan*
 ━━━━━━━━━━━━━━━━━━━━━━
 🐛 *BUG FIX*
 ━━━━━━━━━━━━━━━━━━━━━━
@@ -20,6 +20,13 @@ _📅 Sabtu, 10 Oktober 2026_
    • Force push langsung memakai `--force-with-lease` terhadap SHA remote yang terlihat saat konfirmasi.
    • Jika GitHub menolak, script menampilkan alasan dan tidak membuat graft atau fallback force tersembunyi.
 > _Hasil: pilihan `f` menimpa branch remote sesuai konfirmasi, atau berhenti dengan error yang jelas._
+
+🚀 *PERUBAHAN*
+━━━━━━━━━━━━━━━━━━━━━━
+1. *PUSH.SH — Konfirmasi Upload Lebih Praktis*
+   • Tekan `Enter` untuk melanjutkan upload; `0` tetap membatalkan.
+   • Jawaban `y` dan `1` tetap didukung.
+> _Hasil: tidak perlu mengetik `y` atau `1` setiap kali mengonfirmasi upload._
 
 📜 *ReadSW — Patch 4 Oktober 2026*
 📢 *INFORMASI PERBAIKAN*
