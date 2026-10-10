@@ -41,12 +41,12 @@
 #
 # ─────────────────────────────────────────────────────────────
 
-USER="hitlabmodv2"
-REPO_OWNER="hitlabmodv2"   # Pemilik repo GitHub (untuk URL API)
-REPO="ReadSwDika_WhiskeySockets"
+USER="Wilykun"
+REPO_OWNER="Wilykun"   # Pemilik repo GitHub (untuk URL API)
+REPO="ReadSwEsm_V1"
 # DEFAULT_BRANCH di-auto-detect realtime dari GitHub (lihat detect_default_branch).
 # Nilai di sini cuma fallback kalau koneksi ke GitHub bermasalah.
-DEFAULT_BRANCH="ReadSwDika_V43"
+DEFAULT_BRANCH="main"
 
 # Versi script ini — dipakai untuk cek update otomatis
 SCRIPT_VERSION="1.3"
@@ -1604,7 +1604,7 @@ if [ "$_auto_nm_needed" = "1" ]; then
 fi
 
 # Pilih repo tujuan push dari daftar GitHub (bisa Enter untuk skip)
-REPO="ReadSwDika_WhiskeySockets"
+REPO="ReadSwEsm_V1"
 
 # ── Startup: banner + bar 0% ──
 startup_begin
