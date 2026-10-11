@@ -7,7 +7,7 @@ stack = "BEST_EFFORT_FALLBACK"
 channel = "stable-25_05"
 
 [workflows]
-runButton = "9Router"
+runButton = "WhatsApp Bot"
 
 [[workflows.workflow]]
 name = "Project"
@@ -43,6 +43,17 @@ args = "bash -c 'while true; do if ! curl -sf http://127.0.0.1:20128/ >/dev/null
 
 [workflows.workflow.metadata]
 outputType = "console"
+
+[[workflows.workflow]]
+name = "OpenCode Web"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "opencode serve --hostname 0.0.0.0 --port 5000"
+
+[workflows.workflow.metadata]
+outputType = "webview"
 
 [userenv]
 
