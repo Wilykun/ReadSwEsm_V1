@@ -7,7 +7,7 @@ stack = "BEST_EFFORT_FALLBACK"
 channel = "stable-25_05"
 
 [workflows]
-runButton = "WhatsApp Bot"
+runButton = "9Router"
 
 [[workflows.workflow]]
 name = "Project"
