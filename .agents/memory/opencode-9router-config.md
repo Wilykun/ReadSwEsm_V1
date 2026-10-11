@@ -8,3 +8,9 @@ OpenCode must use the Replit secret chosen for the router (currently `OPENAI_API
 **Why:** `XDG_CONFIG_HOME` points to the workspace `.config`, so the home-directory config is ignored; 9Router accepted the key through `x-api-key`, while the already-running OpenCode service lacked the refreshed environment.
 
 **How to apply:** Keep the key out of source control and reference the Replit secret. After changing the secret or provider config, reload/restart the OpenCode service, then test `9router/kntl`.
+
+The v2 provider guide and the published `https://opencode.ai/config.json` schema can expose different config shapes (`providers`/`package`/`settings` versus `provider`/`npm`/`options`). The installed v2.0.26 CLI successfully loads the singular schema form in this workspace.
+
+**Why:** Following the newer docs shape without checking the installed CLI could silently leave the configured model unavailable.
+
+**How to apply:** Check the installed CLI version and published schema, then verify the configured ID appears in `opencode models` before changing provider syntax.
