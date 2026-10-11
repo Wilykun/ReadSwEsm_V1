@@ -69,5 +69,31 @@
     "processedAt": "2026-10-11T07:24:05.714Z",
     "deleted": true,
     "deletedAt": "2026-10-11T07:24:58.167Z"
+  },
+  "AC4BF4000A6D24A2BF719709991FF537": {
+    "id": "AC4BF4000A6D24A2BF719709991FF537",
+    "sender": "6282113794951@s.whatsapp.net",
+    "name": "naa",
+    "type": "videoMessage",
+    "arrivedAt": "2026-10-11T11:00:34.100Z",
+    "read": false,
+    "reacted": false,
+    "reactionExpected": false,
+    "emoji": null,
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "6282113794951",
+    "resolvedPn": "6282113794951@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "6282113794951@s.whatsapp.net",
+      "fromMe": false,
+      "id": "AC4BF4000A6D24A2BF719709991FF537",
+      "participant": "91860995469566@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-10-11T11:00:52.717Z",
+    "deleted": true,
+    "deletedAt": "2026-10-11T11:00:52.717Z"
   }
 }
