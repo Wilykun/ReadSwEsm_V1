@@ -25,6 +25,7 @@
 - [DoujinDesu series metadata](doujindesu-series-metadata.md) — endpoint detail seri diperlukan untuk cover akurat dan metadata realtime di halaman info PDF
 - [DoujinDesu state versioning](doujindesu-state-versioning.md) — bump source saat identitas atau aturan pemilihan chapter berubah agar restart tidak mengirim history API massal
 - [9Router Replit binding](9router-replit-bind.md) — 9Router harus bind ke 0.0.0.0 agar dashboard bisa diproxy publik oleh Replit
+- [9Router password setup](9router-password-env.md) — INITIAL_PASSWORD mengganti fallback 123456; restart proses dan login dengan nilai secret, bukan password default
 - [OpenCode 9Router config](opencode-9router-config.md) — workspace config memakai secret router dan header x-api-key; service perlu restart setelah secret tersedia
 - [Free Fire UID lookup reliability](cekidff-provider-reliability.md) — success tanpa nickname bukan bukti player ditemukan; validasi UID dan identitas wajib
 - [AI text provider routing](ai-text-provider-routing.md) — plain text stays gpt-oss-first; Gemini remains for image/tool requests
