@@ -27,6 +27,7 @@
 - [9Router Replit binding](9router-replit-bind.md) — 9Router harus bind ke 0.0.0.0 agar dashboard bisa diproxy publik oleh Replit
 - [9Router password setup](9router-password-env.md) — INITIAL_PASSWORD mengganti fallback 123456; restart proses dan login dengan nilai secret, bukan password default
 - [OpenCode 9Router config](opencode-9router-config.md) — workspace config memakai secret router dan header x-api-key; service perlu restart setelah secret tersedia
+- [Hermes 9Router config](hermes-9router-config.md) — Hermes memakai custom OpenAI-compatible provider; rahasia tetap di Replit Secrets, tidak di chat atau file
 - [Free Fire UID lookup reliability](cekidff-provider-reliability.md) — success tanpa nickname bukan bukti player ditemukan; validasi UID dan identitas wajib
 - [AI text provider routing](ai-text-provider-routing.md) — plain text stays gpt-oss-first; Gemini remains for image/tool requests
 - [AntiTagSW role matching](antitagsw-role-matching.md) — compare PN/LID participant fields and prefer phone JID for kick targets
