@@ -1,12 +1,19 @@
 {
   "events": [
     {
-      "type": "qr_session_start",
-      "startAt": "2026-10-12T07:51:00.249Z",
-      "expireAt": "2026-10-12T07:54:00.249Z",
-      "durationSeconds": 180
+      "type": "connected",
+      "connectedAt": "2026-10-12T07:52:15.083Z"
+    },
+    {
+      "type": "pairing",
+      "code": "AAAA-AAAA",
+      "number": "628904252135235",
+      "startAt": "2026-10-12T07:51:44.794Z",
+      "expireAt": "2026-10-12T07:54:44.794Z",
+      "durationSeconds": 180,
+      "sessionExpireAt": "2026-10-12T07:54:44.794Z"
     }
   ],
-  "lastUpdated": "2026-10-12T07:51:00.251Z",
-  "sessionStart": "2026-10-12T07:51:00.251Z"
+  "lastUpdated": "2026-10-12T07:52:15.083Z",
+  "sessionStart": "2026-10-12T07:51:44.826Z"
 }

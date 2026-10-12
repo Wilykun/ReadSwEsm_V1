@@ -221,7 +221,7 @@
     "enabled": false
   },
   "antiTagBot": {
-    "enabled": false
+    "enabled": true
   },
   "logsw": {
     "theme": "random"
