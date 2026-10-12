@@ -2,8 +2,10 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
     findParticipantByIdentity,
+    getMentionedJids,
     isGroupAdmin,
     isMassMention,
+    isNativeGroupMention,
 } from '../SEMUA_FITUR/antitag/antitag.js';
 
 function makeParticipants(count) {
@@ -64,4 +66,59 @@ test('participant lookup matches phoneNumber when the participant id is a LID', 
     );
     assert.equal(isGroupAdmin(admin), true);
     assert.equal(isGroupAdmin({ id: '628111@s.whatsapp.net' }), false);
+});
+
+test('native @semua inside groupMentionedMessage is detected without individual JIDs', () => {
+    const groupJid = '120363000000000000@g.us';
+    const message = {
+        key: { remoteJid: groupJid, id: 'native-all-1' },
+        message: {
+            groupMentionedMessage: {
+                message: {
+                    extendedTextMessage: {
+                        text: '@semua',
+                        contextInfo: {
+                            groupMentions: [{ groupJid, groupSubject: 'Test Group' }],
+                        },
+                    },
+                },
+            },
+        },
+    };
+
+    assert.equal(getMentionedJids(message).length, 0);
+    assert.equal(isNativeGroupMention(message, groupJid), true);
+    assert.equal(isNativeGroupMention(message, '120363999999999999@g.us'), false);
+});
+
+test('mentions nested under groupMentionedMessage are still extracted', () => {
+    const message = {
+        message: {
+            groupMentionedMessage: {
+                message: {
+                    extendedTextMessage: {
+                        text: '@member',
+                        contextInfo: { mentionedJid: ['628123456789@s.whatsapp.net'] },
+                    },
+                },
+            },
+        },
+    };
+
+    assert.deepEqual(getMentionedJids(message), ['628123456789@s.whatsapp.net']);
+});
+
+test('groupMentions targeting the current group are detected without the wrapper', () => {
+    const groupJid = '120363000000000000@g.us';
+    const message = {
+        key: { remoteJid: groupJid },
+        message: {
+            extendedTextMessage: {
+                text: '@semua',
+                contextInfo: { groupMentions: [{ groupJid }] },
+            },
+        },
+    };
+
+    assert.equal(isNativeGroupMention(message, groupJid), true);
 });

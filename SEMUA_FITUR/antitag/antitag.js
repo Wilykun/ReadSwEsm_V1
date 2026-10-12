@@ -465,17 +465,16 @@ export default async function handleAntiTagBot(message, hisoka) {
         const debug = (stage, details = {}) =>
             logAntiTagDebug(message, config, stage, details);
 
-        if (!config.antiTagBot?.enabled) {
-            if (hasMentionSignal) debug('skip', { reason: 'anti-tag-off', messageTypes, nativeGroupMention });
-            return;
-        }
-        if (!hasMentionSignal) return;
-
         debug('received', {
             messageTypes,
             mentionedJidCount: allMentioned.length,
             nativeGroupMention,
         });
+        if (!config.antiTagBot?.enabled) {
+            if (hasMentionSignal) debug('skip', { reason: 'anti-tag-off', messageTypes, nativeGroupMention });
+            return;
+        }
+        if (!hasMentionSignal) return;
 
         const botJid    = getBotJid(hisoka);
         const botNumber = getBotNumber(hisoka);
@@ -657,16 +656,45 @@ export async function handleAntitag({ hisoka, m, query, tolak, logCommand }) {
     const arg = (query || '').trim().toLowerCase();
     const cfg = loadConfig();
 
-    if (!cfg.antiTagBot) cfg.antiTagBot = { enabled: false };
+    if (!cfg.antiTagBot) cfg.antiTagBot = { enabled: false, debug: true };
+    if (typeof cfg.antiTagBot.debug !== 'boolean') cfg.antiTagBot.debug = true;
     const isOn = cfg.antiTagBot.enabled;
+    const isDebugOn = cfg.antiTagBot.debug;
 
     const STATUS_STR = isOn ? '✅ *ON*' : '❌ *OFF*';
+    const DEBUG_STATUS_STR = isDebugOn ? '✅ *ON*' : '❌ *OFF*';
+
+    if (arg === 'debug' || arg.startsWith('debug ')) {
+        const debugArg = arg.slice('debug'.length).trim();
+        if (!debugArg || debugArg === 'status') {
+            await tolak(hisoka, m,
+                `🧪 *ANTI-TAG DEBUG*\n\n` +
+                `🔍 *Console debug:* ${DEBUG_STATUS_STR}\n` +
+                `_Log berisi ID pesan, tipe payload, jumlah mention, peran pengirim, dan alasan aksi._`
+            );
+            return;
+        }
+        if (debugArg === 'on' || debugArg === 'off') {
+            cfg.antiTagBot.debug = debugArg === 'on';
+            saveConfig(cfg);
+            await tolak(hisoka, m,
+                `${cfg.antiTagBot.debug ? '✅' : '❌'} *ANTI-TAG DEBUG ${cfg.antiTagBot.debug ? 'AKTIF' : 'NONAKTIF'}*\n\n` +
+                `ID pesan dan alasan deteksi ${cfg.antiTagBot.debug ? 'akan' : 'tidak akan'} dicatat di console.`
+            );
+            return;
+        }
+        await tolak(hisoka, m,
+            `Gunakan \`.antitag debug on\`, \`.antitag debug off\`, atau \`.antitag debug status\`.`
+        );
+        return;
+    }
 
     if (!arg || arg === 'status') {
         await tolak(hisoka, m,
             `🚫 *ANTI-TAG BOT*\n\n` +
             `🔍 *Status:* ${STATUS_STR}\n` +
-            `_Tag bot dan mention hampir semua anggota oleh member biasa akan dihapus otomatis._\n\n` +
+            `🧪 *Console debug:* ${DEBUG_STATUS_STR}\n` +
+            `_Tag bot dan @semua dari member biasa dihapus otomatis tanpa balasan._\n\n` +
             `*Syarat:*\n` +
             `• Bot harus menjadi *admin* grup.\n` +
             `• Fitur harus dalam keadaan *ON*.\n\n` +
@@ -676,6 +704,9 @@ export async function handleAntitag({ hisoka, m, query, tolak, logCommand }) {
             `*Cara mengaktifkan:*\n` +
             `1. Jadikan bot sebagai admin grup.\n` +
             `2. Kirim \`.antitag on\`.\n\n` +
+            `*Debug console:*\n` +
+            `• \`.antitag debug on\` — tampilkan ID pesan dan alasan aksi.\n` +
+            `• \`.antitag debug off\` — matikan log debug.\n\n` +
             `_Untuk menonaktifkan, kirim \`.antitag off\`._`
         );
         return;
@@ -692,7 +723,7 @@ export async function handleAntitag({ hisoka, m, query, tolak, logCommand }) {
         saveConfig(cfg);
         await tolak(hisoka, m,
             `✅ *ANTI-TAG BOT AKTIF*\n\n` +
-            `> Tag bot dan mention hampir semua anggota oleh member biasa akan dihapus otomatis.\n\n` +
+            `> Tag bot dan @semua dari member biasa akan dihapus otomatis tanpa balasan.\n\n` +
             `🛡️ Owner dan admin grup tetap aman.`
         );
         return;
@@ -718,7 +749,8 @@ export async function handleAntitag({ hisoka, m, query, tolak, logCommand }) {
         `❓ *Perintah tidak dikenal.*\n\n` +
         `Gunakan salah satu:\n` +
         `• \`on\` — aktifkan fitur\n` +
-        `• \`off\` — matikan fitur`
+        `• \`off\` — matikan fitur\n` +
+        `• \`debug on/off/status\` — atur log debug console`
     );
 }
 

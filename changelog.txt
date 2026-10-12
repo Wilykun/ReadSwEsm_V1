@@ -4,17 +4,17 @@ _📅 Senin, 12 Oktober 2026_
 ━━━━━━━━━━━━━━━━━━━━━━
 🤖 *WILY BOT* — `V27.4`
 ✨ *1 Fitur Baru*
-🔧 *1 Bug/Error Fix*
-🚀 *2 Perubahan*
+🔧 *2 Bug/Error Fix*
+🚀 *3 Perubahan*
 ━━━━━━━━━━━━━━━━━━━━━━
 ✨ *FITUR BARU*
 ━━━━━━━━━━━━━━━━━━━━━━
 1. *ANTITAG — Proteksi Mention Massal*
    ~Member biasa dapat men-tag hampir semua anggota grup tanpa tindakan dari bot.~
-   • Mention yang mencakup minimal 90% anggota selain pengirim terdeteksi sebagai tag massal.
-   • Pesan member biasa dihapus; owner dan admin grup tetap dikecualikan.
+   • Mention native `@semua` dan mention yang mencakup minimal 90% anggota terdeteksi sebagai tag massal.
+   • Pesan member biasa dihapus tanpa balasan; owner dan admin grup tetap dikecualikan.
    • Bot harus menjadi admin agar dapat menghapus pesan.
-> _Hasil: tag massal oleh member biasa ditangani, sementara admin dan owner tetap aman._
+> _Hasil: tag massal dihapus tanpa memenuhi grup dengan balasan bot._
 
 🐛 *BUG FIX*
 ━━━━━━━━━━━━━━━━━━━━━━
@@ -23,6 +23,11 @@ _📅 Senin, 12 Oktober 2026_
    • Pencocokan kini memeriksa `id`, `jid`, `phoneNumber`, dan `lid`.
    • Jika pengirim tidak bisa dipastikan dari metadata, bot melewati penghapusan agar admin tidak salah terkena.
 > _Hasil: bot lebih akurat membedakan admin grup dan member biasa._
+2. *ANTITAG — Payload Native `@semua` Terlewat*
+   ~Handler hanya mencari `mentionedJid` dan melewati pesan `groupMentionedMessage` Baileys.~
+   • Payload wrapper dan `groupMentions` sekarang dibaca sebelum pesan dinyatakan tidak relevan.
+   • Log error dan hasil penghapusan menyertakan ID pesan.
+> _Hasil: pesan native `@semua` masuk ke jalur deteksi dan aksi hapus._
 
 🚀 *PERUBAHAN*
 ━━━━━━━━━━━━━━━━━━━━━━
@@ -37,6 +42,10 @@ _📅 Senin, 12 Oktober 2026_
    • Root `.env` tidak lagi diabaikan oleh `.gitignore`.
    • `push.sh` kini mempertahankan `.env` saat menyiapkan file untuk upload.
 > _Hasil: konfigurasi bot dapat ikut ter-backup bersama source code._
+3. *ANTITAG — Mode Debug Console*
+   • `.antitag debug on/off/status` mengatur log ID, tipe pesan, peran pengirim, dan alasan aksi.
+   • Debug diaktifkan untuk membantu verifikasi payload `@semua`.
+> _Hasil: pesan yang lolos atau dihapus dapat ditelusuri dari ID di console._
 
 📜 *ReadSW — Patch 10 Oktober 2026*
 📢 *INFORMASI PERBAIKAN*
