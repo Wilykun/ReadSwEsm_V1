@@ -7,7 +7,7 @@ _📅 Senin, 12 Oktober 2026_
 ━━━━━━━━━━━━━━━━━━━━━━
 🤖 *WILY BOT* — `V27.5`
 ✨ *0 Fitur Baru*
-🐛 *3 Fix Bug*
+🐛 *1 Fix Bug*
 🛠️ *0 Fix Error*
 🚀 *3 Perubahan*
 ⚠️ *0 Hapus Fitur*
@@ -19,22 +19,9 @@ _📅 Senin, 12 Oktober 2026_
 🐛 *BUG FIX*
 ━━━━━━━━━━━━━━━━━━━━━━
 1. *ANTITAG — Penanganan Mention Massal*
-   • Mention native `@semua` dan mention ke minimal 90% anggota grup kini ditangani.
-   • Pesan member biasa dihapus; owner dan admin grup dikecualikan.
-   • Penghapusan memerlukan bot sebagai admin grup.
-> _Hasil: proteksi mention massal yang sudah ada bekerja lebih akurat._
-
-2. *ANTITAG — Deteksi Peran Pengirim PN/LID*
-   ~Pencocokan hanya memakai `id/jid`, sehingga sebagian identitas PN dan LID tidak cocok dengan metadata peserta.~
-   • Pencocokan kini memeriksa `id`, `jid`, `phoneNumber`, dan `lid`.
-   • Jika peran pengirim tidak dapat dipastikan, penghapusan dilewati agar admin tidak salah terkena.
-> _Hasil: status admin dan member biasa dibedakan dengan lebih aman._
-
-3. *ANTITAG — Payload Native `@semua`*
-   ~Handler dapat melewatkan payload native `@semua` dari Baileys.~
-   • Wrapper `groupMentionedMessage` dan `groupMentions` kini diperiksa.
-   • Log hasil deteksi dan penghapusan menyertakan ID pesan.
-> _Hasil: mention native masuk ke jalur deteksi dan penanganan._
+   • Mendeteksi `@semua` dan mention ke minimal 90% anggota, termasuk payload native Baileys.
+   • Memeriksa identitas PN/LID; pesan hanya dihapus jika pengirim terverifikasi sebagai member biasa dan bot admin.
+> _Hasil: mention massal ditangani akurat tanpa salah menghapus pesan admin._
 
 ━━━━━━━━━━━━━━━━━━━━━━
 🛠️ *FIX ERROR*
