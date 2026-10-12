@@ -357,11 +357,11 @@ export default async function handleAntiTagBot(message, hisoka) {
             console.log(`\x1b[33m[AntiTagBot] 🛡️  Admin: ${senderName} (+${senderNumber}) tag bot — aman\x1b[39m`);
             const adminMention = senderJid || (senderNumber + '@s.whatsapp.net');
             const adminReplies = [
-                `@${senderNumber} Oalah admin yang tag 😂\nYa udah deh, buat admin mah aku maafin~\nTapi jangan keseringan ya kak 🙏`,
-                `@${senderNumber} Heh admin ngapain tag aku 💀\nGak akan aku hapus sih, tapi tetep ngakak 🤣`,
-                `@${senderNumber} Admin tag bot? Baru kali ini aku liat 😭\nOke fine, aman buat kamu... kali ini 😏`,
-                `@${senderNumber} Wkwkwk admin kok tag bot sih 😆\nYa udah aman lah, gak aku apa-apain 🫡`,
-                `@${senderNumber} Aduh admin tercyduk tag aku 😅\nUntung kamu admin, kalau enggak... 😈`,
+                `@${senderNumber} *Oalah, admin yang tag bot?* 😂\nYa udah, kali ini aman. _Jangan keseringan ya_ 🙏`,
+                `@${senderNumber} *Admin, ngapain tag aku?* 💀\nPesanmu aman dan tidak dihapus 🤣`,
+                `@${senderNumber} *Admin tag bot?* 😭\nOke, kali ini aman. _Jangan diulang terus ya_ 😏`,
+                `@${senderNumber} *Wkwk, admin kok tag bot?* 😆\nAman, pesannya tidak aku hapus 🫡`,
+                `@${senderNumber} *Aduh, admin ketahuan tag bot* 😅\nUntung admin—pesanmu aman 😈`,
             ];
             const picked = adminReplies[Math.floor(Math.random() * adminReplies.length)];
             await hisoka.sendMessage(remoteJid, {
@@ -384,26 +384,16 @@ export default async function handleAntiTagBot(message, hisoka) {
         let replyText;
         if (isOwner) {
             replyText =
-                `╭══『 🚫 *ANTI-TAG BOT* 』══╮\n` +
-                `│\n` +
-                `│ @${senderNumber} 👑\n` +
-                `│ Kamu owner sih, tapi\n` +
-                `│ tolong jangan tag saya\n` +
-                `│ di grup ya 🙏\n` +
-                `│\n` +
-                `╰══════════════════════════╯`;
+                `🚫 *ANTI-TAG BOT*\n\n` +
+                `@${senderNumber} 👑\n` +
+                `> Kamu owner bot, jadi pesanmu aman.\n\n` +
+                `_Tolong jangan tag bot di grup, ya_ 🙏`;
         } else {
             replyText =
-                `╭══『 🚫 *ANTI-TAG BOT* 』══╮\n` +
-                `│\n` +
-                `│ @${senderNumber} ⚠️\n` +
-                `│ Jangan tag saya di sini!\n` +
-                `│ Saya bukan untuk di-tag\n` +
-                `│ di grup 😤\n` +
-                `│\n` +
-                `│ Pesanmu sudah dihapus.\n` +
-                `│\n` +
-                `╰══════════════════════════╯`;
+                `🚫 *ANTI-TAG BOT*\n\n` +
+                `@${senderNumber} ⚠️\n` +
+                `> Jangan tag bot di grup.\n\n` +
+                `Pesanmu sudah dihapus otomatis.`;
         }
 
         await hisoka.sendMessage(remoteJid, {
@@ -431,32 +421,23 @@ export async function handleAntitag({ hisoka, m, query, tolak, logCommand }) {
     if (!cfg.antiTagBot) cfg.antiTagBot = { enabled: false };
     const isOn = cfg.antiTagBot.enabled;
 
-    const BOX_TOP    = `╭══『 🚫 *ANTI-TAG BOT* 』══╮`;
-    const BOX_BTM    = `╰══════════════════════════╯`;
     const STATUS_STR = isOn ? '✅ *ON*' : '❌ *OFF*';
 
     if (!arg || arg === 'status') {
         await tolak(hisoka, m,
-            `${BOX_TOP}\n` +
-            `│\n` +
-            `│ 🔍 *Status:* ${STATUS_STR}\n` +
-            `│\n` +
-            `│ Hapus otomatis pesan yang\n` +
-            `│ men-tag nomor bot di GC.\n` +
-            `│\n` +
-            `│ 📌 *Syarat aktif:*\n` +
-            `│  • Bot harus *admin* di grup\n` +
-            `│  • Fitur ini *ON*\n` +
-            `│\n` +
-            `│ 🛡️ *Yang aman (tidak dihapus):*\n` +
-            `│  • Owner bot\n` +
-            `│  • Admin grup\n` +
-            `│\n` +
-            `│ 📝 *Penggunaan:*\n` +
-            `│  .antitag on  → Aktifkan\n` +
-            `│  .antitag off → Matikan\n` +
-            `│\n` +
-            `${BOX_BTM}`
+            `🚫 *ANTI-TAG BOT*\n\n` +
+            `🔍 *Status:* ${STATUS_STR}\n` +
+            `_Pesan anggota yang men-tag nomor bot di grup akan dihapus otomatis._\n\n` +
+            `*Syarat:*\n` +
+            `• Bot harus menjadi *admin* grup.\n` +
+            `• Fitur harus dalam keadaan *ON*.\n\n` +
+            `*Aman, tidak dihapus:*\n` +
+            `• Owner bot.\n` +
+            `• Admin grup.\n\n` +
+            `*Cara mengaktifkan:*\n` +
+            `1. Jadikan bot sebagai admin grup.\n` +
+            `2. Kirim \`.antitag on\`.\n\n` +
+            `_Untuk menonaktifkan, kirim \`.antitag off\`._`
         );
         return;
     }
@@ -464,23 +445,16 @@ export async function handleAntitag({ hisoka, m, query, tolak, logCommand }) {
     if (arg === 'on') {
         if (isOn) {
             await tolak(hisoka, m,
-                `${BOX_TOP}\n│\n│ ℹ️ Fitur sudah *ON*.\n│\n${BOX_BTM}`
+                `ℹ️ *ANTI-TAG BOT*\n\nFitur sudah dalam keadaan *ON*.`
             );
             return;
         }
         cfg.antiTagBot.enabled = true;
         saveConfig(cfg);
         await tolak(hisoka, m,
-            `${BOX_TOP}\n` +
-            `│\n` +
-            `│ ✅ Anti-Tag Bot *AKTIF*\n` +
-            `│\n` +
-            `│ Member yang tag nomor bot\n` +
-            `│ di GC akan dihapus pesannya.\n` +
-            `│\n` +
-            `│ 🛡️ Owner & admin grup aman.\n` +
-            `│\n` +
-            `${BOX_BTM}`
+            `✅ *ANTI-TAG BOT AKTIF*\n\n` +
+            `> Pesan anggota yang men-tag nomor bot akan dihapus otomatis.\n\n` +
+            `🛡️ Owner dan admin grup tetap aman.`
         );
         return;
     }
@@ -488,26 +462,24 @@ export async function handleAntitag({ hisoka, m, query, tolak, logCommand }) {
     if (arg === 'off') {
         if (!isOn) {
             await tolak(hisoka, m,
-                `${BOX_TOP}\n│\n│ ℹ️ Fitur sudah *OFF*.\n│\n${BOX_BTM}`
+                `ℹ️ *ANTI-TAG BOT*\n\nFitur sudah dalam keadaan *OFF*.`
             );
             return;
         }
         cfg.antiTagBot.enabled = false;
         saveConfig(cfg);
         await tolak(hisoka, m,
-            `${BOX_TOP}\n` +
-            `│\n` +
-            `│ ❌ Anti-Tag Bot *NONAKTIF*\n` +
-            `│\n` +
-            `│ Fitur berhasil dimatikan.\n` +
-            `│\n` +
-            `${BOX_BTM}`
+            `❌ *ANTI-TAG BOT NONAKTIF*\n\n` +
+            `Fitur berhasil dimatikan.`
         );
         return;
     }
 
     await tolak(hisoka, m,
-        `${BOX_TOP}\n│\n│ ❓ Perintah tidak dikenal.\n│ Gunakan: *on* atau *off*\n│\n${BOX_BTM}`
+        `❓ *Perintah tidak dikenal.*\n\n` +
+        `Gunakan salah satu:\n` +
+        `• \`on\` — aktifkan fitur\n` +
+        `• \`off\` — matikan fitur`
     );
 }
 
