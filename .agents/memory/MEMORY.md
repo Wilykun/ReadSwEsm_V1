@@ -37,6 +37,6 @@
 - [NovaMail provider behavior](novamail-provider.md) — restore memakai query mailbox dan upstream bisa mengirim HTTP 500 untuk rate-limit 429
 - [NovaMail auto verification](novamail-autoverify.md) — auto-open hanya HTTPS verification URL dari allowlist; signup, reset, login, dan redirect asing ditolak
 - [WhatsApp Channel post reactions](whatsapp-channel-reactions.md) — reaction post memakai newsletterReactMessage dari Baileys; uji live terpisah karena v7 pernah melaporkan error 479
-- [Native WhatsApp @semua payload](whatsapp-group-mention-payload.md) — AntiTagBot hapus @semua dari non-admin; payload bisa memakai wrapper, bukan mentionedJid
+- [Native WhatsApp @semua payload](whatsapp-group-mention-payload.md) — Hapus @semua member dengan aman dan selalu balas hasil; payload native bisa bukan mentionedJid
 - [SwTrack Read Only pending semantics](swtrack-readonly-pending.md) — read:true/reacted:false retries only with persisted reactionExpected and the active reaction mode
 - [Replit global .env ignore](replit-global-env-ignore.md) — if `.env` stays ignored after removing the project rule, override the workspace-wide exclusion with a root negation.
