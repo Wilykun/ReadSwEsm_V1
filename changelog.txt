@@ -5,16 +5,16 @@ _📅 Senin, 12 Oktober 2026_
 🤖 *WILY BOT* — `V27.4`
 ✨ *1 Fitur Baru*
 🔧 *2 Bug/Error Fix*
-🚀 *3 Perubahan*
+🚀 *4 Perubahan*
 ━━━━━━━━━━━━━━━━━━━━━━
 ✨ *FITUR BARU*
 ━━━━━━━━━━━━━━━━━━━━━━
 1. *ANTITAG — Proteksi Mention Massal*
    ~Member biasa dapat men-tag hampir semua anggota grup tanpa tindakan dari bot.~
    • Mention native `@semua` dan mention yang mencakup minimal 90% anggota terdeteksi sebagai tag massal.
-   • Pesan member biasa dihapus tanpa balasan; owner dan admin grup tetap dikecualikan.
+   • Pesan member biasa dihapus dan dibalas dengan hasilnya; owner dan admin grup tidak dihapus serta menerima penjelasan.
    • Bot harus menjadi admin agar dapat menghapus pesan.
-> _Hasil: tag massal dihapus tanpa memenuhi grup dengan balasan bot._
+> _Hasil: tag massal ditangani sesuai peran dan hasil penghapusan dijelaskan._
 
 🐛 *BUG FIX*
 ━━━━━━━━━━━━━━━━━━━━━━
@@ -46,6 +46,11 @@ _📅 Senin, 12 Oktober 2026_
    • `.antitag debug on/off/status` mengatur log ID, tipe pesan, peran pengirim, dan alasan aksi.
    • Log dibatasi ke payload `@semua`, mention massal yang terdeteksi, dan tag bot—bukan pesan grup biasa.
 > _Hasil: pesan yang lolos atau dihapus dapat ditelusuri dari ID di console._
+4. *ANTITAG — Status Tombol Akurat*
+   • Menu single-select selalu menandai status ON/OFF yang tersimpan, termasuk saat status yang dipilih sudah aktif.
+   • Saat memilih status, menu AntiTag lama dari bot dihapus jika pesan yang dibalas terverifikasi sebagai menu AntiTag.
+   • Perintah dari bukan owner mendapat balasan akses ditolak, bukan diam.
+> _Hasil: status jelas dan menu lama tidak menumpuk di chat._
 
 📜 *ReadSW — Patch 10 Oktober 2026*
 📢 *INFORMASI PERBAIKAN*

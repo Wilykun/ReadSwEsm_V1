@@ -48,8 +48,10 @@ function loadConfig() {
 function saveConfig(cfg) {
     try {
         fs.writeFileSync(CONFIG_PATH, JSON.stringify(cfg, null, 2), 'utf-8');
+        return true;
     } catch (err) {
         console.error('\x1b[31m[AntiTagBot] Gagal simpan config:\x1b[39m', err.message);
+        return false;
     }
 }
 
@@ -842,11 +844,47 @@ export default async function handleAntiTagBot(message, hisoka) {
     }
 }
 
-async function sendAntitagSelection({ hisoka, m, Button, tolak, enabled }) {
+export function isAntitagSelectionMenu(quoted, remoteJid) {
+    const key = quoted?.key;
+    if (!key?.id || key.fromMe !== true) return false;
+    if (key.remoteJid && remoteJid && key.remoteJid !== remoteJid) return false;
+
+    let serialized;
+    try {
+        serialized = JSON.stringify(quoted.raw || quoted.message || {});
+    } catch (_) {
+        return false;
+    }
+
+    return /\bANTI-TAG BOT\b/i.test(serialized)
+        && /antitag\s+on/i.test(serialized)
+        && /antitag\s+off/i.test(serialized);
+}
+
+export async function deletePreviousAntitagSelectionMenu({ hisoka, m }) {
+    const remoteJid = m?.from || m?.key?.remoteJid;
+    const quoted = m?.quoted;
+    if (!remoteJid || !isAntitagSelectionMenu(quoted, remoteJid)) return false;
+
+    try {
+        await hisoka.sendMessage(remoteJid, { delete: quoted.key });
+        console.log(`[AntiTagBot] Menu pilihan lama berhasil dibersihkan (${quoted.key.id}).`);
+        return true;
+    } catch (err) {
+        console.warn(
+            `[AntiTagBot] Gagal menghapus menu pilihan lama (${quoted.key.id}):`,
+            err?.message || err
+        );
+        return false;
+    }
+}
+
+export async function sendAntitagSelection({ hisoka, m, Button, tolak, enabled, notice = '' }) {
     const prefix = m.prefix || '.';
     const statusText =
         `🚫 *ANTI-TAG BOT*\n\n` +
         `🔍 *Status:* ${enabled ? '✅ *ON*' : '❌ *OFF*'}\n` +
+        (notice ? `${notice}\n\n` : '') +
         `_Tag bot dan @semua dari anggota biasa dihapus otomatis, lalu bot mengirim peringatan singkat._\n\n` +
         `*Syarat hapus:* Bot harus menjadi admin grup; jika belum, bot membalas bahwa pesan tidak terhapus.\n` +
         `*Aman:* Owner bot dan admin grup tidak dihapus, tetapi tetap mendapat balasan.\n\n` +
@@ -888,15 +926,34 @@ async function sendAntitagSelection({ hisoka, m, Button, tolak, enabled }) {
 }
 
 // ── Command handler: .antitag on/off ─────────────────────────────────────────
-export async function handleAntitag({ hisoka, m, query, tolak, logCommand, Button }) {
-    if (!m.isOwner) return;
+export async function handleAntitag({
+    hisoka,
+    m,
+    query,
+    tolak,
+    logCommand,
+    Button,
+    readConfig = loadConfig,
+    writeConfig = saveConfig,
+}) {
+    if (!m.isOwner) {
+        await tolak(hisoka, m, '❌ *Akses ditolak.*\n> Hanya owner bot yang bisa mengubah atau melihat pengaturan Anti-Tag Bot.');
+        return;
+    }
     logCommand?.(m, 'antitag');
 
     const arg = (query || '').trim().toLowerCase();
-    const cfg = loadConfig();
+    const cfg = readConfig();
 
     if (!cfg.antiTagBot) cfg.antiTagBot = { enabled: false };
-    const isOn = cfg.antiTagBot.enabled;
+    const isOn = !!cfg.antiTagBot.enabled;
+    const isSelectionCommand = !arg || arg === 'status' || arg === 'on' || arg === 'off';
+
+    // Single-select membalas menu bot sebagai quoted message. Hapus hanya
+    // menu AntiTag milik bot yang memiliki kedua row command tersebut.
+    if (isSelectionCommand) {
+        await deletePreviousAntitagSelectionMenu({ hisoka, m });
+    }
 
     if (!arg || arg === 'status') {
         await sendAntitagSelection({ hisoka, m, Button, tolak, enabled: isOn });
@@ -905,34 +962,47 @@ export async function handleAntitag({ hisoka, m, query, tolak, logCommand, Butto
 
     if (arg === 'on') {
         if (isOn) {
-            await tolak(hisoka, m,
-                `ℹ️ *ANTI-TAG BOT*\n\nFitur sudah dalam keadaan *ON*.`
-            );
+            await sendAntitagSelection({
+                hisoka, m, Button, tolak, enabled: true,
+                notice: 'ℹ️ Fitur memang sudah dalam keadaan *ON*.',
+            });
             return;
         }
         cfg.antiTagBot.enabled = true;
-        saveConfig(cfg);
-        await tolak(hisoka, m,
-            `✅ *ANTI-TAG BOT AKTIF*\n\n` +
-            `> Tag bot dan @semua dari anggota biasa akan dihapus otomatis, lalu bot mengirim peringatan singkat.\n\n` +
-            `🛡️ Owner dan admin grup tetap aman, bot membalas statusnya, dan deteksi dicatat di log.`
-        );
+        if (writeConfig(cfg) === false) {
+            await sendAntitagSelection({
+                hisoka, m, Button, tolak, enabled: !!readConfig()?.antiTagBot?.enabled,
+                notice: '❌ Pengaturan gagal disimpan. Status di atas menunjukkan keadaan yang tersimpan.',
+            });
+            return;
+        }
+        await sendAntitagSelection({
+            hisoka, m, Button, tolak, enabled: true,
+            notice: '✅ Anti-Tag Bot berhasil diaktifkan.',
+        });
         return;
     }
 
     if (arg === 'off') {
         if (!isOn) {
-            await tolak(hisoka, m,
-                `ℹ️ *ANTI-TAG BOT*\n\nFitur sudah dalam keadaan *OFF*.`
-            );
+            await sendAntitagSelection({
+                hisoka, m, Button, tolak, enabled: false,
+                notice: 'ℹ️ Fitur memang sudah dalam keadaan *OFF*.',
+            });
             return;
         }
         cfg.antiTagBot.enabled = false;
-        saveConfig(cfg);
-        await tolak(hisoka, m,
-            `❌ *ANTI-TAG BOT NONAKTIF*\n\n` +
-            `Fitur berhasil dimatikan.`
-        );
+        if (writeConfig(cfg) === false) {
+            await sendAntitagSelection({
+                hisoka, m, Button, tolak, enabled: !!readConfig()?.antiTagBot?.enabled,
+                notice: '❌ Pengaturan gagal disimpan. Status di atas menunjukkan keadaan yang tersimpan.',
+            });
+            return;
+        }
+        await sendAntitagSelection({
+            hisoka, m, Button, tolak, enabled: false,
+            notice: '✅ Anti-Tag Bot berhasil dinonaktifkan.',
+        });
         return;
     }
 

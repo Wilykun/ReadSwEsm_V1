@@ -2,12 +2,16 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
     buildMassMentionReply,
+    deletePreviousAntitagSelectionMenu,
     findParticipantByIdentity,
     getMentionedJids,
     hasAllMentionText,
+    handleAntitag,
+    isAntitagSelectionMenu,
     isGroupAdmin,
     isMassMention,
     isNativeGroupMention,
+    sendAntitagSelection,
     sendMassMentionReply,
 } from '../SEMUA_FITUR/antitag/antitag.js';
 
@@ -219,4 +223,172 @@ test('failed reply sends return false instead of throwing from the handler', asy
         senderParticipant: null,
     });
     assert.equal(sent, false);
+});
+
+function makeAntitagMenuMessage(groupJid = '120363000000000000@g.us') {
+    const buttons = [{
+        name: 'single_select',
+        buttonParamsJson: JSON.stringify({
+            sections: [{
+                rows: [
+                    { id: '!antitag on' },
+                    { id: '!antitag off' },
+                ],
+            }],
+        }),
+    }];
+
+    return {
+        key: {
+            remoteJid: groupJid,
+            id: 'antitag-menu-1',
+            fromMe: true,
+        },
+        raw: {
+            interactiveMessage: {
+                body: { text: '🚫 ANTI-TAG BOT' },
+                nativeFlowMessage: { buttons },
+            },
+        },
+    };
+}
+
+test('only a quoted AntiTagBot status menu from this chat is eligible for cleanup', () => {
+    const menu = makeAntitagMenuMessage();
+    assert.equal(isAntitagSelectionMenu(menu, menu.key.remoteJid), true);
+    assert.equal(isAntitagSelectionMenu(menu, '120363999999999999@g.us'), false);
+    assert.equal(
+        isAntitagSelectionMenu({ ...menu, key: { ...menu.key, fromMe: false } }, menu.key.remoteJid),
+        false,
+    );
+    assert.equal(
+        isAntitagSelectionMenu({
+            ...menu,
+            raw: { conversation: 'pesan bot biasa' },
+        }, menu.key.remoteJid),
+        false,
+    );
+});
+
+test('selecting an AntiTagBot action deletes only its quoted menu message', async () => {
+    const calls = [];
+    const menu = makeAntitagMenuMessage();
+    const deleted = await deletePreviousAntitagSelectionMenu({
+        hisoka: { async sendMessage(...args) { calls.push(args); } },
+        m: { from: menu.key.remoteJid, quoted: menu },
+    });
+
+    assert.equal(deleted, true);
+    assert.deepEqual(calls, [[menu.key.remoteJid, { delete: menu.key }]]);
+});
+
+test('single-select reflects the actual ON/OFF state in its status and selected row', async () => {
+    const records = [];
+    class ButtonRecorder {
+        constructor() {
+            this.rows = [];
+            records.push(this);
+        }
+        setBody(body) { this.body = body; return this; }
+        setFooter(footer) { this.footer = footer; return this; }
+        addSelection(title) { this.selection = title; return this; }
+        makeSections(title) { this.section = title; return this; }
+        makeRow(...row) { this.rows.push(row); return this; }
+        async run(jid, hisoka, quoted) { this.sent = { jid, quoted }; }
+    }
+
+    const m = { from: '120363000000000000@g.us', prefix: '!' };
+    await sendAntitagSelection({
+        hisoka: {},
+        m,
+        Button: ButtonRecorder,
+        tolak: async () => assert.fail('fallback should not be used'),
+        enabled: true,
+        notice: 'Sudah aktif.',
+    });
+    await sendAntitagSelection({
+        hisoka: {},
+        m,
+        Button: ButtonRecorder,
+        tolak: async () => assert.fail('fallback should not be used'),
+        enabled: false,
+    });
+
+    assert.match(records[0].body, /\*Status:\* ✅ \*ON\*/);
+    assert.match(records[0].body, /Sudah aktif\./);
+    assert.equal(records[0].rows[0][0], '✓ ✅ Aktif');
+    assert.equal(records[0].rows[0][3], '!antitag on');
+    assert.equal(records[0].rows[1][0], '❌ Nonaktif');
+
+    assert.match(records[1].body, /\*Status:\* ❌ \*OFF\*/);
+    assert.equal(records[1].rows[0][0], '✅ Aktif');
+    assert.equal(records[1].rows[1][0], '✓ ❌ Nonaktif');
+    assert.equal(records[1].rows[1][3], '!antitag off');
+});
+
+test('reselecting ON and changing state both return the refreshed status menu', async () => {
+    const records = [];
+    class ButtonRecorder {
+        constructor() { this.rows = []; records.push(this); }
+        setBody(body) { this.body = body; return this; }
+        setFooter() { return this; }
+        addSelection() { return this; }
+        makeSections() { return this; }
+        makeRow(...row) { this.rows.push(row); return this; }
+        async run() {}
+    }
+
+    let storedOn = true;
+    let writes = 0;
+    const m = { from: '120363000000000000@g.us', prefix: '.', isOwner: true };
+    const shared = {
+        hisoka: {},
+        m,
+        tolak: async () => assert.fail('single-select should remain available'),
+        logCommand() {},
+        Button: ButtonRecorder,
+        readConfig: () => ({ antiTagBot: { enabled: storedOn } }),
+        writeConfig: cfg => {
+            writes++;
+            storedOn = !!cfg.antiTagBot.enabled;
+            return true;
+        },
+    };
+
+    await handleAntitag({ ...shared, query: 'on' });
+    assert.equal(writes, 0);
+    assert.match(records[0].body, /\*Status:\* ✅ \*ON\*/);
+    assert.match(records[0].body, /sudah dalam keadaan \*ON\*/);
+    assert.equal(records[0].rows[0][0], '✓ ✅ Aktif');
+
+    await handleAntitag({ ...shared, query: 'off' });
+    assert.equal(storedOn, false);
+    assert.match(records[1].body, /\*Status:\* ❌ \*OFF\*/);
+    assert.match(records[1].body, /berhasil dinonaktifkan/);
+    assert.equal(records[1].rows[1][0], '✓ ❌ Nonaktif');
+
+    await handleAntitag({ ...shared, query: 'on' });
+    assert.equal(storedOn, true);
+    assert.match(records[2].body, /\*Status:\* ✅ \*ON\*/);
+    assert.match(records[2].body, /berhasil diaktifkan/);
+    assert.equal(records[2].rows[0][0], '✓ ✅ Aktif');
+    assert.equal(writes, 2);
+});
+
+test('non-owner AntiTagBot commands receive an access reply instead of silence', async () => {
+    let response = '';
+    let readConfigCalled = false;
+    await handleAntitag({
+        hisoka: {},
+        m: { isOwner: false },
+        query: '',
+        tolak: async (_bot, _message, text) => { response = text; },
+        readConfig: () => {
+            readConfigCalled = true;
+            return {};
+        },
+    });
+
+    assert.match(response, /Akses ditolak/);
+    assert.equal(readConfigCalled, false);
 });
