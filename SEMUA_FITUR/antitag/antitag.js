@@ -645,13 +645,42 @@ export default async function handleAntiTagBot(message, hisoka) {
             return;
         }
 
-        // Native @semua dan mention hampir seluruh anggota dihapus tanpa balasan.
+        // Native @semua dan mention hampir seluruh anggota dihapus, lalu diberi peringatan.
         if (isMassTagged) {
+            let deleted = false;
             try {
                 await hisoka.sendMessage(remoteJid, { delete: message.key });
+                deleted = true;
                 console.log(`\x1b[32m[AntiTagBot] ✅ [${msgId || 'no-id'}] @semua/mass-mention dari ${senderName} → dihapus | Grup: ${groupMeta?.subject || remoteJid.split('@')[0]}\x1b[39m`);
             } catch (deleteErr) {
                 console.error(`\x1b[31m[AntiTagBot] ❌ [${msgId || 'no-id'}] Gagal hapus @semua/mass-mention:\x1b[39m`, deleteErr?.message || deleteErr);
+            }
+
+            if (deleted) {
+                const senderPhone = getParticipantPhoneNumbers(senderParticipant)[0] || null;
+                const senderMention = senderPhone ? `${senderPhone}@s.whatsapp.net` : null;
+                const senderLabel = senderMention
+                    ? `@${senderPhone}`
+                    : `*${senderName}*`;
+                const warningText =
+                    `🚫 *ANTI-TAG BOT*\n\n` +
+                    `${senderLabel}\n` +
+                    `> Tag @semua/mass-mention terdeteksi.\n` +
+                    `> Pesanmu sudah dihapus otomatis.\n\n` +
+                    `Jangan men-tag seluruh anggota grup lagi, ya.`;
+
+                try {
+                    await hisoka.sendMessage(remoteJid, {
+                        text: warningText,
+                        ...(senderMention ? { mentions: [senderMention] } : {}),
+                    });
+                    console.log(`[AntiTagBot][${msgId || 'no-id'}] Balasan peringatan @semua terkirim.`);
+                } catch (replyErr) {
+                    console.error(
+                        `[AntiTagBot][${msgId || 'no-id'}] Pesan terhapus, tetapi balasan peringatan gagal dikirim:`,
+                        replyErr?.message || replyErr
+                    );
+                }
             }
             return;
         }
@@ -694,7 +723,7 @@ async function sendAntitagSelection({ hisoka, m, Button, tolak, enabled }) {
     const statusText =
         `🚫 *ANTI-TAG BOT*\n\n` +
         `🔍 *Status:* ${enabled ? '✅ *ON*' : '❌ *OFF*'}\n` +
-        `_Tag nomor bot dan @semua/mass-mention dari anggota biasa akan dihapus otomatis._\n\n` +
+        `_Tag bot dan @semua dari anggota biasa dihapus otomatis, lalu bot mengirim peringatan singkat._\n\n` +
         `*Syarat:* Bot harus menjadi admin grup.\n` +
         `*Aman:* Owner bot dan admin grup; deteksinya tetap dicatat di log.\n\n` +
         `_Pilih status melalui tombol di bawah._`;
@@ -761,7 +790,7 @@ export async function handleAntitag({ hisoka, m, query, tolak, logCommand, Butto
         saveConfig(cfg);
         await tolak(hisoka, m,
             `✅ *ANTI-TAG BOT AKTIF*\n\n` +
-            `> Tag nomor bot dan @semua/mass-mention dari anggota biasa akan dihapus otomatis.\n\n` +
+            `> Tag bot dan @semua dari anggota biasa akan dihapus otomatis, lalu bot mengirim peringatan singkat.\n\n` +
             `🛡️ Owner dan admin grup tetap aman; deteksinya dicatat di log.`
         );
         return;
