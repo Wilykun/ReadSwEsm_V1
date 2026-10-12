@@ -18,8 +18,8 @@
  *  Terima kasih sudah support.
  * ───────────────────────────────
  *
- *  antitag.js — Anti-Tag Nomor Bot di Grup
- *  Hapus otomatis pesan yang men-tag nomor bot sendiri di GC.
+ *  antitag.js — Anti-Tag Bot dan Mention Massal di Grup
+ *  Hapus pesan member biasa yang men-tag bot atau hampir semua anggota.
  *  Aman untuk: owner, admin grup.
  *  Syarat hapus: bot harus admin di grup.
  * ───────────────────────────────
@@ -81,27 +81,135 @@ function getSenderJid(message) {
     return jidNormalizedUser(raw);
 }
 
-function isOwnerNumber(num, config) {
-    const owners = config.owners || [];
-    return owners.some(o => String(o) === String(num));
+function getPhoneNumber(value) {
+    if (value == null || String(value).toLowerCase().includes('@lid')) return null;
+    const number = String(value).split('@')[0].split(':')[0].replace(/\D/g, '');
+    return number || null;
+}
+
+function getIdentityTargets(jids = []) {
+    const normalizedJids = new Set();
+    const numbers = new Set();
+
+    for (const raw of jids) {
+        if (!raw) continue;
+        const value = String(raw);
+        try { normalizedJids.add(jidNormalizedUser(value)); }
+        catch (_) { normalizedJids.add(value); }
+
+        const phoneNumber = getPhoneNumber(value);
+        if (phoneNumber) numbers.add(phoneNumber);
+
+        if (value.toLowerCase().includes('@lid')) {
+            try {
+                const resolved = resolveLidFromContacts(value);
+                if (resolved?.jid) {
+                    try { normalizedJids.add(jidNormalizedUser(resolved.jid)); }
+                    catch (_) { normalizedJids.add(String(resolved.jid)); }
+                }
+                const resolvedNumber = getPhoneNumber(resolved?.number);
+                if (resolvedNumber) numbers.add(resolvedNumber);
+            } catch (_) {}
+        }
+    }
+
+    return { jids: [...normalizedJids], numbers: [...numbers] };
+}
+
+function getParticipantPhoneNumbers(participant) {
+    return [...new Set(
+        [participant?.phoneNumber, participant?.id, participant?.jid]
+            .map(getPhoneNumber)
+            .filter(Boolean)
+    )];
+}
+
+export function findParticipantByIdentity(participants, targetJids = [], targetNumbers = []) {
+    const jids = (targetJids || []).filter(Boolean).map(jid => {
+        try { return jidNormalizedUser(jid); } catch (_) { return String(jid); }
+    });
+    const numbers = new Set((targetNumbers || []).map(getPhoneNumber).filter(Boolean));
+
+    return (participants || []).find(participant => {
+        const candidates = [
+            participant?.id,
+            participant?.jid,
+            participant?.phoneNumber,
+            participant?.lid,
+        ].filter(Boolean);
+
+        return candidates.some(candidate => {
+            const candidateJid = String(candidate);
+            if (jids.some(target => {
+                try { return areJidsSameUser(candidateJid, target); } catch (_) { return false; }
+            })) return true;
+
+            const candidateNumber = getPhoneNumber(candidateJid);
+            return !!candidateNumber && numbers.has(candidateNumber);
+        });
+    }) || null;
+}
+
+export function isGroupAdmin(participant) {
+    return participant?.admin === true
+        || participant?.admin === 'admin'
+        || participant?.admin === 'superadmin';
+}
+
+function getParticipantIdentityKey(participant) {
+    const phoneNumber = getParticipantPhoneNumbers(participant)[0];
+    if (phoneNumber) return `phone:${phoneNumber}`;
+
+    const jid = [participant?.id, participant?.jid, participant?.lid].find(Boolean);
+    if (!jid) return null;
+    try { return `jid:${jidNormalizedUser(jid)}`; }
+    catch (_) { return `jid:${String(jid)}`; }
+}
+
+function getIdentityTargetKey(targets) {
+    if (targets.numbers[0]) return `phone:${targets.numbers[0]}`;
+    if (targets.jids[0]) return `jid:${targets.jids[0]}`;
+    return null;
+}
+
+export function isMassMention(mentionedJids, participants, senderParticipant = null) {
+    const parts = Array.isArray(participants) ? participants : [];
+    if (parts.length < 3 || !Array.isArray(mentionedJids) || mentionedJids.length < 2) return false;
+
+    const senderKey = getParticipantIdentityKey(senderParticipant);
+    const mentionableCount = parts.length - (senderKey ? 1 : 0);
+    if (mentionableCount < 2) return false;
+
+    // Anggap mass-mention bila mencakup minimal 90% anggota selain pengirim.
+    const requiredCount = Math.max(2, Math.ceil(mentionableCount * 0.9));
+    const mentionedKeys = new Set();
+
+    for (const jid of mentionedJids) {
+        const targets = getIdentityTargets([jid]);
+        const participant = findParticipantByIdentity(parts, targets.jids, targets.numbers);
+        const key = getParticipantIdentityKey(participant) || getIdentityTargetKey(targets);
+        if (key && key !== senderKey) mentionedKeys.add(key);
+    }
+
+    return mentionedKeys.size >= requiredCount;
+}
+
+function isOwnerNumber(numbers, config) {
+    const candidates = new Set(
+        (Array.isArray(numbers) ? numbers : [numbers])
+            .map(getPhoneNumber)
+            .filter(Boolean)
+    );
+    const owners = (config.owners || []).map(getPhoneNumber).filter(Boolean);
+    return owners.some(owner => candidates.has(owner));
 }
 
 function findParticipant(participants, targetNumber) {
-    // Cari berdasarkan nomor telepon — cek semua field yang mungkin ada
-    return (participants || []).find(p => {
-        // phoneNumber field (explicit phone number, reliable)
-        if (p.phoneNumber) {
-            const pn = String(p.phoneNumber).split('@')[0].split(':')[0];
-            if (pn === targetNumber) return true;
-        }
-        // id/jid field — hanya valid jika bukan @lid
-        const idStr = p.id || p.jid || '';
-        if (!idStr.includes('@lid')) {
-            const pNum = idStr.split('@')[0].split(':')[0];
-            if (pNum === targetNumber) return true;
-        }
-        return false;
-    });
+    const normalizedTarget = getPhoneNumber(targetNumber);
+    if (!normalizedTarget) return null;
+    return (participants || []).find(participant =>
+        getParticipantPhoneNumbers(participant).includes(normalizedTarget)
+    ) || null;
 }
 
 /**
@@ -292,17 +400,15 @@ export default async function handleAntiTagBot(message, hisoka) {
 
         const senderJid    = getSenderJid(message);
         const senderNumber = getSenderNumber(message);
-        const senderName   = message.pushName || message.verifiedBizName || senderNumber;
+        const senderIdentity = getIdentityTargets(senderJid ? [senderJid] : []);
         const config       = loadConfig();
-
-        // ── Exempt: owner selalu aman ──────────────────────────────────────────
-        if (isOwnerNumber(senderNumber, config)) return;
 
         // ── Fetch groupMeta untuk cek admin dan dapatkan botLid dari peserta ──
         let isAdmin = false;
         let groupMeta = null;
         let senderIsGroupAdmin = false;
         let botLidFromGroup = null;
+        let senderParticipant = null;
 
         try {
             groupMeta = await hisoka.groupMetadata(remoteJid);
@@ -311,7 +417,7 @@ export default async function handleAntiTagBot(message, hisoka) {
             const parts = groupMeta?.participants || [];
             const botP  = findBotParticipant(parts, botNumber, botLidFromUser);
 
-            isAdmin         = !!botP?.admin;
+            isAdmin         = isGroupAdmin(botP);
             botLidFromGroup = botP?.lid
                 || (botP?.id?.includes('@lid') ? botP.id : null)
                 || botLidFromUser || null;
@@ -321,13 +427,8 @@ export default async function handleAntiTagBot(message, hisoka) {
             botAdminData[remoteJid] = isAdmin;
             kvSet('botadmin/botadmin', botAdminData);
 
-            // Cari sender
-            const senderP = senderJid
-                ? parts.find(p => {
-                    try { return areJidsSameUser(p.id || p.jid || '', senderJid); } catch (_) { return false; }
-                  }) || findParticipant(parts, senderNumber)
-                : findParticipant(parts, senderNumber);
-            senderIsGroupAdmin = !!senderP?.admin;
+            senderParticipant = findParticipantByIdentity(parts, senderIdentity.jids, senderIdentity.numbers);
+            senderIsGroupAdmin = isGroupAdmin(senderParticipant);
 
         } catch (_fetchErr) {
             const botAdminData = kvGet('botadmin/botadmin', {});
@@ -336,32 +437,53 @@ export default async function handleAntiTagBot(message, hisoka) {
             if (groupMeta) {
                 const parts  = groupMeta?.participants || [];
                 const botP   = findBotParticipant(parts, botNumber, botLidFromUser);
-                isAdmin          = !!botP?.admin;
+                isAdmin          = isGroupAdmin(botP);
                 botLidFromGroup  = botP?.lid || (botP?.id?.includes('@lid') ? botP.id : null) || botLidFromUser || null;
-                const senderP    = senderJid
-                    ? parts.find(p => { try { return areJidsSameUser(p.id || p.jid || '', senderJid); } catch (_) { return false; } })
-                        || findParticipant(parts, senderNumber)
-                    : findParticipant(parts, senderNumber);
-                senderIsGroupAdmin = !!senderP?.admin;
+                senderParticipant = findParticipantByIdentity(parts, senderIdentity.jids, senderIdentity.numbers);
+                senderIsGroupAdmin = isGroupAdmin(senderParticipant);
             }
         }
 
-        // ── Final mention check: gabung semua sumber botLid ───────────────────
-        const effectiveBotLid = botLidFromGroup || botLidFromUser || null;
-        const isMentioned = mentionedEarly || isBotMentioned(message, botJid, botNumber, effectiveBotLid);
+        const senderNumbers = [...new Set([
+            ...senderIdentity.numbers,
+            ...getParticipantPhoneNumbers(senderParticipant),
+        ])];
+        const senderDisplayNumber = senderNumbers[0] || senderNumber;
+        const senderName = message.pushName || message.verifiedBizName || senderDisplayNumber;
 
-        if (!isMentioned) return;
+        // ── Exempt: owner dan admin grup selalu aman ───────────────────────────
+        if (isOwnerNumber(senderNumbers, config)) return;
+
+        // ── Deteksi tag bot dan mention hampir semua anggota ───────────────────
+        const effectiveBotLid = botLidFromGroup || botLidFromUser || null;
+        const isBotTagged = mentionedEarly || isBotMentioned(message, botJid, botNumber, effectiveBotLid);
+        const isMassTagged = isMassMention(
+            allMentioned,
+            groupMeta?.participants || [],
+            senderParticipant
+        );
+
+        if (!isBotTagged && !isMassTagged) return;
+        if (!senderParticipant) {
+            console.log(`\x1b[33m[AntiTagBot] ⚠️  Pengirim tidak ditemukan di metadata grup — skip agar admin tidak salah dihapus (${groupMeta?.subject || remoteJid.split('@')[0]})\x1b[39m`);
+            return;
+        }
 
         // ── Exempt: admin grup — reply lucu tapi tidak hapus ──────────────────
         if (senderIsGroupAdmin) {
-            console.log(`\x1b[33m[AntiTagBot] 🛡️  Admin: ${senderName} (+${senderNumber}) tag bot — aman\x1b[39m`);
-            const adminMention = senderJid || (senderNumber + '@s.whatsapp.net');
+            if (!isBotTagged) {
+                console.log(`\x1b[33m[AntiTagBot] 🛡️  Admin: ${senderName} (+${senderDisplayNumber}) mention massal — aman\x1b[39m`);
+                return;
+            }
+
+            console.log(`\x1b[33m[AntiTagBot] 🛡️  Admin: ${senderName} (+${senderDisplayNumber}) tag bot — aman\x1b[39m`);
+            const adminMention = senderJid || (senderDisplayNumber + '@s.whatsapp.net');
             const adminReplies = [
-                `@${senderNumber} *Oalah, admin yang tag bot?* 😂\nYa udah, kali ini aman. _Jangan keseringan ya_ 🙏`,
-                `@${senderNumber} *Admin, ngapain tag aku?* 💀\nPesanmu aman dan tidak dihapus 🤣`,
-                `@${senderNumber} *Admin tag bot?* 😭\nOke, kali ini aman. _Jangan diulang terus ya_ 😏`,
-                `@${senderNumber} *Wkwk, admin kok tag bot?* 😆\nAman, pesannya tidak aku hapus 🫡`,
-                `@${senderNumber} *Aduh, admin ketahuan tag bot* 😅\nUntung admin—pesanmu aman 😈`,
+                `@${senderDisplayNumber} *Oalah, admin yang tag bot?* 😂\nYa udah, kali ini aman. _Jangan keseringan ya_ 🙏`,
+                `@${senderDisplayNumber} *Admin, ngapain tag aku?* 💀\nPesanmu aman dan tidak dihapus 🤣`,
+                `@${senderDisplayNumber} *Admin tag bot?* 😭\nOke, kali ini aman. _Jangan diulang terus ya_ 😏`,
+                `@${senderDisplayNumber} *Wkwk, admin kok tag bot?* 😆\nAman, pesannya tidak aku hapus 🫡`,
+                `@${senderDisplayNumber} *Aduh, admin ketahuan tag bot* 😅\nUntung admin—pesanmu aman 😈`,
             ];
             const picked = adminReplies[Math.floor(Math.random() * adminReplies.length)];
             await hisoka.sendMessage(remoteJid, {
@@ -377,24 +499,16 @@ export default async function handleAntiTagBot(message, hisoka) {
             return;
         }
 
-        // ── Reply sebelum hapus — isi beda tergantung owner atau bukan ────────
-        const isOwner = isOwnerNumber(senderNumber, config);
-        const mention  = senderJid || (senderNumber + '@s.whatsapp.net');
-
-        let replyText;
-        if (isOwner) {
-            replyText =
-                `🚫 *ANTI-TAG BOT*\n\n` +
-                `@${senderNumber} 👑\n` +
-                `> Kamu owner bot, jadi pesanmu aman.\n\n` +
-                `_Tolong jangan tag bot di grup, ya_ 🙏`;
-        } else {
-            replyText =
-                `🚫 *ANTI-TAG BOT*\n\n` +
-                `@${senderNumber} ⚠️\n` +
-                `> Jangan tag bot di grup.\n\n` +
-                `Pesanmu sudah dihapus otomatis.`;
-        }
+        // ── Reply sebelum hapus ────────────────────────────────────────────────
+        const mention = senderJid || (senderDisplayNumber + '@s.whatsapp.net');
+        const violation = isMassTagged
+            ? '> Jangan tag hampir semua anggota grup dalam satu pesan.'
+            : '> Jangan tag bot di grup.';
+        const replyText =
+            `🚫 *ANTI-TAG*\n\n` +
+            `@${senderDisplayNumber} ⚠️\n` +
+            `${violation}\n\n` +
+            `Pesanmu sudah dihapus otomatis.`;
 
         await hisoka.sendMessage(remoteJid, {
             text: replyText,
@@ -403,7 +517,8 @@ export default async function handleAntiTagBot(message, hisoka) {
 
         // ── Hapus pesan ────────────────────────────────────────────────────────
         await hisoka.sendMessage(remoteJid, { delete: message.key });
-        console.log(`\x1b[32m[AntiTagBot] ✅ ${senderName} (+${senderNumber}) tag bot → dihapus | Grup: ${groupMeta?.subject || remoteJid.split('@')[0]}\x1b[39m`);
+        const deletedReason = isMassTagged ? 'mention massal' : 'tag bot';
+        console.log(`\x1b[32m[AntiTagBot] ✅ ${senderName} (+${senderDisplayNumber}) ${deletedReason} → dihapus | Grup: ${groupMeta?.subject || remoteJid.split('@')[0]}\x1b[39m`);
 
     } catch (err) {
         console.error('\x1b[31m[AntiTagBot] Error:\x1b[39m', err?.message || err);
@@ -427,7 +542,7 @@ export async function handleAntitag({ hisoka, m, query, tolak, logCommand }) {
         await tolak(hisoka, m,
             `🚫 *ANTI-TAG BOT*\n\n` +
             `🔍 *Status:* ${STATUS_STR}\n` +
-            `_Pesan anggota yang men-tag nomor bot di grup akan dihapus otomatis._\n\n` +
+            `_Tag bot dan mention hampir semua anggota oleh member biasa akan dihapus otomatis._\n\n` +
             `*Syarat:*\n` +
             `• Bot harus menjadi *admin* grup.\n` +
             `• Fitur harus dalam keadaan *ON*.\n\n` +
@@ -453,7 +568,7 @@ export async function handleAntitag({ hisoka, m, query, tolak, logCommand }) {
         saveConfig(cfg);
         await tolak(hisoka, m,
             `✅ *ANTI-TAG BOT AKTIF*\n\n` +
-            `> Pesan anggota yang men-tag nomor bot akan dihapus otomatis.\n\n` +
+            `> Tag bot dan mention hampir semua anggota oleh member biasa akan dihapus otomatis.\n\n` +
             `🛡️ Owner dan admin grup tetap aman.`
         );
         return;

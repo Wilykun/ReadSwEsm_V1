@@ -3,10 +3,27 @@
 _📅 Senin, 12 Oktober 2026_
 ━━━━━━━━━━━━━━━━━━━━━━
 🤖 *WILY BOT* — `V27.4`
-✨ *0 Fitur Baru*
-🔧 *0 Bug/Error Fix*
+✨ *1 Fitur Baru*
+🔧 *1 Bug/Error Fix*
 🚀 *2 Perubahan*
 ━━━━━━━━━━━━━━━━━━━━━━
+✨ *FITUR BARU*
+━━━━━━━━━━━━━━━━━━━━━━
+1. *ANTITAG — Proteksi Mention Massal*
+   ~Member biasa dapat men-tag hampir semua anggota grup tanpa tindakan dari bot.~
+   • Mention yang mencakup minimal 90% anggota selain pengirim terdeteksi sebagai tag massal.
+   • Pesan member biasa dihapus; owner dan admin grup tetap dikecualikan.
+   • Bot harus menjadi admin agar dapat menghapus pesan.
+> _Hasil: tag massal oleh member biasa ditangani, sementara admin dan owner tetap aman._
+
+🐛 *BUG FIX*
+━━━━━━━━━━━━━━━━━━━━━━
+1. *ANTITAG — Deteksi Peran Pengirim Lebih Akurat*
+   ~Pencocokan hanya memakai `id/jid`, sehingga identitas PN dan LID tertentu tidak cocok dengan metadata peserta.~
+   • Pencocokan kini memeriksa `id`, `jid`, `phoneNumber`, dan `lid`.
+   • Jika pengirim tidak bisa dipastikan dari metadata, bot melewati penghapusan agar admin tidak salah terkena.
+> _Hasil: bot lebih akurat membedakan admin grup dan member biasa._
+
 🚀 *PERUBAHAN*
 ━━━━━━━━━━━━━━━━━━━━━━
 1. *ANTITAG — Format Pesan Lebih Rapi*
