@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
+    buildBotMentionReply,
     buildMassMentionReply,
     deletePreviousAntitagSelectionMenu,
     findParticipantByIdentity,
@@ -157,14 +158,18 @@ test('deleted mass-mention reply confirms deletion and mentions the sender by ph
 
     assert.match(reply.text, /@semua\/mass-mention terdeteksi/);
     assert.match(reply.text, /Pesanmu sudah dihapus otomatis/);
+    assert.match(reply.text, /jempolmu lagi latihan maraton/);
+    assert.match(reply.text, /🧹|😅/);
     assert.deepEqual(reply.mentions, ['628123456789@s.whatsapp.net']);
 });
 
 test('group admin and bot owner receive an explanation without claiming their message was deleted', () => {
-    for (const status of ['owner', 'groupAdmin']) {
+    for (const [status, emoji] of [['owner', '👑'], ['groupAdmin', '🛡️']]) {
         const reply = buildMassMentionReply({ status, senderName: 'Admin' });
         assert.match(reply.text, /tidak dihapus/);
         assert.doesNotMatch(reply.text, /sudah dihapus otomatis/);
+        assert.ok(reply.text.includes(emoji), `${status} reply should use a contextual emoji`);
+        assert.match(reply.text, /lolos/);
     }
 });
 
@@ -173,18 +178,45 @@ test('bot permission, uncertain roles, and delete failure each get an accurate r
     assert.match(notAdmin.text, /bot bukan admin grup/);
     assert.match(notAdmin.text, /Jadikan bot admin/);
     assert.match(notAdmin.text, /pesan tidak dihapus/);
+    assert.match(notAdmin.text, /🤖/);
+    assert.match(notAdmin.text, /Tangan bot belum sampai/);
 
     const unknown = buildMassMentionReply({ status: 'botAdminUnknown', senderName: 'Member' });
     assert.match(unknown.text, /status admin bot tidak dapat dipastikan/);
     assert.match(unknown.text, /Pesan tidak dihapus/);
+    assert.match(unknown.text, /🕵️/);
 
     const roleUnknown = buildMassMentionReply({ status: 'senderRoleUnknown', senderName: 'Member' });
     assert.match(roleUnknown.text, /peran pengirim tidak dapat dipastikan/);
     assert.match(roleUnknown.text, /Pesan tidak dihapus/);
+    assert.match(roleUnknown.text, /🧐/);
 
     const failedDelete = buildMassMentionReply({ status: 'deleteFailed', senderName: 'Member' });
     assert.match(failedDelete.text, /WhatsApp menolak penghapusan/);
     assert.match(failedDelete.text, /Pesan mungkin masih terlihat/);
+    assert.match(failedDelete.text, /🧱/);
+});
+
+test('direct bot-mention replies are funny but distinguish successful and failed deletion', () => {
+    const deleted = buildBotMentionReply({
+        status: 'deleted',
+        senderJid: '628123456789@s.whatsapp.net',
+    });
+    assert.match(deleted.text, /Pesanmu sudah dihapus otomatis/);
+    assert.match(deleted.text, /sat set/);
+    assert.deepEqual(deleted.mentions, ['628123456789@s.whatsapp.net']);
+
+    const failed = buildBotMentionReply({
+        status: 'deleteFailed',
+        senderName: 'Member',
+    });
+    assert.match(failed.text, /WhatsApp menolak penghapusan/);
+    assert.match(failed.text, /Pesan mungkin masih terlihat/);
+    assert.doesNotMatch(failed.text, /sudah dihapus otomatis/);
+
+    const notAdmin = buildBotMentionReply({ status: 'botNotAdmin', senderName: 'Member' });
+    assert.match(notAdmin.text, /bot bukan admin grup/);
+    assert.match(notAdmin.text, /😅/);
 });
 
 test('mass-mention status reply quotes the original group message', async () => {

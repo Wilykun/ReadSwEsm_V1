@@ -165,26 +165,33 @@ export function buildMassMentionReply({ status, senderName = 'anggota grup', sen
     const statusMessages = {
         deleted:
             `> Tag @semua/mass-mention terdeteksi.\n` +
-            `> Pesanmu sudah dihapus otomatis.\n\n` +
-            `Jangan men-tag seluruh anggota grup lagi, ya.`,
+            `> Pesanmu sudah dihapus otomatis. 🧹\n\n` +
+            `🚨 Waduh, satu grup dipanggil semua—jempolmu lagi latihan maraton, ya? 😅\n` +
+            `Mention seperlunya, biar notifikasi grup nggak ikut senam pagi. 🏃`,
         owner:
             `> Tag @semua/mass-mention terdeteksi dari owner bot.\n` +
-            `> Pesan tidak dihapus karena owner dikecualikan dari aturan AntiTagBot.`,
+            `> Pesan tidak dihapus karena owner dikecualikan dari aturan AntiTagBot.\n\n` +
+            `👑 Owner lolos razia—petugasnya masih nunggu gajian dari bos 😎`,
         groupAdmin:
             `> Tag @semua/mass-mention terdeteksi dari admin grup.\n` +
-            `> Pesan tidak dihapus karena admin grup dikecualikan dari aturan AntiTagBot.`,
+            `> Pesan tidak dihapus karena admin grup dikecualikan dari aturan AntiTagBot.\n\n` +
+            `🛡️ Admin lolos dulu—badge-nya lagi kerja lembur hari ini 🤭`,
         botNotAdmin:
             `> Tag @semua/mass-mention terdeteksi, tetapi pesan tidak dihapus karena bot bukan admin grup.\n\n` +
-            `Jadikan bot admin agar bisa menghapus pesan otomatis.`,
+            `🤖 Tangan bot belum sampai ke tombol hapus 😅\n` +
+            `Jadikan bot admin agar bisa menghapus pesan otomatis, baru bisa bantu bersih-bersih. 🧹`,
         botAdminUnknown:
             `> Tag @semua/mass-mention terdeteksi, tetapi status admin bot tidak dapat dipastikan.\n` +
-            `> Pesan tidak dihapus. Periksa apakah bot masih menjadi anggota dan admin grup.`,
+            `> Pesan tidak dihapus. Periksa apakah bot masih menjadi anggota dan admin grup.\n\n` +
+            `🕵️ Izin bot lagi main petak umpet—bot nggak mau asal sapu, nanti adminnya ikut 😅`,
         senderRoleUnknown:
             `> Tag @semua/mass-mention terdeteksi, tetapi peran pengirim tidak dapat dipastikan.\n` +
-            `> Pesan tidak dihapus demi keamanan; periksa metadata anggota grup.`,
+            `> Pesan tidak dihapus demi keamanan; periksa metadata anggota grup.\n\n` +
+            `🧐 Status pengirimnya belum kebaca. Bot tahan sapu dulu—nggak mau salah bersih-bersih 😅`,
         deleteFailed:
             `> Tag @semua/mass-mention terdeteksi, tetapi WhatsApp menolak penghapusan.\n` +
-            `> Pesan mungkin masih terlihat; minta admin grup menghapusnya.`,
+            `> Pesan mungkin masih terlihat; minta admin grup menghapusnya.\n\n` +
+            `🧱 Bot sudah coba, tapi tombol hapus lagi ngambek. WhatsApp yang menang ronde ini 🙃`,
     };
     const details = statusMessages[status];
     if (!details) throw new Error(`Unknown AntiTagBot reply status: ${status}`);
@@ -210,6 +217,42 @@ export async function sendMassMentionReply({ hisoka, remoteJid, message, msgId, 
     }
 }
 
+export function buildBotMentionReply({
+    status,
+    senderName = 'anggota grup',
+    senderJid = null,
+    senderParticipant = null,
+}) {
+    const senderPhone = getParticipantPhoneNumbers(senderParticipant)[0] || getPhoneNumber(senderJid);
+    const senderMention = senderPhone ? `${senderPhone}@s.whatsapp.net` : null;
+    const senderLabel = senderMention ? `@${senderPhone}` : `*${senderName}*`;
+    const statusMessages = {
+        botNotAdmin:
+            `> Mention bot terdeteksi, tetapi bot bukan admin grup sehingga pesan tidak dapat dihapus.\n` +
+            `> Jadikan bot admin agar penghapusan otomatis berfungsi.\n\n` +
+            `🤖 Tangan bot belum sampai ke tombol hapus—kasih akses dulu, baru bisa bantu bersih-bersih 😅`,
+        botAdminUnknown:
+            `> Mention bot terdeteksi, tetapi status admin bot tidak dapat dipastikan.\n` +
+            `> Pesan tidak dihapus. Periksa keanggotaan dan izin bot di grup.\n\n` +
+            `🕵️ Izin bot lagi main petak umpet. Bot nggak mau asal hapus, nanti salah orang 😅`,
+        deleted:
+            `> Mention bot terdeteksi.\n` +
+            `> Pesanmu sudah dihapus otomatis. 🧹\n\n` +
+            `📣 Bot disapa, bot langsung beres-beres—sat set! 😄 Jangan tag bot sembarangan, ya.`,
+        deleteFailed:
+            `> Mention bot terdeteksi, tetapi WhatsApp menolak penghapusan.\n` +
+            `> Pesan mungkin masih terlihat; minta admin grup menghapusnya.\n\n` +
+            `🧱 Tombol hapusnya lagi ngambek. Bot sudah coba, tapi WhatsApp yang menang ronde ini 🙃`,
+    };
+    const details = statusMessages[status];
+    if (!details) throw new Error(`Unknown AntiTagBot mention reply status: ${status}`);
+
+    return {
+        text: `🚫 *ANTI-TAG BOT*\n\n${senderLabel}\n${details}`,
+        ...(senderMention ? { mentions: [senderMention] } : {}),
+    };
+}
+
 async function sendBotMentionPermissionReply({
     hisoka,
     remoteJid,
@@ -220,18 +263,13 @@ async function sendBotMentionPermissionReply({
     senderJid,
     senderParticipant,
 }) {
-    const senderPhone = getParticipantPhoneNumbers(senderParticipant)[0] || getPhoneNumber(senderJid);
-    const senderMention = senderPhone ? `${senderPhone}@s.whatsapp.net` : null;
-    const senderLabel = senderMention ? `@${senderPhone}` : `*${senderName}*`;
-    const reason = status === 'botNotAdmin'
-        ? `Bot bukan admin grup, jadi pesan tidak dapat dihapus. Jadikan bot admin agar penghapusan otomatis berfungsi.`
-        : `Status admin bot tidak dapat dipastikan, jadi pesan tidak dihapus. Periksa keanggotaan dan izin bot di grup.`;
-
     try {
-        await hisoka.sendMessage(remoteJid, {
-            text: `🚫 *ANTI-TAG BOT*\n\n${senderLabel}\n> Mention bot terdeteksi. ${reason}`,
-            ...(senderMention ? { mentions: [senderMention] } : {}),
-        }, { quoted: message });
+        await hisoka.sendMessage(remoteJid, buildBotMentionReply({
+            status,
+            senderName,
+            senderJid,
+            senderParticipant,
+        }), { quoted: message });
         console.log(`[AntiTagBot][${msgId || 'no-id'}] Balasan izin mention bot terkirim (${status}).`);
     } catch (replyErr) {
         console.error(
@@ -722,7 +760,8 @@ export default async function handleAntiTagBot(message, hisoka) {
                         text:
                             `🚫 *ANTI-TAG BOT*\n\n${ownerLabel} 👑\n` +
                             `> Mention bot terdeteksi dari owner bot.\n` +
-                            `> Pesan tidak dihapus karena owner dikecualikan.`,
+                            `> Pesan tidak dihapus karena owner dikecualikan.\n\n` +
+                            `😎 Owner dapat jalur VIP hari ini—jangan dipakai buat manggil bot tiap menit, ya.`,
                         ...(mention ? { mentions: [mention] } : {}),
                     }, { quoted: message });
                     console.log(`[AntiTagBot][${msgId || 'no-id'}] Balasan owner untuk tag bot terkirim.`);
@@ -811,33 +850,21 @@ export default async function handleAntiTagBot(message, hisoka) {
             return;
         }
 
-        // ── Reply sebelum hapus — isi beda tergantung owner atau bukan ────────
-        const isOwner = isOwnerNumber(senderNumber, config);
-        const mention  = senderJid || (senderNumber + '@s.whatsapp.net');
-
-        let replyText;
-        if (isOwner) {
-            replyText =
-                `🚫 *ANTI-TAG BOT*\n\n` +
-                `@${senderNumber} 👑\n` +
-                `> Kamu owner bot, jadi pesanmu aman.\n\n` +
-                `_Tolong jangan tag bot di grup, ya_ 🙏`;
-        } else {
-            replyText =
-                `🚫 *ANTI-TAG BOT*\n\n` +
-                `@${senderNumber} ⚠️\n` +
-                `> Jangan tag bot di grup.\n\n` +
-                `Pesanmu sudah dihapus otomatis.`;
+        let deleted = false;
+        try {
+            await hisoka.sendMessage(remoteJid, { delete: message.key });
+            deleted = true;
+            console.log(`\x1b[32m[AntiTagBot] ✅ ${senderName} (+${senderNumber}) tag bot → dihapus | Grup: ${groupMeta?.subject || remoteJid.split('@')[0]}\x1b[39m`);
+        } catch (deleteErr) {
+            console.error(`\x1b[31m[AntiTagBot] ❌ Gagal hapus pesan tag bot:\x1b[39m`, deleteErr?.message || deleteErr);
         }
 
-        await hisoka.sendMessage(remoteJid, {
-            text: replyText,
-            mentions: [mention],
-        }, { quoted: message });
-
-        // ── Hapus pesan ────────────────────────────────────────────────────────
-        await hisoka.sendMessage(remoteJid, { delete: message.key });
-        console.log(`\x1b[32m[AntiTagBot] ✅ ${senderName} (+${senderNumber}) tag bot → dihapus | Grup: ${groupMeta?.subject || remoteJid.split('@')[0]}\x1b[39m`);
+        await hisoka.sendMessage(remoteJid, buildBotMentionReply({
+            status: deleted ? 'deleted' : 'deleteFailed',
+            senderName,
+            senderJid,
+            senderParticipant,
+        }), { quoted: message });
 
     } catch (err) {
         console.error('\x1b[31m[AntiTagBot] Error:\x1b[39m', err?.message || err);

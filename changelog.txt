@@ -5,7 +5,7 @@ _📅 Senin, 12 Oktober 2026_
 🤖 *WILY BOT* — `V27.4`
 ✨ *1 Fitur Baru*
 🔧 *2 Bug/Error Fix*
-🚀 *4 Perubahan*
+🚀 *5 Perubahan*
 ━━━━━━━━━━━━━━━━━━━━━━
 ✨ *FITUR BARU*
 ━━━━━━━━━━━━━━━━━━━━━━
@@ -51,6 +51,10 @@ _📅 Senin, 12 Oktober 2026_
    • Saat memilih status, menu AntiTag lama dari bot dihapus jika pesan yang dibalas terverifikasi sebagai menu AntiTag.
    • Perintah dari bukan owner mendapat balasan akses ditolak, bukan diam.
 > _Hasil: status jelas dan menu lama tidak menumpuk di chat._
+5. *ANTITAG — Balasan Lucu Sesuai Hasil*
+   • Balasan untuk pesan terhapus, owner/admin yang dikecualikan, izin bot yang kurang, status yang belum jelas, dan gagal hapus diberi emoji serta humor ringan.
+   • Balasan hanya menyebut pesan terhapus setelah penghapusan berhasil.
+> _Hasil: respons lebih santai tanpa membingungkan hasil tindakan bot._
 
 📜 *ReadSW — Patch 10 Oktober 2026*
 📢 *INFORMASI PERBAIKAN*
