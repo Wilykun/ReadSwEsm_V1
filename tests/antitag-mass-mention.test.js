@@ -3,6 +3,7 @@ import test from 'node:test';
 import {
     findParticipantByIdentity,
     getMentionedJids,
+    hasAllMentionText,
     isGroupAdmin,
     isMassMention,
     isNativeGroupMention,
@@ -121,4 +122,19 @@ test('groupMentions targeting the current group are detected without the wrapper
     };
 
     assert.equal(isNativeGroupMention(message, groupJid), true);
+});
+
+test('only explicit all-mention text is classified as an @semua candidate', () => {
+    assert.equal(hasAllMentionText({ message: { conversation: '@semua' } }), true);
+    assert.equal(
+        hasAllMentionText({
+            message: {
+                groupMentionedMessage: {
+                    message: { extendedTextMessage: { text: '@everyone' } },
+                },
+            },
+        }),
+        true,
+    );
+    assert.equal(hasAllMentionText({ message: { conversation: 'Halo semua' } }), false);
 });

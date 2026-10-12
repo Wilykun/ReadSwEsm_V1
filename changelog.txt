@@ -44,7 +44,7 @@ _📅 Senin, 12 Oktober 2026_
 > _Hasil: konfigurasi bot dapat ikut ter-backup bersama source code._
 3. *ANTITAG — Mode Debug Console*
    • `.antitag debug on/off/status` mengatur log ID, tipe pesan, peran pengirim, dan alasan aksi.
-   • Debug diaktifkan untuk membantu verifikasi payload `@semua`.
+   • Log dibatasi ke payload `@semua`, mention massal yang terdeteksi, dan tag bot—bukan pesan grup biasa.
 > _Hasil: pesan yang lolos atau dihapus dapat ditelusuri dari ID di console._
 
 📜 *ReadSW — Patch 10 Oktober 2026*

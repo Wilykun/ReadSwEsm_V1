@@ -370,6 +370,23 @@ function getMessageTypes(message) {
     return getMessageLayers(message).map(layer => getContentType(layer) || 'unknown');
 }
 
+function getMessageText(message) {
+    const texts = [];
+    for (const layer of getMessageLayers(message)) {
+        if (typeof layer.conversation === 'string') texts.push(layer.conversation);
+        for (const key of ['extendedTextMessage', 'imageMessage', 'videoMessage', 'documentMessage']) {
+            const content = layer[key];
+            const text = content?.text || content?.caption;
+            if (typeof text === 'string') texts.push(text);
+        }
+    }
+    return texts.join('\n');
+}
+
+export function hasAllMentionText(message) {
+    return /@(?:semua|everyone|all)(?=$|[\s.,!?])/i.test(getMessageText(message));
+}
+
 function logAntiTagDebug(message, config, stage, details = {}) {
     if (config?.antiTagBot?.debug !== true) return;
     const messageId = message?.key?.id || 'no-id';
@@ -461,15 +478,22 @@ export default async function handleAntiTagBot(message, hisoka) {
         const allMentioned = getMentionedJids(message);
         const nativeGroupMention = isNativeGroupMention(message, remoteJid);
         const messageTypes = getMessageTypes(message);
-        const hasMentionSignal = allMentioned.length > 0 || nativeGroupMention;
+        const allMentionText = hasAllMentionText(message);
+        const hasMentionSignal = allMentioned.length > 0 || nativeGroupMention || allMentionText;
+        let debugRelevant = nativeGroupMention
+            || messageTypes.includes('groupMentionedMessage')
+            || allMentionText;
         const debug = (stage, details = {}) =>
-            logAntiTagDebug(message, config, stage, details);
+            debugRelevant && logAntiTagDebug(message, config, stage, details);
 
-        debug('received', {
-            messageTypes,
-            mentionedJidCount: allMentioned.length,
-            nativeGroupMention,
-        });
+        if (debugRelevant) {
+            debug('received', {
+                messageTypes,
+                mentionedJidCount: allMentioned.length,
+                nativeGroupMention,
+                allMentionText,
+            });
+        }
         if (!config.antiTagBot?.enabled) {
             if (hasMentionSignal) debug('skip', { reason: 'anti-tag-off', messageTypes, nativeGroupMention });
             return;
@@ -548,11 +572,12 @@ export default async function handleAntiTagBot(message, hisoka) {
         // ── Deteksi tag bot dan mention hampir semua anggota ───────────────────
         const effectiveBotLid = botLidFromGroup || botLidFromUser || null;
         const isBotTagged = mentionedEarly || isBotMentioned(message, botJid, botNumber, effectiveBotLid);
-        const isMassTagged = nativeGroupMention || isMassMention(
+        const isMassTagged = nativeGroupMention || allMentionText || isMassMention(
             allMentioned,
             groupMeta?.participants || [],
             senderParticipant
         );
+        if (isBotTagged || isMassTagged) debugRelevant = true;
         debug('decision', {
             botTagged: isBotTagged,
             massTagged: isMassTagged,
