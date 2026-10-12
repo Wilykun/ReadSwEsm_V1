@@ -6,18 +6,34 @@
 _📅 Senin, 12 Oktober 2026_
 ━━━━━━━━━━━━━━━━━━━━━━
 🤖 *WILY BOT* — `V27.5`
-✨ *0 Fitur Baru*
-🐛 *0 Fix Bug*
+✨ *1 Fitur Baru*
+🐛 *2 Fix Bug*
 🛠️ *0 Fix Error*
-🚀 *0 Perubahan*
+🚀 *6 Perubahan*
 ⚠️ *0 Fitur Dihentikan*
 ━━━━━━━━━━━━━━━━━━━━━━
 ✨ *FITUR BARU*
 ━━━━━━━━━━━━━━━━━━━━━━
+1. *ANTITAG — Proteksi Mention Massal*
+   • Mendeteksi mention native `@semua` dan mention yang mencakup minimal 90% anggota grup.
+   • Pesan member biasa dihapus; owner dan admin grup dikecualikan.
+   • Bot harus menjadi admin agar dapat menghapus pesan.
+> _Hasil: mention massal ditangani sesuai peran pengirim dan izin bot._
 
 ━━━━━━━━━━━━━━━━━━━━━━
 🐛 *BUG FIX*
 ━━━━━━━━━━━━━━━━━━━━━━
+1. *ANTITAG — Deteksi Peran Pengirim PN/LID*
+   ~Pencocokan hanya memakai `id/jid`, sehingga sebagian identitas PN dan LID tidak cocok dengan metadata peserta.~
+   • Pencocokan kini memeriksa `id`, `jid`, `phoneNumber`, dan `lid`.
+   • Jika peran pengirim tidak dapat dipastikan, penghapusan dilewati agar admin tidak salah terkena.
+> _Hasil: status admin dan member biasa dibedakan dengan lebih aman._
+
+2. *ANTITAG — Payload Native `@semua`*
+   ~Handler dapat melewatkan payload native `@semua` dari Baileys.~
+   • Wrapper `groupMentionedMessage` dan `groupMentions` kini diperiksa.
+   • Log hasil deteksi dan penghapusan menyertakan ID pesan.
+> _Hasil: mention native masuk ke jalur deteksi dan penanganan._
 
 ━━━━━━━━━━━━━━━━━━━━━━
 🛠️ *FIX ERROR*
@@ -26,6 +42,34 @@ _📅 Senin, 12 Oktober 2026_
 ━━━━━━━━━━━━━━━━━━━━━━
 🚀 *PERUBAHAN*
 ━━━━━━━━━━━━━━━━━━━━━━
+1. *Migrasi Source JavaScript ke ESM*
+   • Source bot menggunakan ES module (`import`/`export`) dengan mode `type: module`.
+   • Validasi module menggunakan pemeriksaan import ESM.
+> _Hasil: source JavaScript bot konsisten menggunakan ESM._
+
+2. *ANTITAG — Format Balasan Lebih Rapi*
+   • Bingkai dekoratif diganti dengan format tebal, miring, kutipan, dan daftar yang lebih mudah dibaca.
+   • Perintah seperti `.antitag on` dan `.antitag off` ditampilkan sebagai kode.
+> _Hasil: informasi dan petunjuk AntiTag lebih jelas._
+
+3. *ANTITAG — Mode Debug Console*
+   • `.antitag debug on/off/status` mengatur log ID, tipe pesan, peran pengirim, dan alasan tindakan.
+   • Log difokuskan pada mention massal atau tag bot yang terdeteksi.
+> _Hasil: deteksi dan tindakan AntiTag lebih mudah ditelusuri._
+
+4. *ANTITAG — Status dan Menu Kontrol*
+   • Menu menampilkan status ON/OFF yang tersimpan dan menu lama milik bot dibersihkan setelah pilihan diverifikasi.
+   • Perintah dari bukan owner mendapat balasan akses ditolak.
+> _Hasil: status lebih jelas dan menu tidak menumpuk._
+
+5. *ANTITAG — Balasan Sesuai Hasil*
+   • Balasan disesuaikan dengan hasil hapus, pengecualian owner/admin, izin bot, atau kegagalan.
+   • Bot hanya menyatakan pesan terhapus jika penghapusan berhasil.
+> _Hasil: balasan lebih santai tanpa mengaburkan hasil tindakan._
+
+6. *ENV — Backup Konfigurasi Bot via GitHub*
+   • `push.sh` mempertahankan konfigurasi bot saat menyiapkan file untuk upload.
+> _Hasil: konfigurasi dapat ikut dicadangkan bersama source code._
 
 ━━━━━━━━━━━━━━━━━━━━━━
 ⚠️ *FITUR DIHENTIKAN*
