@@ -15,11 +15,11 @@ _📅 Senin, 12 Oktober 2026_
    • Syarat dan pengecualian memakai daftar poin; langkah aktivasi memakai nomor.
    • Perintah seperti `.antitag on` dan `.antitag off` ditampilkan dengan format kode.
 > _Hasil: pesan Anti-Tag lebih mudah dibaca dan petunjuk perintah lebih jelas._
-2. *ENV — Template Aman untuk GitHub*
-   ~File `.env` asli dapat berisi nomor pairing dan rahasia bot.~
-   • `.env.example` berisi pengaturan non-rahasia; nomor pairing dikosongkan.
-   • `push.sh` tetap mengecualikan `.env` asli, sementara template dapat di-stage.
-> _Hasil: konfigurasi contoh bisa diunggah tanpa membocorkan data sensitif._
+2. *ENV — Backup Konfigurasi Bot via GitHub*
+   ~`push.sh` otomatis mengeluarkan `.env` dari index sehingga konfigurasi bot tidak ikut ter-backup.~
+   • Root `.env` tidak lagi diabaikan oleh `.gitignore`.
+   • `push.sh` kini mempertahankan `.env` saat menyiapkan file untuk upload.
+> _Hasil: konfigurasi bot dapat ikut ter-backup bersama source code._
 
 📜 *ReadSW — Patch 10 Oktober 2026*
 📢 *INFORMASI PERBAIKAN*

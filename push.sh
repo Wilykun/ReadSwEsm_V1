@@ -1749,7 +1749,7 @@ classify_commit() {
       path=$NF
       if (path !~ /^(data|data_jadibot|sessions|logs|tmp|\.cache|attached_assets)\// &&
           path !~ /^\.push_(history|shortcut)/ &&
-          path != ".env" && path != ".token.secret") print
+          path != ".token.secret") print
     }
   ')
   runtime_total=$(printf '%s\n' "$all_status_lines" | awk '
@@ -1757,7 +1757,7 @@ classify_commit() {
       path=$NF
       if (path ~ /^(data|data_jadibot|sessions|logs|tmp|\.cache|attached_assets)\// ||
           path ~ /^\.push_(history|shortcut)/ ||
-          path == ".env" || path == ".token.secret") count++
+          path == ".token.secret") count++
     }
     END { print count + 0 }
   ')
@@ -1800,7 +1800,7 @@ classify_commit() {
   if echo "$files" | grep -qE '(package\.json|package-lock\.json)'; then
     [ -z "$scope" ] && scope="deps"
   fi
-  if echo "$files" | grep -qE '(\.gitignore|push\.sh|index\.js|config\.json|\.npmrc|\.replit)'; then
+  if echo "$files" | grep -qE '(\.gitignore|\.env|push\.sh|index\.js|config\.json|\.npmrc|\.replit)'; then
     [ -z "$scope" ] && scope="config"
   fi
 
@@ -2095,10 +2095,8 @@ commit_staged_groups() {
   local _path
   while IFS= read -r -d '' _path; do
     case "$_path" in
-      # File rahasia bisa muncul sebagai staged deletion saat prepare_stage
-      # menghapusnya dari index. Biarkan deletion ikut commit pertama; jangan
-      # reset lalu force-add ulang karena file lokalnya harus tetap rahasia.
-      .env|.token.secret)
+      # Token asli tidak boleh di-force-add kembali saat commit runtime dipisah.
+      .token.secret)
         _semantic_paths+=("$_path") ;;
       data/*|data_jadibot/*|sessions/*|logs/*|tmp/*|.cache/*|attached_assets/*|\
       .push_history.log|.push_shortcut_history.txt)
@@ -2617,14 +2615,7 @@ prepare_stage() {
     git rm --cached -q .token.secret 2>>"$err_log" || true
   fi
 
-  # .env juga hanya boleh ada di disk. File tetap dipakai aplikasi, tetapi
-  # penghapusannya dari index mencegah secret ikut ter-upload ke GitHub.
-  if git ls-files --error-unmatch .env >/dev/null 2>&1; then
-    echo -e "  ${C_YELLOW}🔐 Untrack .env dari git (file tetap aman di disk)...${C_RESET}"
-    git rm --cached -q .env 2>>"$err_log" || true
-  fi
-
-  # Stage SEMUA perubahan (baru, modified, deleted, rename).
+  # Stage SEMUA perubahan (baru, modified, deleted, rename), termasuk root .env.
   if ! git add -A 2>>"$err_log"; then
     echo -e "  ${C_RED}❌ git add -A gagal${C_RESET}"
     sed 's/^/    /' "$err_log" | tail -10

@@ -37,9 +37,9 @@ attached_assets/
 # node_modules — exclude semua (install ulang via npm install)
 node_modules/
 
-# Environment lokal dapat berisi rahasia — jangan pernah commit
-.env
+# Variant environment tetap lokal; root .env dipakai untuk backup konfigurasi bot.
 .env.*
+!/.env
 !.env.example
 
 # PM2 logs — jangan di-push ke git
