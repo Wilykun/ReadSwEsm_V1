@@ -187,7 +187,7 @@
       "participant": "91860995469566@lid",
       "addressingMode": "lid"
     },
-    "updatedAt": "2026-10-12T06:49:52.878Z",
+    "updatedAt": "2026-10-12T10:44:57.900Z",
     "receiptKeys": [
       {
         "remoteJid": "status@broadcast",
@@ -206,7 +206,9 @@
         "addressingMode": "lid"
       }
     ],
-    "processedAt": "2026-10-12T06:49:52.878Z"
+    "processedAt": "2026-10-12T06:49:52.878Z",
+    "deleted": true,
+    "deletedAt": "2026-10-12T10:44:57.900Z"
   },
   "ACF46BDE2900FA3219B59EDA65054137": {
     "id": "ACF46BDE2900FA3219B59EDA65054137",
