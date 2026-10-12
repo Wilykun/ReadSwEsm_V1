@@ -18,8 +18,8 @@
  *  Terima kasih sudah support.
  * ───────────────────────────────
  *
- *  antitag.js — Anti-Tag Nomor Bot di Grup
- *  Hapus otomatis pesan yang men-tag nomor bot sendiri di GC.
+ *  antitag.js — Anti-Tag Bot dan @semua di Grup
+ *  Hapus otomatis mention nomor bot dan tag hampir seluruh anggota grup.
  *  Aman untuk: owner, admin grup.
  *  Syarat hapus: bot harus admin di grup.
  * ───────────────────────────────
@@ -166,12 +166,6 @@ function getParticipantIdentityKey(participant) {
     catch (_) { return `jid:${String(jid)}`; }
 }
 
-function getIdentityTargetKey(targets) {
-    if (targets.numbers[0]) return `phone:${targets.numbers[0]}`;
-    if (targets.jids[0]) return `jid:${targets.jids[0]}`;
-    return null;
-}
-
 export function isMassMention(mentionedJids, participants, senderParticipant = null) {
     const parts = Array.isArray(participants) ? participants : [];
     if (parts.length < 3 || !Array.isArray(mentionedJids) || mentionedJids.length < 2) return false;
@@ -187,7 +181,9 @@ export function isMassMention(mentionedJids, participants, senderParticipant = n
     for (const jid of mentionedJids) {
         const targets = getIdentityTargets([jid]);
         const participant = findParticipantByIdentity(parts, targets.jids, targets.numbers);
-        const key = getParticipantIdentityKey(participant) || getIdentityTargetKey(targets);
+        // Hitung hanya identitas yang benar-benar cocok dengan anggota grup.
+        // Mention JID asing tidak boleh membuat pesan dianggap mass-mention.
+        const key = getParticipantIdentityKey(participant);
         if (key && key !== senderKey) mentionedKeys.add(key);
     }
 
@@ -271,35 +267,96 @@ function findParticipantByLid(participants, botLid) {
     });
 }
 
-/**
- * Ambil semua mentionedJid dari pesan (semua lapisan contextInfo).
- */
-function getMentionedJids(message) {
-    try {
-        const msg = message?.message;
-        if (!msg) return [];
-        const msgType = getContentType(msg);
-        const candidates = [
-            msg[msgType],
-            msg.extendedTextMessage,
-            msg.imageMessage,
-            msg.videoMessage,
-            msg.audioMessage,
-            msg.documentMessage,
-            msg.stickerMessage,
-            msg.buttonsMessage,
-            msg.listMessage,
-            msg.templateMessage?.hydratedTemplate,
-        ].filter(Boolean);
-        const all = new Set();
-        for (const obj of candidates) {
-            const mentioned = obj?.contextInfo?.mentionedJid;
-            if (Array.isArray(mentioned)) {
-                for (const j of mentioned) { if (j) all.add(j); }
+const WRAPPED_MESSAGE_KEYS = [
+    'ephemeralMessage',
+    'viewOnceMessage',
+    'documentWithCaptionMessage',
+    'viewOnceMessageV2',
+    'viewOnceMessageV2Extension',
+    'editedMessage',
+    'associatedChildMessage',
+    'groupStatusMessage',
+    'groupStatusMessageV2',
+    'groupStatusMentionMessage',
+    'groupMentionedMessage',
+];
+
+function getMessageLayers(message) {
+    const layers = [];
+    let current = message?.message;
+
+    for (let depth = 0; current && typeof current === 'object' && depth < 8; depth++) {
+        layers.push(current);
+        const wrapped = WRAPPED_MESSAGE_KEYS
+            .map(key => current[key])
+            .find(value => value?.message && typeof value.message === 'object');
+        if (!wrapped || wrapped.message === current) break;
+        current = wrapped.message;
+    }
+
+    return layers;
+}
+
+function getMessageContextInfos(message) {
+    const contexts = [];
+    for (const layer of getMessageLayers(message)) {
+        for (const value of Object.values(layer)) {
+            if (value?.contextInfo && typeof value.contextInfo === 'object') {
+                contexts.push(value.contextInfo);
+            }
+            if (value?.hydratedTemplate?.contextInfo) {
+                contexts.push(value.hydratedTemplate.contextInfo);
             }
         }
-        return [...all];
-    } catch (_) { return []; }
+    }
+    return contexts;
+}
+
+/**
+ * Ambil mentionedJid dari semua lapisan pesan, termasuk wrapper native @semua.
+ */
+function getMentionedJids(message) {
+    const all = new Set();
+    for (const context of getMessageContextInfos(message)) {
+        if (!Array.isArray(context.mentionedJid)) continue;
+        for (const jid of context.mentionedJid) {
+            if (jid) all.add(jid);
+        }
+    }
+    return [...all];
+}
+
+function areSameGroupJid(left, right) {
+    if (!left || !right) return false;
+    try {
+        if (areJidsSameUser(left, right)) return true;
+    } catch (_) {}
+    try {
+        return jidNormalizedUser(left) === jidNormalizedUser(right);
+    } catch (_) {
+        return String(left) === String(right);
+    }
+}
+
+/**
+ * WhatsApp native @semua dapat datang sebagai groupMentionedMessage dan/atau
+ * contextInfo.groupMentions, bukan sebagai daftar mentionedJid biasa.
+ */
+export function isNativeGroupMention(message, remoteJid) {
+    if (!isJidGroup(remoteJid)) return false;
+
+    const layers = getMessageLayers(message);
+    const hasNativeWrapper = layers.some(layer => !!layer?.groupMentionedMessage);
+    const groupMentions = getMessageContextInfos(message)
+        .flatMap(context => Array.isArray(context.groupMentions) ? context.groupMentions : [])
+        .filter(groupMention => groupMention?.groupJid);
+
+    if (groupMentions.length) {
+        return groupMentions.some(groupMention => areSameGroupJid(groupMention.groupJid, remoteJid));
+    }
+
+    // Beberapa versi payload hanya menyediakan wrapper tanpa groupJid eksplisit.
+    return hasNativeWrapper;
 }
 
 /**
@@ -386,9 +443,10 @@ export default async function handleAntiTagBot(message, hisoka) {
         // Cek config aktif
         if (!isAntiTagBotEnabled()) return;
 
-        // ── Early-exit: jika tidak ada mentionedJid sama sekali, skip ────────
+        // Tag native @semua tidak selalu muncul di contextInfo.mentionedJid.
         const allMentioned = getMentionedJids(message);
-        if (allMentioned.length === 0) return;
+        const nativeGroupMention = isNativeGroupMention(message, remoteJid);
+        if (allMentioned.length === 0 && !nativeGroupMention) return;
 
         const botJid    = getBotJid(hisoka);
         const botNumber = getBotNumber(hisoka);
@@ -410,6 +468,7 @@ export default async function handleAntiTagBot(message, hisoka) {
         let isAdmin = false;
         let groupMeta = null;
         let senderIsGroupAdmin = false;
+        let senderParticipant = null;
         let botLidFromGroup = null;
 
         try {
@@ -430,12 +489,13 @@ export default async function handleAntiTagBot(message, hisoka) {
             kvSet('botadmin/botadmin', botAdminData);
 
             // Cari sender
-            const senderP = senderJid
-                ? parts.find(p => {
-                    try { return areJidsSameUser(p.id || p.jid || '', senderJid); } catch (_) { return false; }
-                  }) || findParticipant(parts, senderNumber)
-                : findParticipant(parts, senderNumber);
-            senderIsGroupAdmin = !!senderP?.admin;
+            const senderIdentity = getIdentityTargets([
+                senderJid,
+                message.key?.participant,
+                message.participant,
+            ]);
+            senderParticipant = findParticipantByIdentity(parts, senderIdentity.jids, senderIdentity.numbers);
+            senderIsGroupAdmin = isGroupAdmin(senderParticipant);
 
         } catch (_fetchErr) {
             const botAdminData = kvGet('botadmin/botadmin', {});
@@ -446,22 +506,34 @@ export default async function handleAntiTagBot(message, hisoka) {
                 const botP   = findBotParticipant(parts, botNumber, botLidFromUser);
                 isAdmin          = !!botP?.admin;
                 botLidFromGroup  = botP?.lid || (botP?.id?.includes('@lid') ? botP.id : null) || botLidFromUser || null;
-                const senderP    = senderJid
-                    ? parts.find(p => { try { return areJidsSameUser(p.id || p.jid || '', senderJid); } catch (_) { return false; } })
-                        || findParticipant(parts, senderNumber)
-                    : findParticipant(parts, senderNumber);
-                senderIsGroupAdmin = !!senderP?.admin;
+                const senderIdentity = getIdentityTargets([
+                    senderJid,
+                    message.key?.participant,
+                    message.participant,
+                ]);
+                senderParticipant = findParticipantByIdentity(parts, senderIdentity.jids, senderIdentity.numbers);
+                senderIsGroupAdmin = isGroupAdmin(senderParticipant);
             }
         }
 
         // ── Final mention check: gabung semua sumber botLid ───────────────────
         const effectiveBotLid = botLidFromGroup || botLidFromUser || null;
-        const isMentioned = mentionedEarly || isBotMentioned(message, botJid, botNumber, effectiveBotLid);
+        const isBotTagged = mentionedEarly || isBotMentioned(message, botJid, botNumber, effectiveBotLid);
+        const isMassTagged = nativeGroupMention
+            || isMassMention(allMentioned, groupMeta?.participants || [], senderParticipant);
 
-        if (!isMentioned) return;
+        if (!isBotTagged && !isMassTagged) return;
+
+        if (isMassTagged) {
+            console.log(`[AntiTagBot][${msgId || 'no-id'}] Native/mass group mention terdeteksi | Grup: ${groupMeta?.subject || remoteJid}`);
+        }
 
         // ── Exempt: admin grup — reply lucu tapi tidak hapus ──────────────────
         if (senderIsGroupAdmin) {
+            if (isMassTagged) {
+                console.log(`\x1b[33m[AntiTagBot] 🛡️ Admin: ${senderName} melakukan @semua/mass-mention — aman\x1b[39m`);
+                return;
+            }
             console.log(`\x1b[33m[AntiTagBot] 🛡️  Admin: ${senderName} (+${senderNumber}) tag bot — aman\x1b[39m`);
             const adminMention = senderJid || (senderNumber + '@s.whatsapp.net');
             const adminReplies = [
@@ -482,6 +554,17 @@ export default async function handleAntiTagBot(message, hisoka) {
         // ── Bot harus admin untuk bisa hapus ──────────────────────────────────
         if (!isAdmin) {
             console.log(`\x1b[33m[AntiTagBot] ⚠️  Bot bukan admin — skip hapus (${groupMeta?.subject || remoteJid.split('@')[0]})\x1b[39m`);
+            return;
+        }
+
+        // Native @semua dan mention hampir seluruh anggota dihapus tanpa balasan.
+        if (isMassTagged) {
+            try {
+                await hisoka.sendMessage(remoteJid, { delete: message.key });
+                console.log(`\x1b[32m[AntiTagBot] ✅ [${msgId || 'no-id'}] @semua/mass-mention dari ${senderName} → dihapus | Grup: ${groupMeta?.subject || remoteJid.split('@')[0]}\x1b[39m`);
+            } catch (deleteErr) {
+                console.error(`\x1b[31m[AntiTagBot] ❌ [${msgId || 'no-id'}] Gagal hapus @semua/mass-mention:\x1b[39m`, deleteErr?.message || deleteErr);
+            }
             return;
         }
 
