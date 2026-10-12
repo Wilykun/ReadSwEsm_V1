@@ -5,7 +5,7 @@ _📅 Senin, 12 Oktober 2026_
 🤖 *WILY BOT* — `V27.4`
 ✨ *0 Fitur Baru*
 🔧 *0 Bug/Error Fix*
-🚀 *1 Perubahan*
+🚀 *2 Perubahan*
 ━━━━━━━━━━━━━━━━━━━━━━
 🚀 *PERUBAHAN*
 ━━━━━━━━━━━━━━━━━━━━━━
@@ -15,6 +15,11 @@ _📅 Senin, 12 Oktober 2026_
    • Syarat dan pengecualian memakai daftar poin; langkah aktivasi memakai nomor.
    • Perintah seperti `.antitag on` dan `.antitag off` ditampilkan dengan format kode.
 > _Hasil: pesan Anti-Tag lebih mudah dibaca dan petunjuk perintah lebih jelas._
+2. *ENV — Template Aman untuk GitHub*
+   ~File `.env` asli dapat berisi nomor pairing dan rahasia bot.~
+   • `.env.example` berisi pengaturan non-rahasia; nomor pairing dikosongkan.
+   • `push.sh` tetap mengecualikan `.env` asli, sementara template dapat di-stage.
+> _Hasil: konfigurasi contoh bisa diunggah tanpa membocorkan data sensitif._
 
 📜 *ReadSW — Patch 10 Oktober 2026*
 📢 *INFORMASI PERBAIKAN*

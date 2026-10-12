@@ -8,7 +8,7 @@
 ════════════════════════════════════════════════════════════════════════
   FILE     : infoerror.txt
   Bot      : Wily Bot
-  Update   : 04/10/2026, 09.11.23  (realtime — diperbarui otomatis setiap ada error)
+  Update   : 12/10/2026, 07.41.53  (realtime — diperbarui otomatis setiap ada error)
 ════════════════════════════════════════════════════════════════════════
 
   RINGKASAN
@@ -23,24 +23,24 @@
 ────────────────────────────────────────────────────────────────────────
 
 ┌───────────────────────────────────────────────────────────────────────
-│  #001  —  console.error
+│  #001  —  SingleFile
 ├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
 │  PESAN ERROR
-│  [31m[HotReload] ✗ Gagal reload 'SEMUA_FITUR/event/event.js', pakai versi lama.[39m
+│  [SingleFile] Gagal tulis /home/runner/workspace/sessions/hisoka.json: ENOENT: no such file or directory, open '/home/runner/workspace/sessions/hisoka.json.tmp'
 │
 │  DETAIL
-│  Sumber      : console.error
+│  Sumber      : SingleFile
 │  Frekuensi   : 1x (baru terjadi)
-│  Pertama     : 04/10/2026, 09.11.23
-│  Terakhir    : 04/10/2026, 09.11.23
+│  Pertama     : 12/10/2026, 07.41.53
+│  Terakhir    : 12/10/2026, 07.41.53
 │
 │  STACK TRACE (3 baris pertama)
-│  ▶  Error: [31m[HotReload] ✗ Gagal reload 'SEMUA_FITUR/event/event.js', pakai versi lama.[39m
-│     at console.error (file:///home/runner/workspace/index.js:436:27)
-│     at Timeout._onTimeout (file:///home/runner/workspace/src/helper/hotReload.js:319:33)
+│  ▶  Error: [SingleFile] Gagal tulis /home/runner/workspace/sessions/hisoka.json: ENOENT: no such file or directory, open '/home/runner/workspace/sessions/hisoka.json.tmp'
+│     at console.error (file:///home/runner/workspace/index.js:433:27)
+│     at flushNow (file:///home/runner/workspace/src/helper/authState.js:365:33)
 └───────────────────────────────────────────────────────────────────────
 
 ════════════════════════════════════════════════════════════════════════
   End of Report  —  Total: 1 jenis, 1 kejadian
-  Terakhir diperbarui: 04/10/2026, 09.11.23
+  Terakhir diperbarui: 12/10/2026, 07.41.53
 ════════════════════════════════════════════════════════════════════════
