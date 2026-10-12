@@ -37,6 +37,11 @@ attached_assets/
 # node_modules — exclude semua (install ulang via npm install)
 node_modules/
 
+# Environment lokal dapat berisi rahasia — jangan pernah commit
+.env
+.env.*
+!.env.example
+
 # PM2 logs — jangan di-push ke git
 logs/*.log
 !logs/.gitkeep

@@ -34,7 +34,7 @@
   },
   "autoReadStory": {
     "enabled": true,
-    "autoReaction": false,
+    "autoReaction": true,
     "randomDelay": true,
     "delayMinMs": 1000,
     "delayMaxMs": 20000,
