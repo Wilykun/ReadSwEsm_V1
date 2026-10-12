@@ -1,12 +1,13 @@
 {
-  "ACBDBFA80A401C72086EF18A3ADB07AE": {
-    "id": "ACBDBFA80A401C72086EF18A3ADB07AE",
+  "AC1DF6092410D6F94E3DDBC941FBD701": {
+    "id": "AC1DF6092410D6F94E3DDBC941FBD701",
     "sender": "6281393564657@s.whatsapp.net",
     "name": "γυς ρου",
     "type": "videoMessage",
-    "arrivedAt": "2026-10-03T14:05:38.329Z",
+    "arrivedAt": "2026-10-12T07:13:33.196Z",
     "read": true,
     "reacted": false,
+    "reactionExpected": false,
     "emoji": null,
     "resolve": "PN langsung ✓",
     "source": "status",
@@ -16,17 +17,17 @@
       "remoteJid": "status@broadcast",
       "remoteJidAlt": "6281393564657@s.whatsapp.net",
       "fromMe": false,
-      "id": "ACBDBFA80A401C72086EF18A3ADB07AE",
+      "id": "AC1DF6092410D6F94E3DDBC941FBD701",
       "participant": "174577888038922@lid",
       "addressingMode": "lid"
     },
-    "updatedAt": "2026-10-03T14:26:03.043Z",
+    "updatedAt": "2026-10-12T07:13:49.287Z",
     "receiptKeys": [
       {
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6281393564657@s.whatsapp.net",
         "fromMe": false,
-        "id": "ACBDBFA80A401C72086EF18A3ADB07AE",
+        "id": "AC1DF6092410D6F94E3DDBC941FBD701",
         "participant": "174577888038922@lid",
         "addressingMode": "lid"
       },
@@ -34,147 +35,11 @@
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6281393564657@s.whatsapp.net",
         "fromMe": false,
-        "id": "ACBDBFA80A401C72086EF18A3ADB07AE",
+        "id": "AC1DF6092410D6F94E3DDBC941FBD701",
         "participant": "6281393564657@s.whatsapp.net",
         "addressingMode": "lid"
       }
     ],
-    "processedAt": "2026-10-03T14:05:42.067Z",
-    "deleted": true,
-    "deletedAt": "2026-10-03T14:26:03.043Z"
-  },
-  "AC0168FC3A7B18452230DC07F8C61B6A": {
-    "id": "AC0168FC3A7B18452230DC07F8C61B6A",
-    "sender": "6281393564657@s.whatsapp.net",
-    "name": "γυς ρου",
-    "type": "videoMessage",
-    "arrivedAt": "2026-10-03T15:31:30.567Z",
-    "read": true,
-    "reacted": false,
-    "emoji": null,
-    "resolve": "PN langsung ✓",
-    "source": "status",
-    "number": "6281393564657",
-    "resolvedPn": "6281393564657@s.whatsapp.net",
-    "messageKey": {
-      "remoteJid": "status@broadcast",
-      "remoteJidAlt": "6281393564657@s.whatsapp.net",
-      "fromMe": false,
-      "id": "AC0168FC3A7B18452230DC07F8C61B6A",
-      "participant": "174577888038922@lid",
-      "addressingMode": "lid"
-    },
-    "updatedAt": "2026-10-04T08:09:33.006Z",
-    "receiptKeys": [
-      {
-        "remoteJid": "status@broadcast",
-        "remoteJidAlt": "6281393564657@s.whatsapp.net",
-        "fromMe": false,
-        "id": "AC0168FC3A7B18452230DC07F8C61B6A",
-        "participant": "174577888038922@lid",
-        "addressingMode": "lid"
-      },
-      {
-        "remoteJid": "status@broadcast",
-        "remoteJidAlt": "6281393564657@s.whatsapp.net",
-        "fromMe": false,
-        "id": "AC0168FC3A7B18452230DC07F8C61B6A",
-        "participant": "6281393564657@s.whatsapp.net",
-        "addressingMode": "lid"
-      }
-    ],
-    "processedAt": "2026-10-03T15:31:37.418Z",
-    "deleted": true,
-    "deletedAt": "2026-10-04T08:09:33.006Z"
-  },
-  "AC7DC7A2154ADAE85FA62502B7AC09FC": {
-    "id": "AC7DC7A2154ADAE85FA62502B7AC09FC",
-    "sender": "6281393564657@s.whatsapp.net",
-    "name": "γυς ρου",
-    "type": "videoMessage",
-    "arrivedAt": "2026-10-04T08:09:32.523Z",
-    "read": true,
-    "reacted": true,
-    "emoji": "🐟",
-    "resolve": "PN langsung ✓",
-    "source": "status",
-    "number": "6281393564657",
-    "resolvedPn": "6281393564657@s.whatsapp.net",
-    "messageKey": {
-      "remoteJid": "status@broadcast",
-      "remoteJidAlt": "6281393564657@s.whatsapp.net",
-      "fromMe": false,
-      "id": "AC7DC7A2154ADAE85FA62502B7AC09FC",
-      "participant": "174577888038922@lid",
-      "addressingMode": "lid"
-    },
-    "updatedAt": "2026-10-04T09:47:15.786Z",
-    "receiptKeys": [
-      {
-        "remoteJid": "status@broadcast",
-        "remoteJidAlt": "6281393564657@s.whatsapp.net",
-        "fromMe": false,
-        "id": "AC7DC7A2154ADAE85FA62502B7AC09FC",
-        "participant": "174577888038922@lid",
-        "addressingMode": "lid"
-      },
-      {
-        "remoteJid": "status@broadcast",
-        "remoteJidAlt": "6281393564657@s.whatsapp.net",
-        "fromMe": false,
-        "id": "AC7DC7A2154ADAE85FA62502B7AC09FC",
-        "participant": "6281393564657@s.whatsapp.net",
-        "addressingMode": "lid"
-      }
-    ],
-    "processedAt": "2026-10-04T08:09:40.117Z",
-    "retriedOnStartup": true,
-    "retriedAt": "2026-10-04T09:09:09.250Z",
-    "deleted": true,
-    "deletedAt": "2026-10-04T09:47:15.786Z"
-  },
-  "AC099CE1F8CD5D1EDFF5A576C11C272D": {
-    "id": "AC099CE1F8CD5D1EDFF5A576C11C272D",
-    "sender": "6281393564657@s.whatsapp.net",
-    "name": "γυς ρου",
-    "type": "videoMessage",
-    "arrivedAt": "2026-10-04T08:09:33.026Z",
-    "read": true,
-    "reacted": true,
-    "emoji": "🐋",
-    "resolve": "PN langsung ✓",
-    "source": "status",
-    "number": "6281393564657",
-    "resolvedPn": "6281393564657@s.whatsapp.net",
-    "messageKey": {
-      "remoteJid": "status@broadcast",
-      "remoteJidAlt": "6281393564657@s.whatsapp.net",
-      "fromMe": false,
-      "id": "AC099CE1F8CD5D1EDFF5A576C11C272D",
-      "participant": "174577888038922@lid",
-      "addressingMode": "lid"
-    },
-    "updatedAt": "2026-10-04T09:09:11.235Z",
-    "receiptKeys": [
-      {
-        "remoteJid": "status@broadcast",
-        "remoteJidAlt": "6281393564657@s.whatsapp.net",
-        "fromMe": false,
-        "id": "AC099CE1F8CD5D1EDFF5A576C11C272D",
-        "participant": "174577888038922@lid",
-        "addressingMode": "lid"
-      },
-      {
-        "remoteJid": "status@broadcast",
-        "remoteJidAlt": "6281393564657@s.whatsapp.net",
-        "fromMe": false,
-        "id": "AC099CE1F8CD5D1EDFF5A576C11C272D",
-        "participant": "6281393564657@s.whatsapp.net",
-        "addressingMode": "lid"
-      }
-    ],
-    "processedAt": "2026-10-04T08:09:47.259Z",
-    "retriedOnStartup": true,
-    "retriedAt": "2026-10-04T09:09:11.235Z"
+    "processedAt": "2026-10-12T07:13:49.287Z"
   }
 }
