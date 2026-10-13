@@ -48,10 +48,10 @@
     "name": "xyrroe",
     "type": "videoMessage",
     "arrivedAt": "2026-10-13T03:50:56.800Z",
-    "read": false,
-    "reacted": false,
+    "read": true,
+    "reacted": true,
     "reactionExpected": true,
-    "emoji": null,
+    "emoji": "🐳",
     "resolve": "PN langsung ✓",
     "source": "status",
     "number": "6285649093224",
@@ -64,6 +64,25 @@
       "participant": "158789504385075@lid",
       "addressingMode": "lid"
     },
-    "updatedAt": "2026-10-13T03:50:56.800Z"
+    "updatedAt": "2026-10-13T03:51:08.068Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6285649093224@s.whatsapp.net",
+        "fromMe": false,
+        "id": "A5BFC2183C0A032871FA7FF52182BDEA",
+        "participant": "158789504385075@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6285649093224@s.whatsapp.net",
+        "fromMe": false,
+        "id": "A5BFC2183C0A032871FA7FF52182BDEA",
+        "participant": "6285649093224@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-10-13T03:51:08.068Z"
   }
 }
