@@ -37,7 +37,7 @@ async function handleMenu({
         getJadibotNumber, getJadibotReadsw, getJadibotAntidel, getJadibotAnticall,
         getJadibotAnticallvid, getJadibotAutoOnline, getJadibotAutoTyping, getJadibotAutoRecording,
         jadibotConnectedAt, getJadibotExpiry, getJadibotExpirySummary,
-        getHandler, CEKAUTO_FITUR_LIST, BROWSER_LIST, TOTAL_CMD_COUNT,
+        getHandler, CEKAUTO_FITUR_LIST, BROWSER_LIST,
         getUserProfilePictureUrl, isNoSpaceError, cleanupWritePressure,
 }) {
         try {
@@ -106,6 +106,9 @@ async function handleMenu({
                 }
 
                 const cfg      = loadConfig();
+                const totalCmdCount = Array.isArray(hisoka?.loadedCommands)
+                        ? hisoka.loadedCommands.length
+                        : 0;
                 const botReply = cfg.botReply || {};
                 const botName  = botReply.botName     || 'Wily Bot';
                 const ownerNum = botReply.ownerNumber || '';
@@ -143,7 +146,7 @@ async function handleMenu({
                         tgl: _mnTgl,
                         jam: _mnJam,
                         browserLabel: _mnBrowserLabel,
-                        totalCmdCount: TOTAL_CMD_COUNT,
+                        totalCmdCount,
                         totalSemuaFitur,
                         fiturAktif: totalCmd,
                         fiturTidakAktif: totalTidakAktif,

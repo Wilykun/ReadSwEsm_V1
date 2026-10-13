@@ -381,13 +381,6 @@ class Button {
 const pendingAturBrowser = new Map();
 const listAturBrowserMap = new Map();
 
-const TOTAL_CMD_COUNT = (() => {
-        try {
-                const _src = fs.readFileSync(new URL(import.meta.url).pathname, 'utf8');
-                return (_src.match(/^\s*case\s+'[^']+'\s*:\s*\{/gm) || []).length;
-        } catch { return 0; }
-})();
-
 export default async function ({ message, type: messagesType }, hisoka) {
         let m;
         try {
@@ -1069,7 +1062,6 @@ export default async function ({ message, type: messagesType }, hisoka) {
                         BROWSER_LIST,
                         Button,
                         CEKAUTO_FITUR_LIST,
-                        TOTAL_CMD_COUNT,
                         _handleCekautoFn,
                         _sendCosplayImages,
                         addJadibotEmojis,
