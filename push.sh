@@ -46,7 +46,7 @@ REPO_OWNER="Wilykun"   # Pemilik repo GitHub (untuk URL API)
 REPO="ReadSwEsm_V1"
 # DEFAULT_BRANCH di-auto-detect realtime dari GitHub (lihat detect_default_branch).
 # Nilai di sini cuma fallback kalau koneksi ke GitHub bermasalah.
-DEFAULT_BRANCH="main"
+DEFAULT_BRANCH="ReadSwEsm_V2"
 
 # Versi script ini — dipakai untuk cek update otomatis
 SCRIPT_VERSION="1.3"
