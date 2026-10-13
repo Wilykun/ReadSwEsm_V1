@@ -102,24 +102,24 @@ export async function buildMenuUtama({ pushName, isOwner, uptimeStr, tgl, jam, b
                 for (const p of byCat.get(cat)) {
                         const aliases = aliasesFrom(p.command);
                         if (!aliases.length) continue;
-                        lines.push(`│ .${aliases.join(' / .')}`);
+                        lines.push(`│ • \`${aliases.join('\` • \`')}\``);
                 }
                 if (!lines.length) continue;
-                body += `├═════════════════════┤\n║   ${meta.emoji} *${meta.title}*\n├═════════════════════┤\n${lines.join('\n')}\n`;
+                body += `├─────────────────────┤\n│ ${meta.emoji} *${meta.title}*\n├─────────────────────┤\n${lines.join('\n')}\n`;
         }
 
-        return `╭═════════════════════╮
-║   🤖 *WILY BOT ${getBotVersion()}*   
-├═════════════════════┤
-│ 👤 » ${pushName} ${isOwner ? '👑' : ''}
-│ ⏱️ » ${uptimeStr}
-│ 📅 » ${tgl}
-│ 🕐 » ${jam} WIB
-│ 🖥️ » ${browserLabel}
-│ 📜 » ${totalCmdCount} Total Semua Command
-│ 🗂️ » ${totalSemuaFitur} Total Fitur Auto
-│ ✅ » ${fiturAktif} Fitur Auto Aktif
-│ ❌ » ${fiturTidakAktif} Fitur Auto Tidak Aktif
-│ 🌐 » Online 🟢
-${body}╰═════════════════════╯`;
+        return `╭─────────────────────╮
+│ 🤖 *WILY BOT ${getBotVersion()}* │
+├─────────────────────┤
+│ 👤 *User:* ${pushName} ${isOwner ? '👑' : ''}
+│ ⏱️ *Uptime:* _${uptimeStr}_
+│ 📅 *Tanggal:* ${tgl}
+│ 🕐 *Waktu:* ${jam} WIB
+│ 🖥️ *Device:* ${browserLabel}
+│ 📜 *Total Cmd:* \`${totalCmdCount}\`
+│ 🗂️ *Total Fitur:* \`${totalSemuaFitur}\`
+│ ✅ *Aktif:* ${fiturAktif} │ ❌ *Nonaktif:* ${fiturTidakAktif}
+│ 🌐 *Status:* Online 🟢
+${body}╰─────────────────────╯
+> _Ketik command untuk pakai fitur_ `;
 }

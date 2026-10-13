@@ -8,7 +8,7 @@
 ════════════════════════════════════════════════════════════════════════
   FILE     : infoerror.txt
   Bot      : Wily Bot
-  Update   : 12/10/2026, 07.41.53  (realtime — diperbarui otomatis setiap ada error)
+  Update   : 13/10/2026, 05.53.23  (realtime — diperbarui otomatis setiap ada error)
 ════════════════════════════════════════════════════════════════════════
 
   RINGKASAN
@@ -23,24 +23,24 @@
 ────────────────────────────────────────────────────────────────────────
 
 ┌───────────────────────────────────────────────────────────────────────
-│  #001  —  SingleFile
+│  #001  —  console.error
 ├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
 │  PESAN ERROR
-│  [SingleFile] Gagal tulis /home/runner/workspace/sessions/hisoka.json: ENOENT: no such file or directory, open '/home/runner/workspace/sessions/hisoka.json.tmp'
+│  [31m[HD] Error:[39m Gagal enhance gambar: fetch failed
 │
 │  DETAIL
-│  Sumber      : SingleFile
+│  Sumber      : console.error
 │  Frekuensi   : 1x (baru terjadi)
-│  Pertama     : 12/10/2026, 07.41.53
-│  Terakhir    : 12/10/2026, 07.41.53
+│  Pertama     : 13/10/2026, 05.53.23
+│  Terakhir    : 13/10/2026, 05.53.23
 │
 │  STACK TRACE (3 baris pertama)
-│  ▶  Error: [SingleFile] Gagal tulis /home/runner/workspace/sessions/hisoka.json: ENOENT: no such file or directory, open '/home/runner/workspace/sessions/hisoka.json.tmp'
+│  ▶  Error: [31m[HD] Error:[39m Gagal enhance gambar: fetch failed
 │     at console.error (file:///home/runner/workspace/index.js:433:27)
-│     at flushNow (file:///home/runner/workspace/src/helper/authState.js:365:33)
+│     at handleHdvideo (file:///home/runner/workspace/SEMUA_FITUR/download/hdvid.js?t=1791608897751.2134:319:17)
 └───────────────────────────────────────────────────────────────────────
 
 ════════════════════════════════════════════════════════════════════════
   End of Report  —  Total: 1 jenis, 1 kejadian
-  Terakhir diperbarui: 12/10/2026, 07.41.53
+  Terakhir diperbarui: 13/10/2026, 05.53.23
 ════════════════════════════════════════════════════════════════════════
