@@ -19,7 +19,7 @@
  * ───────────────────────────────
  *
  *  hdvid.js — Enhance kualitas gambar HD via AI
- *  Upscale gambar lewat iLoveIMG
+ *  Upscale gambar lewat alwayscodex ai-enhance
  *  Support: reply gambar / kirim gambar + caption .hd
  * ───────────────────────────────
  */
@@ -94,11 +94,8 @@ function parseQuality(query) {
 
 // ── Resize lokal via Sharp; tidak mengunggah ulang gambar ke host publik ───
 async function resizeImageBuffer(buffer, targetWidth) {
-    const parsedWidth = Number(targetWidth);
-    if (!Number.isFinite(parsedWidth) || parsedWidth < 1) {
-        throw new Error('Lebar resize tidak valid');
-    }
-    const width = Math.round(parsedWidth);
+    const width = Math.max(1, Math.round(Number(targetWidth) || 0));
+    if (!width) throw new Error('Lebar resize tidak valid');
 
     return sharp(buffer)
         .resize({
