@@ -42,3 +42,4 @@
 - [AntiTag reply tone](antitagbot-reply-tone.md) — Use context-matched humor and emojis but preserve the verified action; never claim a failed deletion succeeded.
 - [SwTrack Read Only pending semantics](swtrack-readonly-pending.md) — read:true/reacted:false retries only with persisted reactionExpected and the active reaction mode
 - [Replit global .env ignore](replit-global-env-ignore.md) — if `.env` stays ignored after removing the project rule, override the workspace-wide exclusion with a root negation.
+- [Main and jadibot menu isolation](main-jadibot-menu-isolation.md) — main-bot `.menu` fixes must preserve the independent user-jadibot menu and command count.
