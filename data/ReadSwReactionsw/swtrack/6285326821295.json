@@ -1,13 +1,14 @@
 {
-  "ACC960FE0220FCF37F0ECBCAD1406AD9": {
-    "id": "ACC960FE0220FCF37F0ECBCAD1406AD9",
+  "AC9861DC1DCE22D0B798772977EE0B0A": {
+    "id": "AC9861DC1DCE22D0B798772977EE0B0A",
     "sender": "6285326821295@s.whatsapp.net",
     "name": "Sevenfold",
     "type": "videoMessage",
-    "arrivedAt": "2026-09-28T06:04:15.610Z",
+    "arrivedAt": "2026-10-13T03:28:17.862Z",
     "read": true,
     "reacted": true,
-    "emoji": "🐳",
+    "reactionExpected": true,
+    "emoji": "🐙",
     "resolve": "PN langsung ✓",
     "source": "status",
     "number": "6285326821295",
@@ -16,17 +17,17 @@
       "remoteJid": "status@broadcast",
       "remoteJidAlt": "6285326821295@s.whatsapp.net",
       "fromMe": false,
-      "id": "ACC960FE0220FCF37F0ECBCAD1406AD9",
+      "id": "AC9861DC1DCE22D0B798772977EE0B0A",
       "participant": "47815887736878@lid",
       "addressingMode": "lid"
     },
-    "updatedAt": "2026-09-28T06:04:33.608Z",
+    "updatedAt": "2026-10-13T03:28:33.224Z",
     "receiptKeys": [
       {
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6285326821295@s.whatsapp.net",
         "fromMe": false,
-        "id": "ACC960FE0220FCF37F0ECBCAD1406AD9",
+        "id": "AC9861DC1DCE22D0B798772977EE0B0A",
         "participant": "47815887736878@lid",
         "addressingMode": "lid"
       },
@@ -34,143 +35,11 @@
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6285326821295@s.whatsapp.net",
         "fromMe": false,
-        "id": "ACC960FE0220FCF37F0ECBCAD1406AD9",
+        "id": "AC9861DC1DCE22D0B798772977EE0B0A",
         "participant": "6285326821295@s.whatsapp.net",
         "addressingMode": "lid"
       }
     ],
-    "processedAt": "2026-09-28T06:04:28.563Z",
-    "deleted": true,
-    "deletedAt": "2026-09-28T06:04:33.608Z"
-  },
-  "AC151C0D00617C041BE9E4973E356AA3": {
-    "id": "AC151C0D00617C041BE9E4973E356AA3",
-    "sender": "6285326821295@s.whatsapp.net",
-    "name": "Sevenfold",
-    "type": "imageMessage",
-    "arrivedAt": "2026-09-28T06:06:22.318Z",
-    "read": true,
-    "reacted": true,
-    "emoji": "🐡",
-    "resolve": "PN langsung ✓",
-    "source": "status",
-    "number": "6285326821295",
-    "resolvedPn": "6285326821295@s.whatsapp.net",
-    "messageKey": {
-      "remoteJid": "status@broadcast",
-      "remoteJidAlt": "6285326821295@s.whatsapp.net",
-      "fromMe": false,
-      "id": "AC151C0D00617C041BE9E4973E356AA3",
-      "participant": "47815887736878@lid",
-      "addressingMode": "lid"
-    },
-    "updatedAt": "2026-09-28T06:07:01.509Z",
-    "receiptKeys": [
-      {
-        "remoteJid": "status@broadcast",
-        "remoteJidAlt": "6285326821295@s.whatsapp.net",
-        "fromMe": false,
-        "id": "AC151C0D00617C041BE9E4973E356AA3",
-        "participant": "47815887736878@lid",
-        "addressingMode": "lid"
-      },
-      {
-        "remoteJid": "status@broadcast",
-        "remoteJidAlt": "6285326821295@s.whatsapp.net",
-        "fromMe": false,
-        "id": "AC151C0D00617C041BE9E4973E356AA3",
-        "participant": "6285326821295@s.whatsapp.net",
-        "addressingMode": "lid"
-      }
-    ],
-    "processedAt": "2026-09-28T06:06:29.703Z",
-    "deleted": true,
-    "deletedAt": "2026-09-28T06:07:01.509Z"
-  },
-  "ACAEE8829F9C290B5274392743057054": {
-    "id": "ACAEE8829F9C290B5274392743057054",
-    "sender": "6285326821295@s.whatsapp.net",
-    "name": "Sevenfold",
-    "type": "videoMessage",
-    "arrivedAt": "2026-09-28T06:08:57.843Z",
-    "read": true,
-    "reacted": true,
-    "emoji": "🐟",
-    "resolve": "PN langsung ✓",
-    "source": "status",
-    "number": "6285326821295",
-    "resolvedPn": "6285326821295@s.whatsapp.net",
-    "messageKey": {
-      "remoteJid": "status@broadcast",
-      "remoteJidAlt": "6285326821295@s.whatsapp.net",
-      "fromMe": false,
-      "id": "ACAEE8829F9C290B5274392743057054",
-      "participant": "47815887736878@lid",
-      "addressingMode": "lid"
-    },
-    "updatedAt": "2026-09-28T13:42:24.312Z",
-    "receiptKeys": [
-      {
-        "remoteJid": "status@broadcast",
-        "remoteJidAlt": "6285326821295@s.whatsapp.net",
-        "fromMe": false,
-        "id": "ACAEE8829F9C290B5274392743057054",
-        "participant": "47815887736878@lid",
-        "addressingMode": "lid"
-      },
-      {
-        "remoteJid": "status@broadcast",
-        "remoteJidAlt": "6285326821295@s.whatsapp.net",
-        "fromMe": false,
-        "id": "ACAEE8829F9C290B5274392743057054",
-        "participant": "6285326821295@s.whatsapp.net",
-        "addressingMode": "lid"
-      }
-    ],
-    "processedAt": "2026-09-28T06:09:16.478Z",
-    "deleted": true,
-    "deletedAt": "2026-09-28T13:42:24.312Z"
-  },
-  "ACCF84AE90490377CC14575A53B31387": {
-    "id": "ACCF84AE90490377CC14575A53B31387",
-    "sender": "6285326821295@s.whatsapp.net",
-    "name": "Sevenfold",
-    "type": "videoMessage",
-    "arrivedAt": "2026-09-29T06:12:52.466Z",
-    "read": true,
-    "reacted": true,
-    "emoji": "🦈",
-    "resolve": "PN langsung ✓",
-    "source": "status",
-    "number": "6285326821295",
-    "resolvedPn": "6285326821295@s.whatsapp.net",
-    "messageKey": {
-      "remoteJid": "status@broadcast",
-      "remoteJidAlt": "6285326821295@s.whatsapp.net",
-      "fromMe": false,
-      "id": "ACCF84AE90490377CC14575A53B31387",
-      "participant": "47815887736878@lid",
-      "addressingMode": "lid"
-    },
-    "updatedAt": "2026-09-29T06:12:57.595Z",
-    "receiptKeys": [
-      {
-        "remoteJid": "status@broadcast",
-        "remoteJidAlt": "6285326821295@s.whatsapp.net",
-        "fromMe": false,
-        "id": "ACCF84AE90490377CC14575A53B31387",
-        "participant": "47815887736878@lid",
-        "addressingMode": "lid"
-      },
-      {
-        "remoteJid": "status@broadcast",
-        "remoteJidAlt": "6285326821295@s.whatsapp.net",
-        "fromMe": false,
-        "id": "ACCF84AE90490377CC14575A53B31387",
-        "participant": "6285326821295@s.whatsapp.net",
-        "addressingMode": "lid"
-      }
-    ],
-    "processedAt": "2026-09-29T06:12:57.595Z"
+    "processedAt": "2026-10-13T03:28:33.224Z"
   }
 }

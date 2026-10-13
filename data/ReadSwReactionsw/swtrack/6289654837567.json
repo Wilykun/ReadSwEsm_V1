@@ -64,7 +64,7 @@
       "participant": "195748050256060@lid",
       "addressingMode": "lid"
     },
-    "updatedAt": "2026-10-12T10:45:18.163Z",
+    "updatedAt": "2026-10-13T03:28:17.735Z",
     "receiptKeys": [
       {
         "remoteJid": "status@broadcast",
@@ -83,7 +83,9 @@
         "addressingMode": "lid"
       }
     ],
-    "processedAt": "2026-10-12T10:45:18.162Z"
+    "processedAt": "2026-10-12T10:45:18.162Z",
+    "deleted": true,
+    "deletedAt": "2026-10-13T03:28:17.735Z"
   },
   "AC66691E9A9A31FB02AEC7DE5A84B7F1": {
     "id": "AC66691E9A9A31FB02AEC7DE5A84B7F1",
@@ -170,5 +172,48 @@
       }
     ],
     "processedAt": "2026-10-12T10:45:08.277Z"
+  },
+  "AC76DA38015E67EE927392EBA77FC92C": {
+    "id": "AC76DA38015E67EE927392EBA77FC92C",
+    "sender": "6289654837567@s.whatsapp.net",
+    "name": "punyaaarizallkuu🙄😒",
+    "type": "videoMessage",
+    "arrivedAt": "2026-10-13T03:28:17.984Z",
+    "read": true,
+    "reacted": true,
+    "reactionExpected": true,
+    "emoji": "🐟",
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "6289654837567",
+    "resolvedPn": "6289654837567@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "6289654837567@s.whatsapp.net",
+      "fromMe": false,
+      "id": "AC76DA38015E67EE927392EBA77FC92C",
+      "participant": "195748050256060@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-10-13T03:28:40.092Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6289654837567@s.whatsapp.net",
+        "fromMe": false,
+        "id": "AC76DA38015E67EE927392EBA77FC92C",
+        "participant": "195748050256060@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6289654837567@s.whatsapp.net",
+        "fromMe": false,
+        "id": "AC76DA38015E67EE927392EBA77FC92C",
+        "participant": "6289654837567@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-10-13T03:28:40.091Z"
   }
 }
