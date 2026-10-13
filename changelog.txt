@@ -1,3 +1,21 @@
+📜 *Patch 13 Oktober 2026*
+📢 *INFORMASI PERBAIKAN*
+_📅 Selasa, 13 Oktober 2026_
+━━━━━━━━━━━━━━━━━━━━━━
+🤖 *WILY BOT* — `V27.5`
+✨ *0 Fitur Baru*
+🔧 *1 Bug/Error Fix*
+🚀 *0 Perubahan*
+━━━━━━━━━━━━━━━━━━━━━━
+🐛 *BUG FIX*
+━━━━━━━━━━━━━━━━━━━━━━
+1. *HD — Enhance Gambar Gagal*
+   ~Gambar berhasil diunggah, tetapi API AlwaysCodex gagal diakses karena host tidak ditemukan.~
+   • Enhancer diganti ke layanan iLoveIMG yang berhasil diuji pada gambar JPEG, PNG, dan WebP.
+   • Resize resolusi tambahan memakai Sharp lokal, tanpa mengunggah gambar lagi ke host publik.
+   • Gangguan sementara mendapat satu percobaan ulang.
+> _Hasil: `.hd` tidak lagi bergantung pada host AlwaysCodex yang mati atau layanan resize eksternal._
+
 📜 *ReadSW — Patch 12 Oktober 2026*
 📢 *INFORMASI PERBAIKAN*
 _📅 Senin, 12 Oktober 2026_

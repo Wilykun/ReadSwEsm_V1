@@ -19,7 +19,7 @@
  * ───────────────────────────────
  *
  *  hdvid.js — Enhance kualitas gambar HD via AI
- *  Upscale gambar lewat alwayscodex ai-enhance
+ *  Upscale gambar lewat iLoveIMG
  *  Support: reply gambar / kirim gambar + caption .hd
  * ───────────────────────────────
  */
@@ -27,47 +27,53 @@
 
 import util from 'util';
 import crypto from 'crypto';
+import sharp from 'sharp';
+import { hdr as upscaleWithILoveIMG } from '../ai/iloveimg.js';
 
-// ── Upload buffer ke freeimage.host → dapat URL publik ─────────────────────
-async function uploadToFreeimage(buffer, mimeType = 'image/jpeg') {
-    const b64 = buffer.toString('base64');
-    const params = new URLSearchParams();
-    params.append('key', '6d207e02198a847aa98d0a2a901485a5');
-    params.append('action', 'upload');
-    params.append('source', b64);
-    params.append('format', 'json');
-
-    const res = await fetch('https://freeimage.host/api/1/upload', {
-        method : 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body   : params.toString(),
-        signal : AbortSignal.timeout(30000),
-    });
-    if (!res.ok) throw new Error(`freeimage.host HTTP ${res.status}`);
-    const json = await res.json();
-    const url = json?.image?.url;
-    if (!url) throw new Error('freeimage.host: tidak ada URL di respons');
-    return url;
-}
-
-// ── Enhance gambar via alwayscodex ai-enhance ──────────────────────────────
-async function enhanceImageUrl(publicUrl) {
-    const apiUrl = `https://api.alwayscodex.my.id/api/imagehd/ai-enhance?url=${encodeURIComponent(publicUrl)}`;
-    const res = await fetch(apiUrl, {
-        signal: AbortSignal.timeout(45000),
-        headers: { 'User-Agent': 'Mozilla/5.0' },
-    });
-    if (!res.ok) throw new Error(`alwayscodex HTTP ${res.status}`);
-    const ct = res.headers.get('content-type') || '';
-    if (!ct.includes('image/')) throw new Error(`Respons bukan gambar: ${ct}`);
-    return Buffer.from(await res.arrayBuffer());
-}
-
-// ── Main: upload buffer → get URL → enhance ────────────────────────────────
+// ── Enhance gambar via iLoveIMG ────────────────────────────────────────────
 async function enhanceImageBuffer(buffer, mimeType = 'image/jpeg') {
-    const publicUrl = await uploadToFreeimage(buffer, mimeType);
-    console.log('[HD] Upload OK:', publicUrl);
-    return await enhanceImageUrl(publicUrl);
+    if (!Buffer.isBuffer(buffer) || buffer.length === 0) {
+        throw new Error('Buffer gambar kosong atau tidak valid');
+    }
+
+    const inputMeta = await sharp(buffer).metadata();
+    if (!inputMeta.width || !inputMeta.height) {
+        throw new Error(`Format gambar tidak didukung: ${inputMeta.format || mimeType}`);
+    }
+
+    let lastError;
+    for (let attempt = 1; attempt <= 2; attempt++) {
+        try {
+            // iLoveIMG menerima input langsung, jadi tidak perlu upload ke image host.
+            const enhanced = await upscaleWithILoveIMG(buffer, 4);
+            if (!Buffer.isBuffer(enhanced) || enhanced.length === 0) {
+                throw new Error('iLoveIMG mengembalikan gambar kosong');
+            }
+
+            const outputMeta = await sharp(enhanced).metadata();
+            if (!outputMeta.width || !outputMeta.height) {
+                throw new Error('Hasil iLoveIMG bukan file gambar yang valid');
+            }
+
+            console.log(
+                `[HD] ✅ iLoveIMG upscale OK (${inputMeta.format || mimeType} ` +
+                `${inputMeta.width}x${inputMeta.height} → ${outputMeta.width}x${outputMeta.height})`
+            );
+            return enhanced;
+        } catch (error) {
+            lastError = error;
+            const status = Number(error?.response?.status);
+            const retryable = !status || status === 408 || status === 425 ||
+                status === 429 || status >= 500;
+            if (attempt >= 2 || !retryable) break;
+            console.warn(`[HD] iLoveIMG percobaan ${attempt} gagal; mencoba ulang:`, error.message);
+            await new Promise(resolve => setTimeout(resolve, 800));
+        }
+    }
+
+    const code = lastError?.cause?.code || lastError?.code;
+    const detail = `${lastError?.message || 'unknown error'}${code ? ` (${code})` : ''}`;
+    throw new Error(`iLoveIMG upscale gagal: ${detail}`);
 }
 
 // ── Parse quality level dari query ─────────────────────────────────────────
@@ -86,32 +92,23 @@ function parseQuality(query) {
     return map[q] ?? null;
 }
 
-// ── Resize gambar via images.weserv.nl (no extra npm dep, pure fetch) ──────
-// FIX Bug 1: weserv.nl butuh format ssl:host/path bukan https://host/path
-// FIX Bug 2: hapus &we — kita INGIN upscale, flag itu justru blokir resize ke atas
-async function resizeViaWeserv(buffer, targetWidth, mimeType = 'image/jpeg') {
-    const publicUrl = await uploadToFreeimage(buffer, mimeType);
-    console.log('[HD] Upload resize source OK:', publicUrl);
-
-    // Konversi URL ke format yang diterima weserv.nl
-    // https://foo.com/img.jpg  → ssl:foo.com/img.jpg
-    // http://foo.com/img.jpg   → foo.com/img.jpg
-    let weservTarget = publicUrl;
-    if (weservTarget.startsWith('https://')) {
-        weservTarget = 'ssl:' + weservTarget.slice(8);
-    } else if (weservTarget.startsWith('http://')) {
-        weservTarget = weservTarget.slice(7);
+// ── Resize lokal via Sharp; tidak mengunggah ulang gambar ke host publik ───
+async function resizeImageBuffer(buffer, targetWidth) {
+    const parsedWidth = Number(targetWidth);
+    if (!Number.isFinite(parsedWidth) || parsedWidth < 1) {
+        throw new Error('Lebar resize tidak valid');
     }
+    const width = Math.round(parsedWidth);
 
-    const weservUrl = `https://images.weserv.nl/?url=${encodeURIComponent(weservTarget)}&w=${targetWidth}&output=jpg&q=95`;
-    const res = await fetch(weservUrl, {
-        signal : AbortSignal.timeout(40000),
-        headers: { 'User-Agent': 'Mozilla/5.0' },
-    });
-    if (!res.ok) throw new Error(`weserv resize gagal: HTTP ${res.status}`);
-    const ct = res.headers.get('content-type') || '';
-    if (!ct.includes('image/')) throw new Error(`weserv respons bukan gambar: ${ct}`);
-    return Buffer.from(await res.arrayBuffer());
+    return sharp(buffer)
+        .resize({
+            width,
+            fit: 'inside',
+            withoutEnlargement: false,
+            kernel: 'lanczos3',
+        })
+        .jpeg({ quality: 95 })
+        .toBuffer();
 }
 
 // ── Video enhancer (tetap pakai unblurimage.ai) ────────────────────────────
@@ -264,7 +261,7 @@ async function handleHdvideo({ hisoka, m, query, tolak, logCommand, fs, path, qu
             await hisoka.sendMessage(m.from, { video: videoBuffer, mimetype: 'video/mp4', caption: '✅ Video berhasil diproses ke HD!' }, { quoted: m });
             await hisoka.sendMessage(m.from, { react: { text: '✅', key: m.key } });
 
-        // ── GAMBAR (alwayscodex AI enhance + optional resize by quality) ──────
+        // ── GAMBAR (iLoveIMG AI upscale + optional local resize) ───────────────
         } else {
             // Parse quality level dari query: 1k / 2k / 3k / 4x / max
             const qual = parseQuality(query);
@@ -291,8 +288,8 @@ async function handleHdvideo({ hisoka, m, query, tolak, logCommand, fs, path, qu
             if (qual) {
                 await m.reply({ edit: loadMsg.key, text: `⏳ Menyesuaikan resolusi ke ${qualLabel} (~${qual.width}px)...` }).catch(() => {});
                 try {
-                    finalBuffer = await resizeViaWeserv(imgBuffer, qual.width);
-                    console.log('[HD] ✅ Resize OK, size:', finalBuffer.length);
+                    finalBuffer = await resizeImageBuffer(imgBuffer, qual.width);
+                    console.log('[HD] ✅ Resize Sharp OK, size:', finalBuffer.length);
                 } catch (resizeErr) {
                     console.warn('[HD] resize gagal, pakai hasil AI langsung:', resizeErr.message);
                     finalBuffer = imgBuffer; // fallback ke AI hasil tanpa resize
@@ -307,7 +304,7 @@ async function handleHdvideo({ hisoka, m, query, tolak, logCommand, fs, path, qu
             await m.reply({ edit: loadMsg.key, text: '✅ Selesai!' }).catch(() => {});
             await hisoka.sendMessage(m.from, {
                 image   : finalBuffer,
-                caption : `✅ *Gambar berhasil dienhance!*\n${captionInfo}\n🔗 _Powered by AlwaysCodex AI Enhance_`,
+                caption : `✅ *Gambar berhasil dienhance!*\n${captionInfo}\n🔗 _Powered by iLoveIMG_`,
                 mimetype: 'image/jpeg',
             }, { quoted: m });
             await hisoka.sendMessage(m.from, { react: { text: '✅', key: m.key } });
