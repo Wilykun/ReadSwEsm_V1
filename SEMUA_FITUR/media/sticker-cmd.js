@@ -130,8 +130,9 @@ async function handleSticker({ hisoka, m, query, tolak, logCommand, loadConfig, 
 
                 if (mediaType === 'videoMessage') {
                         const tmpDir = os.default.tmpdir();
-                        const tmpIn  = path.join(tmpDir, `stk_in_${Date.now()}.mp4`);
-                        const tmpOut = path.join(tmpDir, `stk_out_${Date.now()}.webp`);
+                        const uniqR  = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+                        const tmpIn  = path.join(tmpDir, `stk_in_${uniqR}.mp4`);
+                        const tmpOut = path.join(tmpDir, `stk_out_${uniqR}.webp`);
                         try {
                                 fs.writeFileSync(tmpIn, mediaBuffer);
                                 const MAX_STICKER_BYTES = 500 * 1024;
@@ -163,6 +164,15 @@ async function handleSticker({ hisoka, m, query, tolak, logCommand, loadConfig, 
                                 try { fs.unlinkSync(tmpIn); } catch {}
                                 try { fs.unlinkSync(tmpOut); } catch {}
                         }
+                        /* video/GIF: tulis EXIF pack+author dari config (seperti jalur gambar) */
+                        const { Exif: WSFExif } = await import('wa-sticker-formatter');
+                        const exif = new WSFExif({
+                                pack: freshSC.pack,
+                                author: freshSC.author,
+                                categories: ['🎭'],
+                                id: 'com.wilykun.wabot',
+                        });
+                        stickerBuffer = await exif.add(stickerBuffer);
                 } else {
                         const { Sticker, StickerTypes } = await import('wa-sticker-formatter');
                         const sticker = new Sticker(mediaBuffer, {

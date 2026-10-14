@@ -41,7 +41,7 @@ function isWmSupportedMedia(type) {
         return type === 'imageMessage' || type === 'stickerMessage';
 }
 
-async function handleWmCommand({ hisoka, m, query, tolak, logCommand, downloadMediaBuffer, getQuotedMediaBuffer, getMediaTypeFromMessage }) {
+async function handleWmCommand({ hisoka, m, query, tolak, logCommand, loadConfig, downloadMediaBuffer, getQuotedMediaBuffer, getMediaTypeFromMessage }) {
         try {
                 const pfxWm = m.prefix || '.';
                 const wmCurrentType = getMediaTypeFromMessage(m);
@@ -61,6 +61,8 @@ async function handleWmCommand({ hisoka, m, query, tolak, logCommand, downloadMe
                                 `│   _${pfxWm}wm NamaPack|NamaAuthor_\n` +
                                 `│ • Reply gambar/sticker + ketik:\n` +
                                 `│   _${pfxWm}wm NamaPack|NamaAuthor_\n` +
+                                `│ • Tanpa argumen = auto-detect\n` +
+                                `│   _dari config (${pfxWm}s pack/author)_\n` +
                                 `│\n` +
                                 `│ 📝 *Contoh:*\n` +
                                 `│   ${pfxWm}wm Bang|Wily\n` +
@@ -79,19 +81,22 @@ async function handleWmCommand({ hisoka, m, query, tolak, logCommand, downloadMe
                         return;
                 }
 
+                /* ── Pack & Author: auto-detect dari config bila tidak diisi ── */
+                const wmCfg = (typeof loadConfig === 'function' ? loadConfig() : {}).sticker || {};
                 const rawQuery = (query || '').trim();
-                if (!rawQuery) {
-                        await tolak(hisoka, m, `❌ Masukkan nama Pack dan Author!\n\nContoh: *${pfxWm}wm NamaPack|NamaAuthor*`);
-                        return;
-                }
+                let packName   = wmCfg.pack   || 'Wily Bot';
+                let authorName = wmCfg.author || 'Bang Wily';
 
-                const parts      = rawQuery.split('|');
-                const packName   = (parts[0] || '').trim();
-                const authorName = (parts[1] || '').trim();
-
-                if (!packName && !authorName) {
-                        await tolak(hisoka, m, `❌ Format salah!\n\nContoh: *${pfxWm}wm Bang|Wily*`);
-                        return;
+                if (rawQuery) {
+                        const parts   = rawQuery.split('|');
+                        const qPack   = (parts[0] || '').trim();
+                        const qAuthor = (parts[1] || '').trim();
+                        if (!qPack && !qAuthor) {
+                                await tolak(hisoka, m, `❌ Format salah!\n\nContoh: *${pfxWm}wm Bang|Wily*`);
+                                return;
+                        }
+                        if (qPack)   packName   = qPack;
+                        if (qAuthor) authorName = qAuthor;
                 }
 
                 await hisoka.sendMessage(m.from, { react: { text: '⏳', key: m.key } });

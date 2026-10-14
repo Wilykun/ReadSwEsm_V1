@@ -35,8 +35,10 @@ import sharp from 'sharp';
 /* ── Re-encode mp4 ke format yang kompatibel WhatsApp GIF ── */
 function reencodeForWhatsApp(inputBuf) {
     return new Promise((resolve, reject) => {
-        const tmpIn  = path.join(os.tmpdir(), `tg_in_${Date.now()}.mp4`);
-        const tmpOut = path.join(os.tmpdir(), `tg_out_${Date.now()}.mp4`);
+        /* nama file unik per proses: cegah tabrakan saat 2 tap berurutan */
+        const uniq   = crypto.randomBytes(6).toString('hex');
+        const tmpIn  = path.join(os.tmpdir(), `tg_in_${uniq}.mp4`);
+        const tmpOut = path.join(os.tmpdir(), `tg_out_${uniq}.mp4`);
         fs.writeFileSync(tmpIn, inputBuf);
 
         /*
@@ -68,17 +70,27 @@ function reencodeForWhatsApp(inputBuf) {
             }
             const out = fs.readFileSync(tmpOut);
             try { fs.unlinkSync(tmpOut); } catch (_) {}
+            /* validasi: pastikan hasilnya mp4 valid, bukan file corrupt */
+            if (!isValidMp4(out)) {
+                return reject(new Error('hasil re-encode rusak, coba lagi'));
+            }
             resolve(out);
         });
     });
 }
 
+/* ── Cek cepat: buffer adalah mp4 valid (punya box 'ftyp') ── */
+function isValidMp4(buf) {
+    return Buffer.isBuffer(buf) && buf.length > 1024 &&
+        buf.slice(4, 8).toString('ascii') === 'ftyp';
+}
+
 /* ── Ekstrak frame pertama dari mp4 via ffmpeg (bersih, tanpa blur) ── */
 function extractRawFrame(mp4Buf) {
     return new Promise((resolve) => {
-        const ts     = Date.now();
-        const tmpIn  = path.join(os.tmpdir(), `tg_th_in_${ts}.mp4`);
-        const tmpOut = path.join(os.tmpdir(), `tg_th_out_${ts}.jpg`);
+        const uniq   = crypto.randomBytes(6).toString('hex');
+        const tmpIn  = path.join(os.tmpdir(), `tg_th_in_${uniq}.mp4`);
+        const tmpOut = path.join(os.tmpdir(), `tg_th_out_${uniq}.jpg`);
         try { fs.writeFileSync(tmpIn, mp4Buf); } catch (_) { return resolve(null); }
 
         execFile('ffmpeg', [
@@ -149,10 +161,10 @@ const PRESET_CATEGORIES = {
 /* ── Default kalau tidak ada query ── */
 const DEFAULT_QUERIES = Object.values(PRESET_CATEGORIES).map(c => c.query);
 
-/* ── Format bytes ke KB/MB ── */
+/* ── Format bytes ke KB/MB (KB dibulatkan ala Tenor: 382KB) ── */
 function formatSize(bytes) {
     if (!bytes || bytes <= 0) return 'N/A';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    if (bytes < 1024 * 1024) return Math.round(bytes / 1024) + ' KB';
     return (bytes / 1024 / 1024).toFixed(2) + ' MB';
 }
 
@@ -233,23 +245,44 @@ async function fetchRandomTenorGif(query) {
 
     const pick = items[Math.floor(Math.random() * items.length)];
     const formats = pick.media_formats || {};
-    
-    const mp4 = formats.mp4 || formats.tinymp4 || formats.nanomp4 || {};
-    const gif = formats.gif || formats.tinygif || {};
 
-    if (!mp4.url) throw new Error('No MP4 URL found');
+    const fmtOf = (f) => (f && f.url)
+        ? { url: f.url, dims: f.dims || null, duration: f.duration || null, size: f.size || null }
+        : null;
+
+    const gifFull  = fmtOf(formats.gif || formats.mediumgif);
+    const gifSmall = fmtOf(formats.tinygif || formats.nanogif);
+    const mp4Full  = fmtOf(formats.mp4 || formats.tinymp4);
+
+    if (!mp4Full) throw new Error('No MP4 URL found');
+
+    /* Judul real ala halaman Tenor (cth: "Anime Fran GIF") */
+    const slug = String(pick.itemurl || '').split('/').filter(Boolean).pop() || '';
+    const prettyTitle = (pick.h1_title || pick.long_title ||
+        slug.replace(/-/g, ' ').replace(/\bgif\b/i, 'GIF')).trim();
 
     return {
-        url        : mp4.url,
-        previewUrl : gif.url || null,
-        title      : pick.title || q,
-        tags       : [],
+        /* ── field lama (kompatibilitas) ── */
+        url        : mp4Full.url,
+        previewUrl : (gifFull || {}).url || null,
+        title      : prettyTitle || q,
+        tags       : Array.isArray(pick.tags) ? pick.tags : [],
         query      : q,
         pos        : 0,
-        created    : Date.now() / 1000,
-        dims       : mp4.dims || null,
-        duration   : mp4.duration || null,
+        created    : pick.created || (Date.now() / 1000),
+        dims       : mp4Full.dims,
+        duration   : mp4Full.duration,
         fileSize   : null,
+        /* ── field baru: data real Tenor ── */
+        id          : String(pick.id || ''),
+        description : pick.content_description || '',
+        itemurl     : pick.itemurl || null,
+        previewMp4Url: mp4Full.url,
+        formats: {
+            gifsd: gifSmall || mp4Full,
+            gifhd: gifFull  || mp4Full,
+            mp4:   mp4Full,
+        },
     };
 }
 
@@ -284,9 +317,111 @@ function buildListText(pfx) {
     ].join('\n');
 }
 
+/* ── Format tanggal Unix timestamp ke WIB: 16/05/2024, 15.52.43 ── */
+function formatWibDate(unixTs) {
+    if (!unixTs) return 'N/A';
+    try {
+        const d = new Date(unixTs * 1000);
+        const p = new Intl.DateTimeFormat('en-GB', {
+            timeZone: 'Asia/Jakarta',
+            day: '2-digit', month: '2-digit', year: 'numeric',
+            hour: '2-digit', minute: '2-digit', second: '2-digit',
+            hour12: false,
+        }).formatToParts(d).reduce((a, x) => (a[x.type] = x.value, a), {});
+        return `${p.day}/${p.month}/${p.year}, ${p.hour}.${p.minute}.${p.second}`;
+    } catch (_) {
+        return 'N/A';
+    }
+}
+
+/* ── Caption kaya ala halaman Tenor (bold/italic/quote/list/kode) ──
+ * opts.withPicker: tampilkan daftar pilih format (untuk pesan picker)
+ * opts.sentFile: { size, duration, dims } — stats file yang BENAR-BENAR
+ *   dikirim (untuk pesan hasil), agar tidak campur aduk dengan stats sumber
+ */
+function buildTenorCaption(item, opts = {}) {
+    const withPicker = opts.withPicker !== false;
+    const sent = opts.sentFile || null;
+    const f = item.formats || {};
+    const L = [];
+    L.push(`🎴 *${item.title}*`);
+    if (item.description) L.push(`> _${item.description}_`);
+    L.push('');
+    L.push(sent ? `📦 *File Terkirim*` : `📦 *Detail File*`);
+    const sz = sent?.size ?? f.gifhd?.size;
+    const du = sent?.duration ?? f.gifhd?.duration;
+    const dm = sent?.dims ?? f.gifhd?.dims;
+    if (sz) L.push(`• *Ukuran:* \`${formatSize(sz)}\``);
+    if (du) L.push(`• *Durasi:* \`${formatDuration(du)}\``);
+    if (dm) L.push(`• *Dimensi:* \`${dm[0]}x${dm[1]}\``);
+    L.push(`• *Diunggah:* \`${formatWibDate(item.created)}\``);
+    if (item.tags?.length) {
+        L.push('');
+        L.push(`🏷️ *Tag:* ${item.tags.slice(0, 15).join(', ')}`);
+    }
+    if (withPicker) {
+        L.push('');
+        L.push(`👇 *Pilih format:*`);
+        L.push(`1. *GIF SD* — \`${formatSize(f.gifsd?.size)}\` · ringan`);
+        L.push(`2. *GIF HD* — \`${formatSize(f.gifhd?.size)}\` · kualitas penuh`);
+        L.push(`3. *MP4* — \`${formatSize(f.mp4?.size)}\` · file video`);
+    }
+    return L.join('\n');
+}
+
+/* ── Pending pilihan format (token → data item) ── */
+import crypto from 'crypto';
+const pendingTenorChoices = new Map(); // token → { item, query, from, expiresAt }
+const TENOR_CHOICE_TTL_MS = 15 * 60 * 1000;
+const PFX_TENGIF_SD  = '__tengif_sd_';
+const PFX_TENGIF_HD  = '__tengif_hd_';
+const PFX_TENGIF_MP4 = '__tengif_mp4_';
+
+function storeTenorChoice(item, query, from, cmdMsg) {
+    const now = Date.now();
+    for (const [k, v] of pendingTenorChoices) {
+        if (v.expiresAt <= now) pendingTenorChoices.delete(k);
+    }
+    const token = crypto.randomBytes(4).toString('hex');
+    /* simpan pesan command asli agar hasil bisa quote ke sana */
+    const quotedCmd = cmdMsg?.key ? {
+        key: cmdMsg.key,
+        message: { conversation: String(cmdMsg.text || `.animgif ${query || ''}`).trim() },
+    } : null;
+    pendingTenorChoices.set(token, { item, query, from, quotedCmd, expiresAt: now + TENOR_CHOICE_TTL_MS });
+    return token;
+}
+
+/* ── Ambil id tap dari berbagai bentuk pesan balasan button ── */
+function extractTapId(m) {
+    const t = String(m.text || '').trim();
+    if (t) return t;
+    try {
+        const walk = (o) => {
+            if (!o || typeof o !== 'object') return null;
+            if (typeof o.selectedButtonId === 'string' && o.selectedButtonId) return o.selectedButtonId;
+            if (o.singleSelectReply?.selectedRowId) return o.singleSelectReply.selectedRowId;
+            if (o.nativeFlowResponseMessage?.paramsJson) {
+                try {
+                    const p = JSON.parse(o.nativeFlowResponseMessage.paramsJson);
+                    if (p?.id) return p.id;
+                } catch (_) {}
+            }
+            for (const v of Object.values(o)) {
+                const r = walk(v);
+                if (r) return r;
+            }
+            return null;
+        };
+        return walk(m.message) || '';
+    } catch (_) {
+        return '';
+    }
+}
+
 /* ── Command handler .animgif ── */
 async function handleAnimgif(hisoka, m, query, ctx) {
-    const { tolak, logCommand } = ctx;
+    const { Button, tolak, logCommand } = ctx;
     const pfx = m.prefix || '.';
 
     /* ── Subcommand: list ── */
@@ -306,17 +441,9 @@ async function handleAnimgif(hisoka, m, query, ctx) {
         resolvedQuery = PRESET_CATEGORIES[qLower].query;
         usedLabel     = `${PRESET_CATEGORIES[qLower].emoji} ${PRESET_CATEGORIES[qLower].label}`;
     } else if (qLower) {
-        /* Keyword diketik tapi tidak ada di kategori → tampilkan pesan ramah, tidak jadi search */
-        const keys = Object.keys(PRESET_CATEGORIES).join(', ');
-        await tolak(hisoka, m, [
-            `❌ *"${query.trim()}"* belum ada di daftar kategori.`,
-            ``,
-            `📋 Silakan lihat daftar lengkap dengan:`,
-            `› *${pfx}animgif list*`,
-            ``,
-            `_Contoh yang benar: ${pfx}animgif dance_`,
-        ].join('\n'));
-        return;
+        /* Query bebas (tidak ada di kategori) → cari langsung di Tenor */
+        resolvedQuery = query.trim();
+        usedLabel     = `🔎 ${query.trim()}`;
     }
     /* Jika tidak ada query sama sekali → resolvedQuery = null = random */
 
@@ -333,7 +460,7 @@ async function handleAnimgif(hisoka, m, query, ctx) {
     };
 
     try {
-        /* ── Tahap 1: cari GIF — spinner edit loadMsg ── */
+        /* ── Cari info GIF di Tenor (belum diunduh — user pilih format dulu) ── */
         const gif = await withLoadingAnim(
             editStep,
             'Mencari GIF di Tenor...',
@@ -341,32 +468,44 @@ async function handleAnimgif(hisoka, m, query, ctx) {
             1200,
         );
 
-        /* ── Tahap 2: unduh buffer — spinner edit loadMsg ── */
-        const rawBuffer = await withLoadingAnim(
-            editStep,
-            'Mengunduh GIF...',
-            downloadGif(gif.url),
-            1000,
-        );
-
-        /* ── Tahap 3: re-encode ke H.264 Baseline ── spinner edit loadMsg ── */
-        const buffer = await withLoadingAnim(
-            editStep,
-            'Memproses GIF...',
-            reencodeForWhatsApp(rawBuffer),
-            1000,
-        );
-
-        /* ── Hapus loading message, kirim sebagai MP4 video tanpa caption ── */
+        /* ── Hapus loading, tampilkan picker format single-select ── */
         await deleteLoad();
 
-        const sendPayload = {
-            video      : buffer,
-            gifPlayback: true,
-            mimetype   : 'video/mp4',
-        };
+        const token      = storeTenorChoice(gif, gif.query, m.from, m);
+        const pickerText = buildTenorCaption(gif, { withPicker: true });
 
-        await hisoka.sendMessage(m.from, sendPayload, { quoted: m });
+        let sentBtn = null;
+        if (typeof Button === 'function') {
+            try {
+                const f = gif.formats || {};
+                const btn = new Button()
+                    .setBody(pickerText)
+                    .setFooter('🎴 Tenor • WilyBot')
+                    .addSelection('🖼️ Pilih Format');
+                btn.makeSections('Format tersedia');
+                btn.makeRow('', '🖼️ GIF SD', `${formatSize(f.gifsd?.size)} · ringan`, `${PFX_TENGIF_SD}${token}`);
+                btn.makeRow('', '🎞️ GIF HD', `${formatSize(f.gifhd?.size)} · kualitas penuh`, `${PFX_TENGIF_HD}${token}`);
+                btn.makeRow('', '🎬 MP4', `${formatSize(f.mp4?.size)} · file video`, `${PFX_TENGIF_MP4}${token}`);
+                sentBtn = await btn.run(m.from, hisoka, m);
+            } catch (e) {
+                console.error('[TenorGif] Button send gagal:', e.message);
+            }
+        }
+        if (!sentBtn) {
+            /* Fallback: kirim GIF HD langsung bila interactive gagal */
+            const rawBuffer = await downloadGif(gif.previewMp4Url);
+            const buffer    = await reencodeForWhatsApp(rawBuffer);
+            await hisoka.sendMessage(m.from, {
+                video      : buffer,
+                gifPlayback: true,
+                mimetype   : 'video/mp4',
+                caption    : buildTenorCaption(gif, { withPicker: false }),
+            }, { quoted: m });
+        } else {
+            const pend = pendingTenorChoices.get(token);
+            if (pend) pend.botMsgKey = sentBtn.key || null;
+        }
+
         await hisoka.sendMessage(m.from, { react: { text: '✅', key: m.key } });
         logCommand(m, hisoka, 'animgif');
 
@@ -377,7 +516,84 @@ async function handleAnimgif(hisoka, m, query, ctx) {
     }
 }
 
-export { handleAnimgif, fetchRandomTenorGif };
+/* ── Callback tap tombol format: __tengif_sd/hd/mp4_<token> ── */
+async function handleTenorGifCallback({ hisoka, m, tolak, logCommand }) {
+    const raw = extractTapId(m);
+    let fmt = null;
+    let token = null;
+    for (const [pfx, name] of [[PFX_TENGIF_SD, 'gifsd'], [PFX_TENGIF_HD, 'gifhd'], [PFX_TENGIF_MP4, 'mp4']]) {
+        if (raw.startsWith(pfx)) { fmt = name; token = raw.slice(pfx.length); break; }
+    }
+    if (!fmt) return false;
+
+    const pending = pendingTenorChoices.get(token);
+    if (!pending || pending.expiresAt <= Date.now()) {
+        /* Hapus picker basi biar chat rapi */
+        if (pending?.botMsgKey) {
+            try { await hisoka.sendMessage(m.from, { delete: pending.botMsgKey }); } catch (_) {}
+        }
+        pendingTenorChoices.delete(token);
+        await tolak(hisoka, m, '⏳ *Pilihan format sudah kedaluwarsa.*\nKirim *.animgif* lagi ya~');
+        return true;
+    }
+
+    /* ── Hapus pesan picker biar chat rapi ── */
+    if (pending.botMsgKey) {
+        try { await hisoka.sendMessage(m.from, { delete: pending.botMsgKey }); } catch (_) {}
+        pending.botMsgKey = null;
+    }
+
+    const { item } = pending;
+    const target = (item.formats || {})[fmt];
+    if (!target?.url) {
+        await tolak(hisoka, m, '❌ Format tidak tersedia untuk GIF ini.');
+        return true;
+    }
+
+    await hisoka.sendMessage(m.from, { react: { text: '⏳', key: m.key } }).catch(() => {});
+    try {
+        const rawBuf = await downloadGif(target.url);
+        let payload;
+        if (fmt === 'mp4') {
+            const detail = buildTenorCaption(item, {
+                withPicker: false,
+                sentFile: { size: rawBuf.length, duration: target.duration, dims: target.dims },
+            });
+            payload = {
+                video   : rawBuf,
+                mimetype: 'video/mp4',
+                fileName: 'wilybot-tenor.mp4',
+                caption : `🎬 *MP4 terkirim!*\n\n${detail}`,
+            };
+        } else {
+            const buf   = await reencodeForWhatsApp(rawBuf);
+            const label = fmt === 'gifsd' ? 'GIF SD' : 'GIF HD';
+            const detail = buildTenorCaption(item, {
+                withPicker: false,
+                sentFile: { size: buf.length, duration: target.duration, dims: target.dims },
+            });
+            payload = {
+                video      : buf,
+                gifPlayback: true,
+                mimetype   : 'video/mp4',
+                fileName   : 'wilybot-tenor.mp4',
+                caption    : `✅ *${label} terkirim!*\n\n${detail}`,
+            };
+        }
+        /* quote ke pesan command asli user (kayak awal), bukan ke pesan tap */
+        const quoted = pending.quotedCmd || undefined;
+        await hisoka.sendMessage(m.from, payload, quoted ? { quoted } : {});
+        await hisoka.sendMessage(m.from, { react: { text: '✅', key: m.key } }).catch(() => {});
+        if (typeof logCommand === 'function') logCommand(m, hisoka, 'animgif ' + fmt);
+    } catch (e) {
+        console.error('[TenorGif] callback gagal:', e.message);
+        await hisoka.sendMessage(m.from, { react: { text: '❌', key: m.key } }).catch(() => {});
+        await tolak(hisoka, m, `❌ *Gagal:* ${e.message}`);
+    }
+    return true;
+}
+
+export { handleAnimgif, handleTenorGifCallback, fetchRandomTenorGif, buildTenorCaption };
 /**
  * ── Plugin ESM (auto-migrasi dari switch-case message.js) ──
  */
@@ -385,7 +601,7 @@ export const command = /^(animgif|animegif|gifanime)$/i;
 export const tags = ['anime'];
 export const help = ['animgif'];
 async function runHandleAnimgif(ctx) {
-    const { hisoka, logCommand, m, query, tolak } = ctx;
-    await handleAnimgif(hisoka, m, query, { tolak, logCommand });
+    const { Button, hisoka, logCommand, m, query, tolak } = ctx;
+    await handleAnimgif(hisoka, m, query, { Button, tolak, logCommand });
 }
 export default runHandleAnimgif;
