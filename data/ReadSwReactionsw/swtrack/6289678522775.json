@@ -1,14 +1,14 @@
 {
-  "ACDE70C64B75935700DCAB272177229F": {
-    "id": "ACDE70C64B75935700DCAB272177229F",
+  "AC2DD913526C935CD46DEE708EB8A7D7": {
+    "id": "AC2DD913526C935CD46DEE708EB8A7D7",
     "sender": "6289678522775@s.whatsapp.net",
     "name": "Zacky Ariansyah",
-    "type": "videoMessage",
-    "arrivedAt": "2026-10-13T03:28:17.501Z",
+    "type": "imageMessage",
+    "arrivedAt": "2026-10-13T13:25:02.196Z",
     "read": true,
     "reacted": true,
     "reactionExpected": true,
-    "emoji": "🐙",
+    "emoji": "🦈",
     "resolve": "PN langsung ✓",
     "source": "status",
     "number": "6289678522775",
@@ -17,17 +17,17 @@
       "remoteJid": "status@broadcast",
       "remoteJidAlt": "6289678522775@s.whatsapp.net",
       "fromMe": false,
-      "id": "ACDE70C64B75935700DCAB272177229F",
+      "id": "AC2DD913526C935CD46DEE708EB8A7D7",
       "participant": "193020829909081@lid",
       "addressingMode": "lid"
     },
-    "updatedAt": "2026-10-13T03:28:27.968Z",
+    "updatedAt": "2026-10-14T08:05:14.664Z",
     "receiptKeys": [
       {
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6289678522775@s.whatsapp.net",
         "fromMe": false,
-        "id": "ACDE70C64B75935700DCAB272177229F",
+        "id": "AC2DD913526C935CD46DEE708EB8A7D7",
         "participant": "193020829909081@lid",
         "addressingMode": "lid"
       },
@@ -35,105 +35,21 @@
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6289678522775@s.whatsapp.net",
         "fromMe": false,
-        "id": "ACDE70C64B75935700DCAB272177229F",
+        "id": "AC2DD913526C935CD46DEE708EB8A7D7",
         "participant": "6289678522775@s.whatsapp.net",
         "addressingMode": "lid"
       }
     ],
-    "processedAt": "2026-10-13T03:28:27.968Z"
+    "processedAt": "2026-10-13T13:25:22.060Z",
+    "deleted": true,
+    "deletedAt": "2026-10-14T08:05:14.664Z"
   },
-  "ACC449956FDB4A1A78DB5A1F550733D0": {
-    "id": "ACC449956FDB4A1A78DB5A1F550733D0",
+  "ACE408C99014BDFB0FB7809620DEC59E": {
+    "id": "ACE408C99014BDFB0FB7809620DEC59E",
     "sender": "6289678522775@s.whatsapp.net",
     "name": "Zacky Ariansyah",
     "type": "imageMessage",
-    "arrivedAt": "2026-10-13T03:28:17.909Z",
-    "read": true,
-    "reacted": true,
-    "reactionExpected": true,
-    "emoji": "🐠",
-    "resolve": "PN langsung ✓",
-    "source": "status",
-    "number": "6289678522775",
-    "resolvedPn": "6289678522775@s.whatsapp.net",
-    "messageKey": {
-      "remoteJid": "status@broadcast",
-      "remoteJidAlt": "6289678522775@s.whatsapp.net",
-      "fromMe": false,
-      "id": "ACC449956FDB4A1A78DB5A1F550733D0",
-      "participant": "193020829909081@lid",
-      "addressingMode": "lid"
-    },
-    "updatedAt": "2026-10-13T03:28:26.229Z",
-    "receiptKeys": [
-      {
-        "remoteJid": "status@broadcast",
-        "remoteJidAlt": "6289678522775@s.whatsapp.net",
-        "fromMe": false,
-        "id": "ACC449956FDB4A1A78DB5A1F550733D0",
-        "participant": "193020829909081@lid",
-        "addressingMode": "lid"
-      },
-      {
-        "remoteJid": "status@broadcast",
-        "remoteJidAlt": "6289678522775@s.whatsapp.net",
-        "fromMe": false,
-        "id": "ACC449956FDB4A1A78DB5A1F550733D0",
-        "participant": "6289678522775@s.whatsapp.net",
-        "addressingMode": "lid"
-      }
-    ],
-    "processedAt": "2026-10-13T03:28:26.228Z"
-  },
-  "ACB5291DD48B37E04A4844B981BFEAAB": {
-    "id": "ACB5291DD48B37E04A4844B981BFEAAB",
-    "sender": "6289678522775@s.whatsapp.net",
-    "name": "Zacky Ariansyah",
-    "type": "imageMessage",
-    "arrivedAt": "2026-10-13T03:28:18.188Z",
-    "read": true,
-    "reacted": true,
-    "reactionExpected": true,
-    "emoji": "🐳",
-    "resolve": "PN langsung ✓",
-    "source": "status",
-    "number": "6289678522775",
-    "resolvedPn": "6289678522775@s.whatsapp.net",
-    "messageKey": {
-      "remoteJid": "status@broadcast",
-      "remoteJidAlt": "6289678522775@s.whatsapp.net",
-      "fromMe": false,
-      "id": "ACB5291DD48B37E04A4844B981BFEAAB",
-      "participant": "193020829909081@lid",
-      "addressingMode": "lid"
-    },
-    "updatedAt": "2026-10-13T03:28:23.183Z",
-    "receiptKeys": [
-      {
-        "remoteJid": "status@broadcast",
-        "remoteJidAlt": "6289678522775@s.whatsapp.net",
-        "fromMe": false,
-        "id": "ACB5291DD48B37E04A4844B981BFEAAB",
-        "participant": "193020829909081@lid",
-        "addressingMode": "lid"
-      },
-      {
-        "remoteJid": "status@broadcast",
-        "remoteJidAlt": "6289678522775@s.whatsapp.net",
-        "fromMe": false,
-        "id": "ACB5291DD48B37E04A4844B981BFEAAB",
-        "participant": "6289678522775@s.whatsapp.net",
-        "addressingMode": "lid"
-      }
-    ],
-    "processedAt": "2026-10-13T03:28:23.183Z"
-  },
-  "ACCF5AF4B3C010959F5267447E7A0C35": {
-    "id": "ACCF5AF4B3C010959F5267447E7A0C35",
-    "sender": "6289678522775@s.whatsapp.net",
-    "name": "Zacky Ariansyah",
-    "type": "imageMessage",
-    "arrivedAt": "2026-10-13T03:28:18.250Z",
+    "arrivedAt": "2026-10-13T13:25:02.363Z",
     "read": true,
     "reacted": true,
     "reactionExpected": true,
@@ -146,17 +62,17 @@
       "remoteJid": "status@broadcast",
       "remoteJidAlt": "6289678522775@s.whatsapp.net",
       "fromMe": false,
-      "id": "ACCF5AF4B3C010959F5267447E7A0C35",
+      "id": "ACE408C99014BDFB0FB7809620DEC59E",
       "participant": "193020829909081@lid",
       "addressingMode": "lid"
     },
-    "updatedAt": "2026-10-13T03:28:26.206Z",
+    "updatedAt": "2026-10-14T08:05:40.930Z",
     "receiptKeys": [
       {
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6289678522775@s.whatsapp.net",
         "fromMe": false,
-        "id": "ACCF5AF4B3C010959F5267447E7A0C35",
+        "id": "ACE408C99014BDFB0FB7809620DEC59E",
         "participant": "193020829909081@lid",
         "addressingMode": "lid"
       },
@@ -164,19 +80,21 @@
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6289678522775@s.whatsapp.net",
         "fromMe": false,
-        "id": "ACCF5AF4B3C010959F5267447E7A0C35",
+        "id": "ACE408C99014BDFB0FB7809620DEC59E",
         "participant": "6289678522775@s.whatsapp.net",
         "addressingMode": "lid"
       }
     ],
-    "processedAt": "2026-10-13T03:28:26.206Z"
+    "processedAt": "2026-10-13T13:25:08.433Z",
+    "deleted": true,
+    "deletedAt": "2026-10-14T08:05:40.930Z"
   },
-  "ACA73ABFF4DAAC3D2C198C04D75EE156": {
-    "id": "ACA73ABFF4DAAC3D2C198C04D75EE156",
+  "AC79A064106BE6AE90D02170DC6ACD3D": {
+    "id": "AC79A064106BE6AE90D02170DC6ACD3D",
     "sender": "6289678522775@s.whatsapp.net",
     "name": "Zacky Ariansyah",
     "type": "imageMessage",
-    "arrivedAt": "2026-10-13T03:28:18.333Z",
+    "arrivedAt": "2026-10-13T13:25:02.383Z",
     "read": true,
     "reacted": true,
     "reactionExpected": true,
@@ -189,17 +107,17 @@
       "remoteJid": "status@broadcast",
       "remoteJidAlt": "6289678522775@s.whatsapp.net",
       "fromMe": false,
-      "id": "ACA73ABFF4DAAC3D2C198C04D75EE156",
+      "id": "AC79A064106BE6AE90D02170DC6ACD3D",
       "participant": "193020829909081@lid",
       "addressingMode": "lid"
     },
-    "updatedAt": "2026-10-13T03:28:31.762Z",
+    "updatedAt": "2026-10-14T08:05:40.954Z",
     "receiptKeys": [
       {
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6289678522775@s.whatsapp.net",
         "fromMe": false,
-        "id": "ACA73ABFF4DAAC3D2C198C04D75EE156",
+        "id": "AC79A064106BE6AE90D02170DC6ACD3D",
         "participant": "193020829909081@lid",
         "addressingMode": "lid"
       },
@@ -207,11 +125,271 @@
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6289678522775@s.whatsapp.net",
         "fromMe": false,
-        "id": "ACA73ABFF4DAAC3D2C198C04D75EE156",
+        "id": "AC79A064106BE6AE90D02170DC6ACD3D",
         "participant": "6289678522775@s.whatsapp.net",
         "addressingMode": "lid"
       }
     ],
-    "processedAt": "2026-10-13T03:28:31.762Z"
+    "processedAt": "2026-10-13T13:25:21.478Z",
+    "deleted": true,
+    "deletedAt": "2026-10-14T08:05:40.954Z"
+  },
+  "AC34E19DDB47F0D144FBCA4D8CD0B5C6": {
+    "id": "AC34E19DDB47F0D144FBCA4D8CD0B5C6",
+    "sender": "6289678522775@s.whatsapp.net",
+    "name": "Zacky Ariansyah",
+    "type": "videoMessage",
+    "arrivedAt": "2026-10-14T08:05:14.550Z",
+    "read": true,
+    "reacted": true,
+    "reactionExpected": true,
+    "emoji": "🦈",
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "6289678522775",
+    "resolvedPn": "6289678522775@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "6289678522775@s.whatsapp.net",
+      "fromMe": false,
+      "id": "AC34E19DDB47F0D144FBCA4D8CD0B5C6",
+      "participant": "193020829909081@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-10-14T08:05:24.627Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6289678522775@s.whatsapp.net",
+        "fromMe": false,
+        "id": "AC34E19DDB47F0D144FBCA4D8CD0B5C6",
+        "participant": "193020829909081@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6289678522775@s.whatsapp.net",
+        "fromMe": false,
+        "id": "AC34E19DDB47F0D144FBCA4D8CD0B5C6",
+        "participant": "6289678522775@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-10-14T08:05:24.627Z"
+  },
+  "ACD399F7AD3EDE390F34E660F3488D5F": {
+    "id": "ACD399F7AD3EDE390F34E660F3488D5F",
+    "sender": "6289678522775@s.whatsapp.net",
+    "name": "Zacky Ariansyah",
+    "type": "videoMessage",
+    "arrivedAt": "2026-10-14T08:05:40.623Z",
+    "read": true,
+    "reacted": true,
+    "reactionExpected": true,
+    "emoji": "🦈",
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "6289678522775",
+    "resolvedPn": "6289678522775@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "6289678522775@s.whatsapp.net",
+      "fromMe": false,
+      "id": "ACD399F7AD3EDE390F34E660F3488D5F",
+      "participant": "193020829909081@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-10-14T08:05:52.643Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6289678522775@s.whatsapp.net",
+        "fromMe": false,
+        "id": "ACD399F7AD3EDE390F34E660F3488D5F",
+        "participant": "193020829909081@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6289678522775@s.whatsapp.net",
+        "fromMe": false,
+        "id": "ACD399F7AD3EDE390F34E660F3488D5F",
+        "participant": "6289678522775@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-10-14T08:05:52.643Z"
+  },
+  "ACCCB7CCBD4A33AA2D21A519C98E536C": {
+    "id": "ACCCB7CCBD4A33AA2D21A519C98E536C",
+    "sender": "6289678522775@s.whatsapp.net",
+    "name": "Zacky Ariansyah",
+    "type": "extendedTextMessage",
+    "arrivedAt": "2026-10-14T08:05:40.873Z",
+    "read": true,
+    "reacted": true,
+    "reactionExpected": true,
+    "emoji": "🐟",
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "6289678522775",
+    "resolvedPn": "6289678522775@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "6289678522775@s.whatsapp.net",
+      "fromMe": false,
+      "id": "ACCCB7CCBD4A33AA2D21A519C98E536C",
+      "participant": "193020829909081@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-10-14T08:05:44.757Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6289678522775@s.whatsapp.net",
+        "fromMe": false,
+        "id": "ACCCB7CCBD4A33AA2D21A519C98E536C",
+        "participant": "193020829909081@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6289678522775@s.whatsapp.net",
+        "fromMe": false,
+        "id": "ACCCB7CCBD4A33AA2D21A519C98E536C",
+        "participant": "6289678522775@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-10-14T08:05:44.757Z"
+  },
+  "ACED9C6E889D6390442A384D2A62A910": {
+    "id": "ACED9C6E889D6390442A384D2A62A910",
+    "sender": "6289678522775@s.whatsapp.net",
+    "name": "Zacky Ariansyah",
+    "type": "imageMessage",
+    "arrivedAt": "2026-10-14T08:05:40.880Z",
+    "read": true,
+    "reacted": true,
+    "reactionExpected": true,
+    "emoji": "🐡",
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "6289678522775",
+    "resolvedPn": "6289678522775@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "6289678522775@s.whatsapp.net",
+      "fromMe": false,
+      "id": "ACED9C6E889D6390442A384D2A62A910",
+      "participant": "193020829909081@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-10-14T08:05:48.775Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6289678522775@s.whatsapp.net",
+        "fromMe": false,
+        "id": "ACED9C6E889D6390442A384D2A62A910",
+        "participant": "193020829909081@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6289678522775@s.whatsapp.net",
+        "fromMe": false,
+        "id": "ACED9C6E889D6390442A384D2A62A910",
+        "participant": "6289678522775@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-10-14T08:05:48.775Z"
+  },
+  "ACDFDE91A8528376B0254E0432D986C8": {
+    "id": "ACDFDE91A8528376B0254E0432D986C8",
+    "sender": "6289678522775@s.whatsapp.net",
+    "name": "Zacky Ariansyah",
+    "type": "imageMessage",
+    "arrivedAt": "2026-10-14T08:05:40.956Z",
+    "read": true,
+    "reacted": true,
+    "reactionExpected": true,
+    "emoji": "🐠",
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "6289678522775",
+    "resolvedPn": "6289678522775@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "6289678522775@s.whatsapp.net",
+      "fromMe": false,
+      "id": "ACDFDE91A8528376B0254E0432D986C8",
+      "participant": "193020829909081@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-10-14T08:05:58.375Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6289678522775@s.whatsapp.net",
+        "fromMe": false,
+        "id": "ACDFDE91A8528376B0254E0432D986C8",
+        "participant": "193020829909081@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6289678522775@s.whatsapp.net",
+        "fromMe": false,
+        "id": "ACDFDE91A8528376B0254E0432D986C8",
+        "participant": "6289678522775@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-10-14T08:05:58.375Z"
+  },
+  "AC93D86FD3309B46A62541440D99F258": {
+    "id": "AC93D86FD3309B46A62541440D99F258",
+    "sender": "6289678522775@s.whatsapp.net",
+    "name": "Zacky Ariansyah",
+    "type": "imageMessage",
+    "arrivedAt": "2026-10-14T09:26:22.656Z",
+    "read": true,
+    "reacted": true,
+    "reactionExpected": true,
+    "emoji": "🐙",
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "6289678522775",
+    "resolvedPn": "6289678522775@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "6289678522775@s.whatsapp.net",
+      "fromMe": false,
+      "id": "AC93D86FD3309B46A62541440D99F258",
+      "participant": "193020829909081@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-10-14T09:26:30.670Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6289678522775@s.whatsapp.net",
+        "fromMe": false,
+        "id": "AC93D86FD3309B46A62541440D99F258",
+        "participant": "193020829909081@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6289678522775@s.whatsapp.net",
+        "fromMe": false,
+        "id": "AC93D86FD3309B46A62541440D99F258",
+        "participant": "6289678522775@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-10-14T09:26:30.670Z"
   }
 }

@@ -41,5 +41,48 @@
       }
     ],
     "processedAt": "2026-10-13T03:28:38.961Z"
+  },
+  "AC8614B84D7B73EA38DC5854A3E16968": {
+    "id": "AC8614B84D7B73EA38DC5854A3E16968",
+    "sender": "6282228431883@s.whatsapp.net",
+    "name": "Ikyysigmax",
+    "type": "videoMessage",
+    "arrivedAt": "2026-10-13T13:25:02.163Z",
+    "read": true,
+    "reacted": true,
+    "reactionExpected": true,
+    "emoji": "🐬",
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "6282228431883",
+    "resolvedPn": "6282228431883@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "6282228431883@s.whatsapp.net",
+      "fromMe": false,
+      "id": "AC8614B84D7B73EA38DC5854A3E16968",
+      "participant": "124507108991054@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-10-13T13:25:07.263Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6282228431883@s.whatsapp.net",
+        "fromMe": false,
+        "id": "AC8614B84D7B73EA38DC5854A3E16968",
+        "participant": "124507108991054@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6282228431883@s.whatsapp.net",
+        "fromMe": false,
+        "id": "AC8614B84D7B73EA38DC5854A3E16968",
+        "participant": "6282228431883@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-10-13T13:25:07.263Z"
   }
 }

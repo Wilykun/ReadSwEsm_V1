@@ -1,13 +1,14 @@
 {
-  "ACAC420121EC2C81561FF948F6928812": {
-    "id": "ACAC420121EC2C81561FF948F6928812",
+  "AC9E66B9B1B5B56FBD539741387877F4": {
+    "id": "AC9E66B9B1B5B56FBD539741387877F4",
     "sender": "628972241704@s.whatsapp.net",
     "name": "Milim Nava",
     "type": "videoMessage",
-    "arrivedAt": "2026-09-26T04:31:17.806Z",
+    "arrivedAt": "2026-10-14T08:09:58.121Z",
     "read": true,
     "reacted": true,
-    "emoji": "🐠",
+    "reactionExpected": true,
+    "emoji": "🐋",
     "resolve": "PN langsung ✓",
     "source": "status",
     "number": "628972241704",
@@ -16,17 +17,17 @@
       "remoteJid": "status@broadcast",
       "remoteJidAlt": "628972241704@s.whatsapp.net",
       "fromMe": false,
-      "id": "ACAC420121EC2C81561FF948F6928812",
+      "id": "AC9E66B9B1B5B56FBD539741387877F4",
       "participant": "313582948481@lid",
       "addressingMode": "lid"
     },
-    "updatedAt": "2026-09-26T04:31:20.982Z",
+    "updatedAt": "2026-10-14T08:10:11.926Z",
     "receiptKeys": [
       {
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "628972241704@s.whatsapp.net",
         "fromMe": false,
-        "id": "ACAC420121EC2C81561FF948F6928812",
+        "id": "AC9E66B9B1B5B56FBD539741387877F4",
         "participant": "313582948481@lid",
         "addressingMode": "lid"
       },
@@ -34,11 +35,11 @@
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "628972241704@s.whatsapp.net",
         "fromMe": false,
-        "id": "ACAC420121EC2C81561FF948F6928812",
+        "id": "AC9E66B9B1B5B56FBD539741387877F4",
         "participant": "628972241704@s.whatsapp.net",
         "addressingMode": "lid"
       }
     ],
-    "processedAt": "2026-09-26T04:31:20.982Z"
+    "processedAt": "2026-10-14T08:10:11.926Z"
   }
 }

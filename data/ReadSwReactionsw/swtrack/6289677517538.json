@@ -1,13 +1,14 @@
 {
-  "ACF3570B5DEA3E10BB8022847163A705": {
-    "id": "ACF3570B5DEA3E10BB8022847163A705",
+  "AC0D62BDC64CAB65152AE8EB7EE67E67": {
+    "id": "AC0D62BDC64CAB65152AE8EB7EE67E67",
     "sender": "6289677517538@s.whatsapp.net",
     "name": "Rifqi Haidar",
     "type": "videoMessage",
-    "arrivedAt": "2026-10-03T06:15:57.873Z",
+    "arrivedAt": "2026-10-14T08:05:40.695Z",
     "read": true,
     "reacted": true,
-    "emoji": "🦈",
+    "reactionExpected": true,
+    "emoji": "🐠",
     "resolve": "PN langsung ✓",
     "source": "status",
     "number": "6289677517538",
@@ -16,17 +17,17 @@
       "remoteJid": "status@broadcast",
       "remoteJidAlt": "6289677517538@s.whatsapp.net",
       "fromMe": false,
-      "id": "ACF3570B5DEA3E10BB8022847163A705",
+      "id": "AC0D62BDC64CAB65152AE8EB7EE67E67",
       "participant": "240986437513380@lid",
       "addressingMode": "lid"
     },
-    "updatedAt": "2026-10-03T06:16:01.877Z",
+    "updatedAt": "2026-10-14T08:05:51.027Z",
     "receiptKeys": [
       {
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6289677517538@s.whatsapp.net",
         "fromMe": false,
-        "id": "ACF3570B5DEA3E10BB8022847163A705",
+        "id": "AC0D62BDC64CAB65152AE8EB7EE67E67",
         "participant": "240986437513380@lid",
         "addressingMode": "lid"
       },
@@ -34,22 +35,23 @@
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6289677517538@s.whatsapp.net",
         "fromMe": false,
-        "id": "ACF3570B5DEA3E10BB8022847163A705",
+        "id": "AC0D62BDC64CAB65152AE8EB7EE67E67",
         "participant": "6289677517538@s.whatsapp.net",
         "addressingMode": "lid"
       }
     ],
-    "processedAt": "2026-10-03T06:16:01.877Z"
+    "processedAt": "2026-10-14T08:05:51.027Z"
   },
-  "ACCB230AE3992684A10F7FF84DE320EE": {
-    "id": "ACCB230AE3992684A10F7FF84DE320EE",
+  "ACF3A3CCC77CB25B723DFB9F9DD3EFD5": {
+    "id": "ACF3A3CCC77CB25B723DFB9F9DD3EFD5",
     "sender": "6289677517538@s.whatsapp.net",
     "name": "Rifqi Haidar",
     "type": "videoMessage",
-    "arrivedAt": "2026-10-03T06:15:57.875Z",
+    "arrivedAt": "2026-10-14T09:20:49.371Z",
     "read": true,
     "reacted": true,
-    "emoji": "🐡",
+    "reactionExpected": true,
+    "emoji": "🐠",
     "resolve": "PN langsung ✓",
     "source": "status",
     "number": "6289677517538",
@@ -58,17 +60,17 @@
       "remoteJid": "status@broadcast",
       "remoteJidAlt": "6289677517538@s.whatsapp.net",
       "fromMe": false,
-      "id": "ACCB230AE3992684A10F7FF84DE320EE",
+      "id": "ACF3A3CCC77CB25B723DFB9F9DD3EFD5",
       "participant": "240986437513380@lid",
       "addressingMode": "lid"
     },
-    "updatedAt": "2026-10-03T06:16:13.055Z",
+    "updatedAt": "2026-10-14T09:21:00.664Z",
     "receiptKeys": [
       {
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6289677517538@s.whatsapp.net",
         "fromMe": false,
-        "id": "ACCB230AE3992684A10F7FF84DE320EE",
+        "id": "ACF3A3CCC77CB25B723DFB9F9DD3EFD5",
         "participant": "240986437513380@lid",
         "addressingMode": "lid"
       },
@@ -76,11 +78,11 @@
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6289677517538@s.whatsapp.net",
         "fromMe": false,
-        "id": "ACCB230AE3992684A10F7FF84DE320EE",
+        "id": "ACF3A3CCC77CB25B723DFB9F9DD3EFD5",
         "participant": "6289677517538@s.whatsapp.net",
         "addressingMode": "lid"
       }
     ],
-    "processedAt": "2026-10-03T06:16:13.055Z"
+    "processedAt": "2026-10-14T09:21:00.664Z"
   }
 }
