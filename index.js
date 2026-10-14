@@ -2280,11 +2280,24 @@ async function main() {
                                         }
                                 };
 
-                                // Cek setiap 60 detik, mulai setelah 10 detik
-                                setTimeout(() => {
-                                        runAutoSholat();
-                                        global.autoSholatInterval = setInterval(runAutoSholat, 60 * 1000);
-                                }, 10000);
+                                // Validasi gambar di startup
+                                try {
+                                        const IMG_DIR = path.join(process.cwd(), 'img', 'sholat');
+                                        const requiredImgs = ['subuh.png', 'zuhur.png', 'ashar.png', 'maghrib.png', 'isya.png'];
+                                        for (const img of requiredImgs) {
+                                                const filePath = path.join(IMG_DIR, img);
+                                                if (!fs.existsSync(filePath)) throw new Error(`Gambar sholat tidak ditemukan: ${filePath}`);
+                                        }
+                                        console.log('[AutoSholat] Validasi gambar OK');
+                                        
+                                        // Cek setiap 60 detik, mulai setelah 10 detik
+                                        setTimeout(() => {
+                                                runAutoSholat();
+                                                global.autoSholatInterval = setInterval(runAutoSholat, 60 * 1000);
+                                        }, 10000);
+                                } catch (err) {
+                                        console.error('[AutoSholat] Startup gagal:', err?.message);
+                                }
                         }
                         /* =================== END AUTO SHOLAT SCHEDULER =================== */
 

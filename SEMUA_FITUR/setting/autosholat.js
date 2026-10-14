@@ -146,24 +146,29 @@ async function getJadwalHariIni() {
         return _cacheJadwal;
     }
 
-    // Format tanggal YYYY-MM-DD untuk URL
-    const tglFmt = now.toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' }); // 2026-05-23
-    const res = await axios.get(`https://api.myquran.com/v2/sholat/jadwal/1301/${tglFmt}`, {
-        timeout: 12000,
-    });
+    try {
+        // Format tanggal YYYY-MM-DD untuk URL
+        const tglFmt = now.toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' }); // 2026-05-23
+        const res = await axios.get(`https://api.myquran.com/v2/sholat/jadwal/1301/${tglFmt}`, {
+            timeout: 12000,
+        });
 
-    const j = res.data.data.jadwal;
-    const jadwal = {
-        Subuh   : j.subuh,
-        Zuhur   : j.dzuhur,
-        Ashar   : j.ashar,
-        Maghrib : j.maghrib,
-        Isya    : j.isya,
-    };
+        const j = res.data.data.jadwal;
+        const jadwal = {
+            Subuh   : j.subuh,
+            Zuhur   : j.dzuhur,
+            Ashar   : j.ashar,
+            Maghrib : j.maghrib,
+            Isya    : j.isya,
+        };
 
-    _cacheJadwal  = jadwal;
-    _cacheTanggal = tanggal;
-    return jadwal;
+        _cacheJadwal  = jadwal;
+        _cacheTanggal = tanggal;
+        return jadwal;
+    } catch (error) {
+        console.error('[AutoSholat] Gagal fetch jadwal:', error.message);
+        throw new Error(`Gagal mengambil jadwal sholat: ${error.message}`);
+    }
 }
 
 // ─── HELPER: jam WIB saat ini format "HH:MM" ─────────────────────────────────
@@ -230,6 +235,9 @@ function buatCaption(nama, waktu, jadwal) {
 // Return Buffer dari file lokal — pasti tampil, tidak bergantung internet
 function getGambar(nama) {
     const filePath = GAMBAR_SHOLAT[nama] || GAMBAR_SHOLAT['Zuhur'];
+    if (!fs.existsSync(filePath)) {
+        throw new Error(`File gambar tidak ditemukan: ${filePath}`);
+    }
     return fs.readFileSync(filePath);
 }
 
@@ -259,21 +267,37 @@ function bacaOwner() {
 // Teks (nama sholat, jam, owner) ditampilkan di luar gambar via externalAdReply.
 async function buatGambarOverlay(nama) {
     const filePath = GAMBAR_SHOLAT[nama] || GAMBAR_SHOLAT['Zuhur'];
-    return await sharp(filePath)
-        .resize({ width: MAX_IMAGE_WIDTH, withoutEnlargement: true })
-        .jpeg({ quality: IMAGE_JPEG_QUALITY, progressive: true, mozjpeg: true })
-        .toBuffer();
+    if (!fs.existsSync(filePath)) {
+        throw new Error(`File gambar tidak ditemukan: ${filePath}`);
+    }
+    try {
+        return await sharp(filePath)
+            .resize({ width: MAX_IMAGE_WIDTH, withoutEnlargement: true })
+            .jpeg({ quality: IMAGE_JPEG_QUALITY, progressive: true, mozjpeg: true })
+            .toBuffer();
+    } catch (error) {
+        console.error('[AutoSholat] Sharp error:', error.message);
+        throw new Error(`Gagal proses gambar: ${error.message}`);
+    }
 }
 
 // ─── BUAT THUMBNAIL KECIL UNTUK externalAdReply ──────────────────────────────
 // Baileys butuh thumbnail ≤100KB, format JPEG, tanpa alpha channel
 async function buatThumbnail(nama) {
     const filePath = GAMBAR_SHOLAT[nama] || GAMBAR_SHOLAT['Zuhur'];
-    return await sharp(filePath)
-        .resize(200, 133, { fit: 'cover' })
-        .flatten({ background: '#000000' })   // hapus alpha → background hitam jadi warna asli
-        .jpeg({ quality: 60 })
-        .toBuffer();
+    if (!fs.existsSync(filePath)) {
+        throw new Error(`File gambar tidak ditemukan: ${filePath}`);
+    }
+    try {
+        return await sharp(filePath)
+            .resize(200, 133, { fit: 'cover' })
+            .flatten({ background: '#000000' })   // hapus alpha → background hitam jadi warna asli
+            .jpeg({ quality: 60 })
+            .toBuffer();
+    } catch (error) {
+        console.error('[AutoSholat] Sharp thumbnail error:', error.message);
+        throw new Error(`Gagal buat thumbnail: ${error.message}`);
+    }
 }
 
 // ─── SIMULASI / TES KIRIM ────────────────────────────────────────────────────

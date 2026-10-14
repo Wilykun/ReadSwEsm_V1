@@ -118,11 +118,9 @@ async function extractBlurredThumbnail(mp4Buf) {
     }
 }
 
-/* ── Tenor API config ── */
-const TENOR_KEY    = 'LIVDSRZULELA';
-const TENOR_BASE   = 'https://g.tenor.com/v1/search';
-const LIMIT        = 50;
-const MAX_POS_PAGE = 10;
+/* ── Tenor Web Scraper (no API key needed) ── */
+const TENOR_SEARCH_BASE = 'https://tenor.com/search';
+const MAX_FETCH_COUNT   = 50;
 
 /* ── Kategori preset (keyword → query Tenor) ── */
 const PRESET_CATEGORIES = {
@@ -204,75 +202,54 @@ async function withLoadingAnim(editFn, label, promise, intervalMs = 1200) {
     }
 }
 
-/* ── Ambil random GIF dari Tenor ── */
-async function fetchRandomTenorGif(query) {
-    const q   = (query || DEFAULT_QUERIES[Math.floor(Math.random() * DEFAULT_QUERIES.length)]).trim();
-    const pos = Math.floor(Math.random() * MAX_POS_PAGE) * LIMIT;
+/* ── Ambil random GIF dari Tenor via web scrape (no API key) ── */
+import * as cheerio from 'cheerio';
 
-    const res = await axios.get(TENOR_BASE, {
-        params: {
-            q,
-            key           : TENOR_KEY,
-            limit         : LIMIT,
-            pos,
-            contentfilter : 'off',
-            locale        : 'id_ID',
-        },
+/* ── Ambil random GIF dari Tenor via store-cache parse ── */
+async function fetchRandomTenorGif(query) {
+    const q = (query || DEFAULT_QUERIES[Math.floor(Math.random() * DEFAULT_QUERIES.length)]).trim();
+    const searchUrl = `https://tenor.com/id/search/${encodeURIComponent(q)}-gifs`;
+
+    const res = await axios.get(searchUrl, {
         timeout: 15000,
+        headers: { 'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36' },
     });
 
-    const results = res.data?.results;
-    if (!results || results.length === 0) throw new Error(`Tidak ada GIF untuk: "${q}"`);
+    const $ = cheerio.load(res.data);
+    const cacheText = $('#store-cache').html();
+    if (!cacheText) throw new Error('Tenor store-cache not found');
 
-    const pick = results[Math.floor(Math.random() * results.length)];
-    const med  = pick.media?.[0] || {};
+    const json = JSON.parse(cacheText);
+    const searchObj = json.universal?.search || {};
+    let items = [];
+    for (const k of Object.keys(searchObj)) {
+        if (searchObj[k]?.results) {
+            items = searchObj[k].results;
+            break;
+        }
+    }
+    if (!items.length) items = Object.values(json.gifs?.byId || {});
+    if (!items.length) throw new Error('No items in Tenor cache');
 
-    /*
-     * Prioritas format MP4 kualitas TERBAIK dulu:
-     * mp4 (HD, kualitas standar Tenor) → tinymp4 → nanomp4
-     * Hindari loopedmp4 (file terlalu besar, sering gagal muat di WA)
-     * gifPlayback:true di Baileys menjadikannya tampil sebagai GIF di WhatsApp
-     */
-    const mp4Meta =
-        med.mp4      ||
-        med.tinymp4  ||
-        med.nanomp4  ||
-        {};
+    const pick = items[Math.floor(Math.random() * items.length)];
+    const formats = pick.media_formats || {};
+    
+    const mp4 = formats.mp4 || formats.tinymp4 || formats.nanomp4 || {};
+    const gif = formats.gif || formats.tinygif || {};
 
-    if (!mp4Meta.url) throw new Error('URL MP4 tidak ditemukan dari Tenor.');
-
-    /* Meta dari format GIF asli (untuk info dimensi/durasi yang lebih akurat) */
-    const gifMeta =
-        med.gif      ||
-        med.mediumgif ||
-        med.tinygif  ||
-        med.nanogif  ||
-        {};
-
-    /* Dimensi: coba dari gif asli → mp4 → null */
-    const dims     = gifMeta.dims     || mp4Meta.dims     || null;
-    const duration = gifMeta.duration ?? mp4Meta.duration ?? null;
-    /* Ukuran file: dari mp4 yang dipilih */
-    const fileSize = mp4Meta.size     || null;
-
-    /* URL preview kecil (tinygif/nanogif) untuk ditampilkan sebagai buffer image */
-    const previewUrl =
-        med.tinygif?.url  ||
-        med.nanogif?.url  ||
-        med.gif?.url      ||
-        null;
+    if (!mp4.url) throw new Error('No MP4 URL found');
 
     return {
-        url        : mp4Meta.url,
-        previewUrl,                                          // ← buffer image sebelum download
-        title      : pick.title || pick.content_description || q,
-        tags       : (pick.tags || []).slice(0, 5),
+        url        : mp4.url,
+        previewUrl : gif.url || null,
+        title      : pick.title || q,
+        tags       : [],
         query      : q,
-        pos,
-        created    : pick.created || null,
-        dims,
-        duration,
-        fileSize,
+        pos        : 0,
+        created    : Date.now() / 1000,
+        dims       : mp4.dims || null,
+        duration   : mp4.duration || null,
+        fileSize   : null,
     };
 }
 
@@ -380,41 +357,14 @@ async function handleAnimgif(hisoka, m, query, ctx) {
             1000,
         );
 
-        /* ── Tahap 4: ekstrak frame + blur via ffmpeg (tampil buram sebelum download) ── */
-        const thumbBuf = await extractBlurredThumbnail(buffer);
-
-        /* ── Info ukuran dari buffer asli ── */
-        const actualSize = formatSize(gif.fileSize || rawBuffer.byteLength);
-        const dimsStr    = gif.dims ? `${gif.dims[0]}x${gif.dims[1]}` : 'N/A';
-
-        /* ── Caption bersih, tanpa duplikat ── */
-        const caption = [
-            `🎴 *Anime GIF Random*`,
-            ``,
-            `🔍 *Query    :* ${gif.query}`,
-            usedLabel            ? `🏷️ *Kategori :* ${usedLabel}`           : null,
-            gif.title            ? `📝 *Judul    :* ${gif.title}`           : null,
-            gif.tags.length > 0 ? `🔖 *Tags     :* ${gif.tags.join(', ')}` : null,
-            ``,
-            `╭──── 📋 *Detail* ────╮`,
-            `│ 📦 Ukuran  : ${actualSize}`,
-            `│ ⏱️ Durasi  : ${formatDuration(gif.duration)}`,
-            `│ 📐 Dimensi : ${dimsStr}`,
-            `│ 📅 Dibuat  : ${formatDate(gif.created)}`,
-            `╰─────────────────────╯`,
-            `_Powered by Tenor • WilyBot_`,
-        ].filter(v => v !== null).join('\n');
-
-        /* ── Hapus loading message, kirim sebagai MP4 video ── */
+        /* ── Hapus loading message, kirim sebagai MP4 video tanpa caption ── */
         await deleteLoad();
 
         const sendPayload = {
             video      : buffer,
-            caption,
             gifPlayback: true,
             mimetype   : 'video/mp4',
         };
-        if (thumbBuf) sendPayload.jpegThumbnail = thumbBuf;
 
         await hisoka.sendMessage(m.from, sendPayload, { quoted: m });
         await hisoka.sendMessage(m.from, { react: { text: '✅', key: m.key } });
