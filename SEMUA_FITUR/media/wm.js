@@ -38,10 +38,50 @@ async function makeWmSticker(imageBuffer, { packName = 'Wily Bot', authorName = 
 }
 
 function isWmSupportedMedia(type) {
-        return type === 'imageMessage' || type === 'stickerMessage';
+        return type === 'imageMessage' || type === 'videoMessage' || type === 'stickerMessage';
 }
 
-async function handleWmCommand({ hisoka, m, query, tolak, logCommand, loadConfig, downloadMediaBuffer, getQuotedMediaBuffer, getMediaTypeFromMessage }) {
+/* ── Video/GIF → webp animasi (disamakan dengan .sticker) ── */
+async function convertVideoToWmWebp(mediaBuffer, { exec, util, path, fs }) {
+        const os = await import('os');
+        const execAsync = util.promisify(exec);
+        const tmpDir = os.default.tmpdir();
+        const uniqR  = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+        const tmpIn  = path.join(tmpDir, `wm_in_${uniqR}.mp4`);
+        const tmpOut = path.join(tmpDir, `wm_out_${uniqR}.webp`);
+        try {
+                fs.writeFileSync(tmpIn, mediaBuffer);
+                const MAX_STICKER_BYTES = 500 * 1024;
+                let quality = 80;
+                let fps = 15;
+                let webpBuf;
+
+                while (true) {
+                        await execAsync(
+                                `ffmpeg -y -i "${tmpIn}" ` +
+                                `-vf "fps=${fps},scale=512:512:force_original_aspect_ratio=decrease,pad=512:512:(ow-iw)/2:(oh-ih)/2:color=black@0,format=rgba" ` +
+                                `-vcodec libwebp_anim -lossless 0 -quality ${quality} -loop 0 -an "${tmpOut}"`,
+                                { timeout: 60000 }
+                        );
+                        webpBuf = fs.readFileSync(tmpOut);
+                        if (webpBuf.length <= MAX_STICKER_BYTES) break;
+                        if (quality > 30) {
+                                quality -= 15;
+                        } else if (fps > 8) {
+                                fps -= 3;
+                                quality = 50;
+                        } else {
+                                break;
+                        }
+                }
+                return webpBuf;
+        } finally {
+                try { fs.unlinkSync(tmpIn); } catch {}
+                try { fs.unlinkSync(tmpOut); } catch {}
+        }
+}
+
+async function handleWmCommand({ hisoka, m, query, tolak, logCommand, loadConfig, downloadMediaBuffer, getQuotedMediaBuffer, getMediaTypeFromMessage, exec, util, path, fs }) {
         try {
                 const pfxWm = m.prefix || '.';
                 const wmCurrentType = getMediaTypeFromMessage(m);
@@ -57,10 +97,11 @@ async function handleWmCommand({ hisoka, m, query, tolak, logCommand, loadConfig
                                 `│ *Author* nama kustom!\n` +
                                 `│\n` +
                                 `│ 📋 *Cara Pakai:*\n` +
-                                `│ • Kirim gambar + caption:\n` +
+                                `│ • Kirim gambar/video + caption:\n` +
                                 `│   _${pfxWm}wm NamaPack|NamaAuthor_\n` +
-                                `│ • Reply gambar/sticker + ketik:\n` +
+                                `│ • Reply gambar/video/sticker + ketik:\n` +
                                 `│   _${pfxWm}wm NamaPack|NamaAuthor_\n` +
+                                `│   _(video max 10 dtk jadi sticker animasi)_\n` +
                                 `│ • Tanpa argumen = auto-detect\n` +
                                 `│   _dari config (${pfxWm}s pack/author)_\n` +
                                 `│\n` +
@@ -101,20 +142,52 @@ async function handleWmCommand({ hisoka, m, query, tolak, logCommand, loadConfig
 
                 await hisoka.sendMessage(m.from, { react: { text: '⏳', key: m.key } });
 
-                let imgBuffer;
+                let mediaBuffer;
+                let mediaType;
+                let videoDuration = 0;
+
                 if (canUseWmCurrent) {
-                        imgBuffer = await downloadMediaBuffer(hisoka, m);
+                        mediaBuffer = await downloadMediaBuffer(hisoka, m);
+                        mediaType = wmCurrentType;
+                        if (wmCurrentType === 'videoMessage') {
+                                videoDuration = m.message?.videoMessage?.seconds ||
+                                        m.content?.seconds || 0;
+                        }
                 } else {
-                        imgBuffer = await getQuotedMediaBuffer(hisoka, m);
+                        mediaBuffer = await getQuotedMediaBuffer(hisoka, m);
+                        mediaType = wmQuotedType;
+                        if (wmQuotedType === 'videoMessage') {
+                                videoDuration = m.quoted?.message?.videoMessage?.seconds ||
+                                        m.quoted?.content?.seconds || 0;
+                        }
                 }
 
-                if (!imgBuffer || imgBuffer.length === 0) {
+                if (!mediaBuffer || mediaBuffer.length === 0) {
                         await hisoka.sendMessage(m.from, { react: { text: '❌', key: m.key } });
-                        await tolak(hisoka, m, '❌ Gagal download gambar, coba lagi');
+                        await tolak(hisoka, m, '❌ Gagal download media, coba lagi');
                         return;
                 }
 
-                const stickerBuffer = await makeWmSticker(imgBuffer, { packName, authorName });
+                if (mediaType === 'videoMessage' && videoDuration > 10) {
+                        await hisoka.sendMessage(m.from, { react: { text: '❌', key: m.key } });
+                        await tolak(hisoka, m, `❌ Video terlalu panjang! (${videoDuration} detik)\nMaksimal *10 detik* untuk sticker animasi.`);
+                        return;
+                }
+
+                let stickerBuffer;
+                if (mediaType === 'videoMessage') {
+                        const webpBuf = await convertVideoToWmWebp(mediaBuffer, { exec, util, path, fs });
+                        const { Exif: WSFExif } = await import('wa-sticker-formatter');
+                        const exif = new WSFExif({
+                                pack: packName,
+                                author: authorName,
+                                categories: ['🎭'],
+                                id: 'com.wilykun.wm',
+                        });
+                        stickerBuffer = await exif.add(webpBuf);
+                } else {
+                        stickerBuffer = await makeWmSticker(mediaBuffer, { packName, authorName });
+                }
 
                 if (!stickerBuffer || stickerBuffer.length === 0) {
                         await hisoka.sendMessage(m.from, { react: { text: '❌', key: m.key } });
