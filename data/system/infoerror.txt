@@ -8,7 +8,7 @@
 ════════════════════════════════════════════════════════════════════════
   FILE     : infoerror.txt
   Bot      : Wily Bot
-  Update   : 13/10/2026, 05.53.23  (realtime — diperbarui otomatis setiap ada error)
+  Update   : 15/10/2026, 12.54.32  (realtime — diperbarui otomatis setiap ada error)
 ════════════════════════════════════════════════════════════════════════
 
   RINGKASAN
@@ -23,24 +23,24 @@
 ────────────────────────────────────────────────────────────────────────
 
 ┌───────────────────────────────────────────────────────────────────────
-│  #001  —  console.error
+│  #001  —  tts
 ├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
 │  PESAN ERROR
-│  [31m[HD] Error:[39m Gagal enhance gambar: fetch failed
+│  Unexpected server response: 429
 │
 │  DETAIL
-│  Sumber      : console.error
+│  Sumber      : tts
 │  Frekuensi   : 1x (baru terjadi)
-│  Pertama     : 13/10/2026, 05.53.23
-│  Terakhir    : 13/10/2026, 05.53.23
+│  Pertama     : 15/10/2026, 12.54.32
+│  Terakhir    : 15/10/2026, 12.54.32
 │
 │  STACK TRACE (3 baris pertama)
-│  ▶  Error: [31m[HD] Error:[39m Gagal enhance gambar: fetch failed
-│     at console.error (file:///home/runner/workspace/index.js:433:27)
-│     at handleHdvideo (file:///home/runner/workspace/SEMUA_FITUR/download/hdvid.js?t=1791608897751.2134:319:17)
+│  ▶  Error: Unexpected server response: 429
+│     at ClientRequest.<anonymous> (/home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/node_modules/ws/lib/websocket.js:944:7)
+│     at ClientRequest.emit (node:events:514:28)
 └───────────────────────────────────────────────────────────────────────
 
 ════════════════════════════════════════════════════════════════════════
   End of Report  —  Total: 1 jenis, 1 kejadian
-  Terakhir diperbarui: 13/10/2026, 05.53.23
+  Terakhir diperbarui: 15/10/2026, 12.54.32
 ════════════════════════════════════════════════════════════════════════
