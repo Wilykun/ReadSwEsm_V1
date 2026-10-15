@@ -41,5 +41,48 @@
       }
     ],
     "processedAt": "2026-10-14T08:05:53.171Z"
+  },
+  "AC53D8C3385B3796AA031F8443890C59": {
+    "id": "AC53D8C3385B3796AA031F8443890C59",
+    "sender": "6283182665936@s.whatsapp.net",
+    "name": "aku LUI",
+    "type": "videoMessage",
+    "arrivedAt": "2026-10-15T04:49:09.752Z",
+    "read": true,
+    "reacted": true,
+    "reactionExpected": true,
+    "emoji": "🐬",
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "6283182665936",
+    "resolvedPn": "6283182665936@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "6283182665936@s.whatsapp.net",
+      "fromMe": false,
+      "id": "AC53D8C3385B3796AA031F8443890C59",
+      "participant": "165536713416760@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-10-15T04:49:30.824Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6283182665936@s.whatsapp.net",
+        "fromMe": false,
+        "id": "AC53D8C3385B3796AA031F8443890C59",
+        "participant": "165536713416760@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6283182665936@s.whatsapp.net",
+        "fromMe": false,
+        "id": "AC53D8C3385B3796AA031F8443890C59",
+        "participant": "6283182665936@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-10-15T04:49:30.823Z"
   }
 }

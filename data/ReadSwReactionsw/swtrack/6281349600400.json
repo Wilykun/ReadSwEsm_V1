@@ -41,5 +41,48 @@
       }
     ],
     "processedAt": "2026-10-14T08:05:54.994Z"
+  },
+  "AC60A7123DA2E87B3A9501EBB2E5F256": {
+    "id": "AC60A7123DA2E87B3A9501EBB2E5F256",
+    "sender": "6281349600400@s.whatsapp.net",
+    "name": "Liam",
+    "type": "videoMessage",
+    "arrivedAt": "2026-10-15T04:49:09.820Z",
+    "read": true,
+    "reacted": true,
+    "reactionExpected": true,
+    "emoji": "🐬",
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "6281349600400",
+    "resolvedPn": "6281349600400@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "6281349600400@s.whatsapp.net",
+      "fromMe": false,
+      "id": "AC60A7123DA2E87B3A9501EBB2E5F256",
+      "participant": "81003150311587@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-10-15T04:49:24.494Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6281349600400@s.whatsapp.net",
+        "fromMe": false,
+        "id": "AC60A7123DA2E87B3A9501EBB2E5F256",
+        "participant": "81003150311587@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6281349600400@s.whatsapp.net",
+        "fromMe": false,
+        "id": "AC60A7123DA2E87B3A9501EBB2E5F256",
+        "participant": "6281349600400@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-10-15T04:49:24.494Z"
   }
 }

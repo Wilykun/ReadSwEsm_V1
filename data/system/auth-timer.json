@@ -2,6 +2,30 @@
   "events": [
     {
       "type": "connected",
+      "connectedAt": "2026-10-15T05:36:03.375Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-10-15T05:14:31.910Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-10-15T05:09:04.437Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-10-15T05:05:17.193Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-10-15T05:00:43.486Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-10-15T04:48:46.321Z"
+    },
+    {
+      "type": "connected",
       "connectedAt": "2026-10-14T12:25:31.626Z"
     },
     {
@@ -126,6 +150,6 @@
       "sessionExpireAt": "2026-10-12T07:54:44.794Z"
     }
   ],
-  "lastUpdated": "2026-10-14T12:25:31.626Z",
+  "lastUpdated": "2026-10-15T05:36:03.375Z",
   "sessionStart": "2026-10-12T07:51:44.826Z"
 }

@@ -1,47 +1,4 @@
 {
-  "A58C17AB03084D32641E8E6EB2B2D106": {
-    "id": "A58C17AB03084D32641E8E6EB2B2D106",
-    "sender": "6288705922833@s.whatsapp.net",
-    "name": "𝗮𝗺𝗮𝗹𝗶𝗮 𝘄𝗮𝗻𝗴𝘆",
-    "type": "imageMessage",
-    "arrivedAt": "2026-10-13T13:25:02.277Z",
-    "read": true,
-    "reacted": true,
-    "reactionExpected": true,
-    "emoji": "🐋",
-    "resolve": "PN langsung ✓",
-    "source": "status",
-    "number": "6288705922833",
-    "resolvedPn": "6288705922833@s.whatsapp.net",
-    "messageKey": {
-      "remoteJid": "status@broadcast",
-      "remoteJidAlt": "6288705922833@s.whatsapp.net",
-      "fromMe": false,
-      "id": "A58C17AB03084D32641E8E6EB2B2D106",
-      "participant": "200897581863137@lid",
-      "addressingMode": "lid"
-    },
-    "updatedAt": "2026-10-13T13:25:19.239Z",
-    "receiptKeys": [
-      {
-        "remoteJid": "status@broadcast",
-        "remoteJidAlt": "6288705922833@s.whatsapp.net",
-        "fromMe": false,
-        "id": "A58C17AB03084D32641E8E6EB2B2D106",
-        "participant": "200897581863137@lid",
-        "addressingMode": "lid"
-      },
-      {
-        "remoteJid": "status@broadcast",
-        "remoteJidAlt": "6288705922833@s.whatsapp.net",
-        "fromMe": false,
-        "id": "A58C17AB03084D32641E8E6EB2B2D106",
-        "participant": "6288705922833@s.whatsapp.net",
-        "addressingMode": "lid"
-      }
-    ],
-    "processedAt": "2026-10-13T13:25:19.238Z"
-  },
   "A59A8D5EC5A8D6CC39A4DF942463A772": {
     "id": "A59A8D5EC5A8D6CC39A4DF942463A772",
     "sender": "6288705922833@s.whatsapp.net",
@@ -64,7 +21,7 @@
       "participant": "200897581863137@lid",
       "addressingMode": "lid"
     },
-    "updatedAt": "2026-10-14T08:48:31.504Z",
+    "updatedAt": "2026-10-15T04:49:10.004Z",
     "receiptKeys": [
       {
         "remoteJid": "status@broadcast",
@@ -83,7 +40,9 @@
         "addressingMode": "lid"
       }
     ],
-    "processedAt": "2026-10-14T08:48:31.504Z"
+    "processedAt": "2026-10-14T08:48:31.504Z",
+    "deleted": true,
+    "deletedAt": "2026-10-15T04:49:10.004Z"
   },
   "A5632CF9A55027163EF24C88C1CCF37D": {
     "id": "A5632CF9A55027163EF24C88C1CCF37D",
@@ -152,7 +111,7 @@
       "participant": "200897581863137@lid",
       "addressingMode": "lid"
     },
-    "updatedAt": "2026-10-14T13:19:21.507Z",
+    "updatedAt": "2026-10-15T04:49:09.814Z",
     "receiptKeys": [
       {
         "remoteJid": "status@broadcast",
@@ -171,6 +130,94 @@
         "addressingMode": "lid"
       }
     ],
-    "processedAt": "2026-10-14T13:19:21.507Z"
+    "processedAt": "2026-10-14T13:19:21.507Z",
+    "deleted": true,
+    "deletedAt": "2026-10-15T04:49:09.814Z"
+  },
+  "A5DAEA26CB8670AAAD3DFCF4C4F0B564": {
+    "id": "A5DAEA26CB8670AAAD3DFCF4C4F0B564",
+    "sender": "6288705922833@s.whatsapp.net",
+    "name": "𝗮𝗺𝗮𝗹𝗶𝗮 𝘄𝗮𝗻𝗴𝘆",
+    "type": "videoMessage",
+    "arrivedAt": "2026-10-15T04:49:09.993Z",
+    "read": true,
+    "reacted": true,
+    "reactionExpected": true,
+    "emoji": "🦈",
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "6288705922833",
+    "resolvedPn": "6288705922833@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "6288705922833@s.whatsapp.net",
+      "fromMe": false,
+      "id": "A5DAEA26CB8670AAAD3DFCF4C4F0B564",
+      "participant": "200897581863137@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-10-15T04:49:24.967Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6288705922833@s.whatsapp.net",
+        "fromMe": false,
+        "id": "A5DAEA26CB8670AAAD3DFCF4C4F0B564",
+        "participant": "200897581863137@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6288705922833@s.whatsapp.net",
+        "fromMe": false,
+        "id": "A5DAEA26CB8670AAAD3DFCF4C4F0B564",
+        "participant": "6288705922833@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-10-15T04:49:24.961Z"
+  },
+  "A5E67C5BD70CF76730A158839B46B0A3": {
+    "id": "A5E67C5BD70CF76730A158839B46B0A3",
+    "sender": "6288705922833@s.whatsapp.net",
+    "name": "𝗮𝗺𝗮𝗹𝗶𝗮 𝘄𝗮𝗻𝗴𝘆",
+    "type": "imageMessage",
+    "arrivedAt": "2026-10-15T04:49:10.005Z",
+    "read": true,
+    "reacted": true,
+    "reactionExpected": true,
+    "emoji": "🐋",
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "6288705922833",
+    "resolvedPn": "6288705922833@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "6288705922833@s.whatsapp.net",
+      "fromMe": false,
+      "id": "A5E67C5BD70CF76730A158839B46B0A3",
+      "participant": "200897581863137@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-10-15T04:49:28.703Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6288705922833@s.whatsapp.net",
+        "fromMe": false,
+        "id": "A5E67C5BD70CF76730A158839B46B0A3",
+        "participant": "200897581863137@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6288705922833@s.whatsapp.net",
+        "fromMe": false,
+        "id": "A5E67C5BD70CF76730A158839B46B0A3",
+        "participant": "6288705922833@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-10-15T04:49:28.703Z"
   }
 }
