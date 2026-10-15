@@ -161,6 +161,7 @@ const WATCHED_FILES = [
     { key: 'audioconvert', rel: 'SEMUA_FITUR/media/audioconvert.js', lazy: true },
     { key: 'viewonce', rel: 'SEMUA_FITUR/media/viewonce.js', lazy: true },
     { key: 'anyvoice', rel: 'SEMUA_FITUR/media/anyvoice.js', lazy: true },
+    { key: 'ttsLangsFull', rel: 'SEMUA_FITUR/media/tts-langs-full.js', lazy: true },
     // Download
     { key: 'downloader', rel: 'SEMUA_FITUR/download/downloader.js', lazy: true },
     { key: 'hdvid', rel: 'SEMUA_FITUR/download/hdvid.js', lazy: true },
