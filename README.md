@@ -8,9 +8,13 @@
 
 <br/>
 
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=22&duration=3000&pause=1000&color=25D366&center=true&vCenter=true&width=640&lines=299+Perintah+Siap+Pakai;Auto+Read+Story+%26+Auto+React;Tenor+GIF+Picker+%2B+Sticker+WM;Deploy+di+Replit+%7C+Railway+%7C+Fly.io" alt="Typing SVG" />
+
+<br/>
+
 [![Node.js](https://img.shields.io/badge/Node.js-20%2B-22C55E?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![Baileys](https://img.shields.io/badge/WhatsApp-Baileys-25D366?style=for-the-badge&logo=whatsapp&logoColor=white)](https://github.com/WhiskeySockets/Baileys)
-[![Commands](https://img.shields.io/badge/Commands-290%2B-8B5CF6?style=for-the-badge&logo=probot&logoColor=white)](#-fitur-unggulan)
+[![Commands](https://img.shields.io/badge/Commands-299-8B5CF6?style=for-the-badge&logo=probot&logoColor=white)](#-fitur-unggulan)
 [![Status](https://img.shields.io/badge/Status-Active-06B6D4?style=for-the-badge&logo=statuspage&logoColor=white)](#-update-terbaru-v271)
 [![License](https://img.shields.io/badge/License-MIT-F59E0B?style=for-the-badge&logo=opensourceinitiative&logoColor=white)](LICENSE)
 
@@ -45,6 +49,7 @@
 - [🤖 Jadibot (Multi-Session)](#-jadibot-multi-session)
 - [🛡️ Fitur Keamanan](#️-fitur-keamanan)
 - [❓ Troubleshooting / FAQ](#-troubleshooting--faq)
+- [🆕 Update Terbaru (Patch Oktober 2026)](#-update-terbaru-patch-oktober-2026)
 - [🆕 Update Terbaru (V27.1)](#-update-terbaru-v271)
 - [📝 Kredit](#-kredit)
 
@@ -84,6 +89,14 @@
   <tr>
     <td align="center">🖼️</td>
     <td><b>Sticker Tools</b><br/>Buat sticker dari gambar, konversi sticker ke gambar</td>
+  </tr>
+  <tr>
+    <td align="center">🎞️</td>
+    <td><b>Tenor GIF Picker (.animgif)</b><br/>Cari GIF anime via Tenor API, pilih format GIF SD / HD / MP4 lewat tombol interaktif</td>
+  </tr>
+  <tr>
+    <td align="center">🏷️</td>
+    <td><b>Sticker WM Otomatis</b><br/>Pack & author stiker video/GIF otomatis dari config; <code>.wm</code> custom dengan auto-detect</td>
   </tr>
   <tr>
     <td align="center">📲</td>
@@ -952,6 +965,27 @@ File temporary (hasil download) dibersihkan otomatis setiap 6 jam.
 | Dapat error `forbidden 403` | Bot reconnect otomatis tanpa hapus sesi (sudah dihandle) |
 | Command tidak dikenali | Cek prefix, cek ejaan command dengan `.menu` |
 | Bot kirim pesan double | Cek apakah ada dua instance bot berjalan bersamaan |
+
+</details>
+
+---
+
+## 🆕 Update Terbaru (Patch Oktober 2026)
+
+<details>
+<summary><b>🔽 Klik untuk lihat fix & fitur terbaru — .animgif, .sticker, .wm</b></summary>
+
+<br/>
+
+### ✨ Fitur Baru
+1. **🎞️ `.animgif` — Tenor GIF Picker** — ketik `.animgif <query>` (bebas, mis. `.animgif anime neko`), pilih format **GIF SD / GIF HD / MP4** lewat tombol single-select. Caption hasil kaya format WhatsApp (judul, deskripsi, ukuran, durasi, dimensi, tanggal, tag).
+2. **🏷️ `.wm` / `.swm` — auto-detect config** — tanpa argumen, pack & author otomatis dari `config.json`; argumen parsial (`.wm Bang|`) melengkapi sisanya dari config.
+3. **🎬 `.wm` / `.swm` — support video/GIF** — reply ke video/GIF kini jadi sticker animasi (maks 10 detik) dengan pack & author kustom.
+
+### 🔧 Bug Fix
+1. **`.sticker` video/GIF tanpa pack & author** — jalur video hanya convert ffmpeg→webp tanpa metadata EXIF; kini pack & author dari config ditulis ke stiker.
+2. **Caption `.animgif` membingungkan** — kini menampilkan stats file yang benar-benar dikirim ("File Terkirim").
+3. **Race condition temp file ffmpeg** — nama file unik per proses + validasi MP4 sebelum dikirim.
 
 </details>
 
