@@ -20,21 +20,17 @@
  *
  *  anyvoice.js — Text-to-Speech untuk .tts
  *
- *  ENGINE: Google Translate TTS (translate.google.com/translate_tts) —
+ *  ENGINE 1: Google Translate TTS (translate.google.com/translate_tts) —
  *  endpoint publik resmi Google, dipanggil tanpa API key/token/login.
- *  TIDAK ada kuota per-jam seketat AnyVoice (sudah dites beberapa request
- *  beruntun, semua sukses), dan suaranya beneran mengucapkan bahasa
- *  Indonesia (tl=id) apa adanya — bukan logat Inggris/Mandarin dipaksa
- *  baca teks Indo.
- *  Batasannya cuma soal teknis: 1 request maks ±200 karakter, jadi teks
- *  panjang dipecah per-kata lalu disambung ulang pakai ffmpeg jadi satu
- *  file, dikonversi ke OGG Opus, dan dikirim sebagai voice note (PTT)
- *  asli — bukan file audio biasa — supaya muncul di WhatsApp persis
- *  seperti bubble VN (bulat, ada gelombang suara, tanpa tombol download).
+ *  Suara bahasa Indonesia (tl=id) apa adanya. Batas ±200 karakter/request,
+ *  teks panjang dipecah per-kata lalu disambung via ffmpeg.
  *
- *  Fitur daftar-suara-karakter AnyVoice (`.anyvoice list`) sudah dihapus
- *  sesuai permintaan — kuota anonim mereka cuma 2x/jam jadi tidak layak
- *  dijadikan fitur utama. `.tts` sekarang cuma satu jalur ini.
+ *  ENGINE 2: Microsoft Edge TTS (via node-edge-tts) — tanpa API key,
+ *  suara neural Indonesia: id-ID-ArdiNeural (pria) & id-ID-GadisNeural
+ *  (wanita). Mendukung rate/pitch via SSML.
+ *
+ *  ALUR: `.tts <teks>` → tampil picker single-select (5 suara) →
+ *  user tap → picker dihapus → voice note dikirim sebagai PTT asli.
  * ───────────────────────────────
  */
 'use strict';
@@ -42,10 +38,53 @@
 import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
+import crypto from 'crypto';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
 
 const execFileAsync = promisify(execFile);
+
+/* ── Daftar suara di picker ── */
+const TTS_VOICES = [
+    { id: 'g-normal', engine: 'google', speed: 1.0,  label: '🇮🇩 Normal', desc: 'Google · kecepatan normal' },
+    { id: 'g-slow',   engine: 'google', speed: 0.7,  label: '🐢 Lambat',  desc: 'Google · 0.7x lebih pelan' },
+    { id: 'g-fast',   engine: 'google', speed: 1.35, label: '🐇 Cepat',   desc: 'Google · 1.35x lebih cepat' },
+    { id: 'e-ardi',   engine: 'edge',   voice: 'id-ID-ArdiNeural',  label: '👨 Ardi',  desc: 'Edge TTS · pria Indonesia' },
+    { id: 'e-gadis',  engine: 'edge',   voice: 'id-ID-GadisNeural', label: '👩 Gadis', desc: 'Edge TTS · wanita Indonesia' },
+];
+const PFX_TTS = '__tts_voice_';
+const TTS_TTL_MS = 15 * 60 * 1000;
+const pendingTtsChoices = new Map();
+
+function storeTtsChoice(text, from, cmdMsg) {
+    const now = Date.now();
+    for (const [k, v] of pendingTtsChoices) {
+        if (v.expiresAt <= now) pendingTtsChoices.delete(k);
+    }
+    const token = crypto.randomBytes(4).toString('hex');
+    const quotedCmd = cmdMsg?.key ? {
+        key: cmdMsg.key,
+        message: { conversation: String(cmdMsg.text || `.tts ${text}`).trim().slice(0, 200) },
+    } : null;
+    pendingTtsChoices.set(token, { text, from, quotedCmd, botMsgKey: null, expiresAt: now + TTS_TTL_MS });
+    return token;
+}
+
+/** Ambil ID tap dari pesan interactive response */
+function extractTapId(m) {
+    try {
+        const msg = m.message || {};
+        const ir = msg.interactiveResponseMessage || msg.buttonsResponseMessage || msg.listResponseMessage;
+        if (ir?.selectedRowId) return ir.selectedRowId;
+        if (ir?.selectedButtonId) return ir.selectedButtonId;
+        const native = msg.interactiveResponseMessage?.nativeFlowResponseMessage;
+        if (native?.paramsJson) {
+            const p = JSON.parse(native.paramsJson);
+            if (p.id) return p.id;
+        }
+    } catch (_) {}
+    return String(m.text || '');
+}
 
 /**
  * Hitung waveform (buat bubble VN WhatsApp bergelombang, bukan garis progress polos).
@@ -132,7 +171,7 @@ async function fetchGttsChunk(text) {
  * Hasil buffer OGG/Opus ini siap dikirim langsung sebagai `ptt: true`
  * (voice note asli WhatsApp — bulat, ada gelombang, tanpa tombol download).
  */
-async function generateIndoVoiceNote(text) {
+async function generateIndoVoiceNote(text, speed = 1.0) {
     const chunks = splitTextChunks(text);
     if (!chunks.length) throw new Error('Teks kosong');
 
@@ -165,6 +204,7 @@ async function generateIndoVoiceNote(text) {
             '-vn',
             '-ac', '1',
             '-ar', '48000',
+            ...(speed && Math.abs(speed - 1.0) > 0.01 ? ['-filter:a', `atempo=${speed}`] : []),
             '-c:a', 'libopus',
             '-b:a', '48k',
             '-vbr', 'on',
@@ -195,6 +235,60 @@ async function generateIndoVoiceNote(text) {
     }
 }
 
+/**
+ * Generate voice note via Microsoft Edge TTS (node-edge-tts, tanpa API key).
+ * Output mp3 → dikonversi ke OGG Opus PTT seperti jalur Google.
+ */
+async function generateEdgeVoiceNote(text, voiceName) {
+    const { EdgeTTS } = await import('node-edge-tts');
+    const tmpDir = path.join(process.cwd(), 'tmp');
+    if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true });
+
+    const id = `${Date.now()}_${crypto.randomBytes(3).toString('hex')}`;
+    const mp3Path = path.join(tmpDir, `edge_${id}.mp3`);
+    const oggPath = path.join(tmpDir, `edge_out_${id}.ogg`);
+
+    try {
+        const tts = new EdgeTTS({
+            voice: voiceName,
+            proxy: process.env.HTTPS_PROXY || process.env.HTTP_PROXY || undefined,
+        });
+        await tts.ttsPromise(text.slice(0, 1000), mp3Path);
+
+        if (!fs.existsSync(mp3Path) || fs.statSync(mp3Path).size < 512) {
+            throw new Error('Edge TTS mengembalikan audio kosong');
+        }
+
+        await execFileAsync('ffmpeg', [
+            '-y', '-hide_banner', '-loglevel', 'error',
+            '-i', mp3Path,
+            '-vn', '-ac', '1', '-ar', '48000',
+            '-c:a', 'libopus', '-b:a', '48k', '-vbr', 'on', '-compression_level', '10',
+            oggPath,
+        ], { timeout: 60000 });
+
+        if (!fs.existsSync(oggPath) || fs.statSync(oggPath).size < 512) {
+            throw new Error('Hasil konversi ffmpeg kosong/gagal');
+        }
+
+        const oggBuf = fs.readFileSync(oggPath);
+
+        let duration = null;
+        try {
+            const { stdout } = await execFileAsync('ffprobe', [
+                '-v', 'error', '-show_entries', 'format=duration',
+                '-of', 'default=noprint_wrappers=1:nokey=1', oggPath,
+            ]);
+            duration = Math.round(parseFloat(stdout));
+        } catch { /* durasi opsional */ }
+
+        return { buffer: oggBuf, duration };
+    } finally {
+        try { if (fs.existsSync(mp3Path)) fs.unlinkSync(mp3Path); } catch {}
+        try { if (fs.existsSync(oggPath)) fs.unlinkSync(oggPath); } catch {}
+    }
+}
+
 // ── COMMAND HANDLER UTAMA ──────────────────────────────────────────────────────
 
 async function handleAnyvoice({ hisoka, m, query, tolak, logCommand, logError }) {
@@ -214,21 +308,37 @@ async function handleAnyvoice({ hisoka, m, query, tolak, logCommand, logError })
 
         await hisoka.sendMessage(m.from, { react: { text: '🔊', key: m.key } });
 
-        const { buffer } = await generateIndoVoiceNote(trimmed);
-        const waveform   = await computeWaveform(buffer);
+        /* ── Tampilkan picker suara single-select ── */
+        const preview = trimmed.length > 80 ? trimmed.slice(0, 80) + '…' : trimmed;
+        const pickerText = `🗣️ *Pilih Suara TTS*\n\n> _"${preview}"_\n\nPilih suara di bawah, voice note langsung dikirim~`;
 
-        // Kirim sebagai voice note (PTT) asli — bulat, gelombang suara, auto-play
-        // di WhatsApp, bukan file audio biasa dengan tombol download.
-        // `waveform` di-hitung manual (lihat computeWaveform) karena auto-generate
-        // bawaan Baileys gagal diam-diam di versi audio-decode yang terpasang.
-        await hisoka.sendMessage(m.from, {
-            audio   : buffer,
-            mimetype: 'audio/ogg; codecs=opus',
-            ptt     : true,
-            ...(waveform ? { waveform } : {}),
-        }, { quoted: m });
+        const token = storeTtsChoice(trimmed, m.from, m);
 
-        await hisoka.sendMessage(m.from, { react: { text: '✅', key: m.key } });
+        let sentBtn = null;
+        if (typeof Button === 'function') {
+            try {
+                const btn = new Button()
+                    .setBody(pickerText)
+                    .setFooter('🔊 TTS • WilyBot')
+                    .addSelection('🎙️ Pilih Suara');
+                btn.makeSections('Suara tersedia');
+                for (const v of TTS_VOICES) {
+                    btn.makeRow('', v.label, v.desc, `${PFX_TTS}${v.id}_${token}`);
+                }
+                sentBtn = await btn.run(m.from, hisoka, m);
+            } catch (e) {
+                console.error('[TTS] Button send gagal:', e.message);
+            }
+        }
+
+        const pend = pendingTtsChoices.get(token);
+        if (sentBtn?.key) {
+            if (pend) pend.botMsgKey = sentBtn.key;
+        } else {
+            /* Fallback: tanpa picker, kirim suara normal langsung */
+            if (pend) pendingTtsChoices.delete(token);
+            await sendTtsVoiceNote({ hisoka, m, text: trimmed, voice: TTS_VOICES[0], tolak, logError, quotedCmd: m });
+        }
     } catch (err) {
         console.error('[TTS] Error:', err?.message);
         if (typeof logError === 'function') logError(err instanceof Error ? err : new Error(String(err?.message || err)), 'tts');
@@ -237,7 +347,70 @@ async function handleAnyvoice({ hisoka, m, query, tolak, logCommand, logError })
     }
 }
 
-export { handleAnyvoice };
+/** Generate + kirim voice note sesuai pilihan suara, quote command asli */
+async function sendTtsVoiceNote({ hisoka, m, text, voice, tolak, logError, quotedCmd }) {
+    await hisoka.sendMessage(m.from, { react: { text: '⏳', key: m.key } }).catch(() => {});
+    try {
+        let result;
+        if (voice.engine === 'edge') {
+            result = await generateEdgeVoiceNote(text, voice.voice);
+        } else {
+            result = await generateIndoVoiceNote(text, voice.speed || 1.0);
+        }
+        const waveform = await computeWaveform(result.buffer);
+
+        await hisoka.sendMessage(m.from, {
+            audio   : result.buffer,
+            mimetype: 'audio/ogg; codecs=opus',
+            ptt     : true,
+            ...(waveform ? { waveform } : {}),
+        }, { quoted: quotedCmd || m });
+
+        await hisoka.sendMessage(m.from, { react: { text: '✅', key: m.key } }).catch(() => {});
+    } catch (err) {
+        console.error('[TTS] Error:', err?.message);
+        if (typeof logError === 'function') logError(err instanceof Error ? err : new Error(String(err?.message || err)), 'tts');
+        await tolak(hisoka, m, `❌ Gagal generate suara *${voice.label}*.\n💬 ${err?.message || 'Coba lagi nanti.'}`);
+        await hisoka.sendMessage(m.from, { react: { text: '❌', key: m.key } }).catch(() => {});
+    }
+}
+
+/** Handle tap suara di picker .tts */
+async function handleTtsCallback({ hisoka, m, tolak, logCommand, logError }) {
+    const raw = extractTapId(m);
+    if (!raw.startsWith(PFX_TTS)) return false;
+
+    const rest = raw.slice(PFX_TTS.length);
+    let voice = null, token = null;
+    for (const v of TTS_VOICES) {
+        const pfx = `${v.id}_`;
+        if (rest.startsWith(pfx)) { voice = v; token = rest.slice(pfx.length); break; }
+    }
+    if (!voice || !token) return false;
+
+    const pending = pendingTtsChoices.get(token);
+    if (!pending || pending.expiresAt <= Date.now()) {
+        if (pending?.botMsgKey) {
+            try { await hisoka.sendMessage(m.from, { delete: pending.botMsgKey }); } catch (_) {}
+        }
+        pendingTtsChoices.delete(token);
+        await tolak(hisoka, m, '⏳ *Pilihan suara sudah kedaluwarsa.*\nKirim *.tts* lagi ya~');
+        return true;
+    }
+
+    /* Hapus pesan picker biar chat rapi */
+    if (pending.botMsgKey) {
+        try { await hisoka.sendMessage(m.from, { delete: pending.botMsgKey }); } catch (_) {}
+        pending.botMsgKey = null;
+    }
+    pendingTtsChoices.delete(token);
+
+    if (typeof logCommand === 'function') logCommand(m, hisoka, 'tts');
+    await sendTtsVoiceNote({ hisoka, m, text: pending.text, voice, tolak, logError, quotedCmd: pending.quotedCmd });
+    return true;
+}
+
+export { handleAnyvoice, handleTtsCallback };
 /**
  * ── Plugin ESM (auto-migrasi dari switch-case message.js) ──
  */

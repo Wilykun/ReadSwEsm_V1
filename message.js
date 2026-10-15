@@ -862,6 +862,18 @@ export default async function ({ message, type: messagesType }, hisoka) {
                         if (await handleAnimquoteCallback({ hisoka, m, tolak, logCommand, logError, Button, getQuotedStanzaId })) return;
                 }
 
+                // ── Handle tap tombol format .animgif (__tengif_*) ──
+                {
+                        const { handleTenorGifCallback } = await importLazy(path.resolve('./SEMUA_FITUR/anime/tenor-gif.js'));
+                        if (await handleTenorGifCallback({ hisoka, m, tolak, logCommand, Button })) return;
+                }
+
+                // ── Handle tap suara .tts (__tts_voice_*) ──
+                {
+                        const { handleTtsCallback } = await importLazy(path.resolve('./SEMUA_FITUR/media/anyvoice.js'));
+                        if (await handleTtsCallback({ hisoka, m, tolak, logCommand, logError, Button })) return;
+                }
+
                 // ── Handle pending alqupdate list choice → alqanime-cmd.js ──
                 if (await handleAlqUpdateChoice({ hisoka, m, fs, pendingAlqUpdateChoices, pendingAlqDlChoices, getJadibotChoiceKey, getQuotedStanzaId, pickBestAlqLink, getAllAlqLinksByPriority, formatAlqLinkMsg, tolak, logError })) return;
 
