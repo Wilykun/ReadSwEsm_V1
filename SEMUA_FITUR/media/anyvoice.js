@@ -666,7 +666,7 @@ async function translateTtsText(text, targetLangCode, logger) {
             'nb-NO': 'Norwegian', 'he-IL': 'Hebrew',
         };
         const targetName = langNames[targetLangCode] || targetLangCode;
-        const prompt = `Translate the following text to ${targetName}. Reply with ONLY the translation, no explanations, no quotes:\n\n${text}`;
+        const prompt = `Translate the following text to ${targetName}. IMPORTANT: Add natural punctuation (commas, periods — use 、。 for Japanese, ，。 for Chinese) appropriate for ${targetName}, even if the original text has no punctuation. This is for text-to-speech, so punctuation controls pauses and intonation. Reply with ONLY the translation, no explanations, no quotes:\n\n${text}`;
         const result = await gemini.ask(prompt, { model: 'gemini-2.0-flash' });
         const translated = String(result || '').trim().replace(/^["'「」『』]+|["'「」『』]+$/g, '');
         if (translated && translated.length > 0 && translated.length < text.length * 5) {
