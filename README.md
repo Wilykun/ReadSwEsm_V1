@@ -1,10 +1,8 @@
 <div align="center">
 
-# WILY BOT
+<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,100:128C7E&height=230&section=header&text=WILY+BOT&fontSize=78&fontColor=ffffff&animation=fadeIn&fontAlignY=36&desc=WhatsApp+Automation+Suite+%E2%80%A2+Node.js+%E2%80%A2+Baileys&descSize=19&descAlignY=60" alt="WILY BOT Hero" />
 
-### WhatsApp Automation Suite · Node.js · Baileys
-
-**Fast to deploy. Easy to extend. Built for real communities.**
+### Fast to deploy. Easy to extend. Built for real communities.
 
 <br/>
 
@@ -12,16 +10,22 @@
 
 <br/>
 
+[![Stars](https://img.shields.io/github/stars/Wilykun/ReadSwEsm_V1?style=for-the-badge&logo=github&color=25D366)](https://github.com/Wilykun/ReadSwEsm_V1/stargazers)
+[![Forks](https://img.shields.io/github/forks/Wilykun/ReadSwEsm_V1?style=for-the-badge&logo=github&color=8B5CF6)](https://github.com/Wilykun/ReadSwEsm_V1/network/members)
+![Visitors](https://api.visitorbadge.io/api/visitors?path=Wilykun.ReadSwEsm_V1&label=Visitors&countColor=%2325D366&style=for-the-badge)
+
+<br/>
+
 [![Node.js](https://img.shields.io/badge/Node.js-20%2B-22C55E?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![Baileys](https://img.shields.io/badge/WhatsApp-Baileys-25D366?style=for-the-badge&logo=whatsapp&logoColor=white)](https://github.com/WhiskeySockets/Baileys)
 [![Commands](https://img.shields.io/badge/Commands-299-8B5CF6?style=for-the-badge&logo=probot&logoColor=white)](#-fitur-unggulan)
-[![Status](https://img.shields.io/badge/Status-Active-06B6D4?style=for-the-badge&logo=statuspage&logoColor=white)](#-update-terbaru-v271)
+[![Status](https://img.shields.io/badge/Status-Active-06B6D4?style=for-the-badge&logo=statuspage&logoColor=white)](#-update-terbaru-patch-oktober-2026)
 [![License](https://img.shields.io/badge/License-MIT-F59E0B?style=for-the-badge&logo=opensourceinitiative&logoColor=white)](LICENSE)
 
 <br/>
 
-[![Run on Replit](https://img.shields.io/badge/Run%20on-Replit-F26207?style=for-the-badge&logo=replit&logoColor=white)](https://replit.com/new/github/hitlabmodv2/ReadSwDika_WhiskeySockets)
-[![Deploy on Railway](https://img.shields.io/badge/Deploy%20on-Railway-111827?style=for-the-badge&logo=railway&logoColor=white)](https://railway.com/new/template?template=https://github.com/hitlabmodv2/ReadSwDika_WhiskeySockets)
+[![Run on Replit](https://img.shields.io/badge/Run%20on-Replit-F26207?style=for-the-badge&logo=replit&logoColor=white)](https://replit.com/new/github/Wilykun/ReadSwEsm_V1)
+[![Deploy on Railway](https://img.shields.io/badge/Deploy%20on-Railway-111827?style=for-the-badge&logo=railway&logoColor=white)](https://railway.com/new/template?template=https://github.com/Wilykun/ReadSwEsm_V1)
 [![Deploy on Fly.io](https://img.shields.io/badge/Deploy%20on-Fly.io-7C3AED?style=for-the-badge&logo=fly.io&logoColor=white)](https://fly.io/docs/launch/)
 
 <br/><br/>
@@ -33,6 +37,35 @@
 > **WILY BOT** adalah bot WhatsApp multi-fitur untuk komunitas, otomasi grup, downloader media, utilitas admin, AI chat, dan multi-session **Jadibot**.
 >
 > Dibuat untuk dipakai, dikembangkan, dan dipelajari bersama. **Gratis untuk penggunaan pribadi dan komunitas — jangan diperjualbelikan.**
+
+<div align="center">
+
+### 🛠️ Tech Stack
+
+<img src="https://skillicons.dev/icons?i=nodejs,js,ffmpeg,git,github&theme=dark" alt="Tech Stack" />
+
+<br/>
+
+### 🏗️ Arsitektur
+
+```mermaid
+flowchart LR
+    WA["📱 WhatsApp"] <--> BL["🔌 Baileys Socket"]
+    BL --> INJ["💉 Message Inject"]
+    INJ --> DSP["🧩 Plugin Dispatcher"]
+    DSP --> C1["🎬 299 Commands"]
+    DSP --> C2["👁️ Auto Read Story"]
+    DSP --> C3["🤖 Jadibot Multi-Session"]
+    DSP --> C4["🛡️ Anti-Fitur"]
+    C1 --> MD[("💾 config.json + data/")]
+    C2 --> MD
+    C3 --> MD
+    style WA fill:#25D366,stroke:#fff,color:#fff
+    style BL fill:#0d1117,stroke:#25D366,color:#fff
+    style DSP fill:#8B5CF6,stroke:#fff,color:#fff
+```
+
+</div>
 
 ---
 
