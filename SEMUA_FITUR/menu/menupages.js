@@ -69,7 +69,7 @@ hd/remini/hdr | hdvid/hdvideo
 「 🔍 *INFO & CEK* 」
 ping (.p) | info | owner/own
 cekhp/spechp/infohp | bandingkan
-cuaca | ba/bluearchive
+cekip | cuaca | ba/bluearchive
 genius/carilagu | geniusdetail
 whatsmusik/wmusik | infomusik/infolirik
 speedtest/speed

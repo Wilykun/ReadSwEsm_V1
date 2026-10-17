@@ -212,6 +212,7 @@ const WATCHED_FILES = [
     { key: 'tempmail', rel: 'SEMUA_FITUR/tools/tempmail.js', lazy: true },
     { key: 'tmail', rel: 'SEMUA_FITUR/tools/tmail.js', lazy: true },
     { key: 'cekhp', rel: 'SEMUA_FITUR/tools/cekhp.js', lazy: true },
+    { key: 'cekipCmd', rel: 'SEMUA_FITUR/tools/cekip-cmd.js', lazy: true },
     { key: 'cekidff', rel: 'SEMUA_FITUR/tools/cekidff.js', lazy: true },
     { key: 'bandingkanhp', rel: 'SEMUA_FITUR/tools/bandingkanhp.js', lazy: true },
     { key: 'an1game', rel: 'SEMUA_FITUR/tools/an1game.js', lazy: true },
