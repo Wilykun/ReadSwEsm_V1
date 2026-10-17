@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main, ReadSwEsm_V2, ReadSwEsm_V3]
+    branches: [refactor/full-esm, ReadSwDika_V43]
   pull_request:
-    branches: [main, ReadSwEsm_V2, ReadSwEsm_V3]
+    branches: [refactor/full-esm, ReadSwDika_V43]
   workflow_dispatch:
 
 jobs:
