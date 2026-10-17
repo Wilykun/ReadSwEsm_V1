@@ -8,7 +8,7 @@
 ════════════════════════════════════════════════════════════════════════
   FILE     : infoerror.txt
   Bot      : Wily Bot
-  Update   : 15/10/2026, 12.54.32  (realtime — diperbarui otomatis setiap ada error)
+  Update   : 17/10/2026, 16.12.49  (realtime — diperbarui otomatis setiap ada error)
 ════════════════════════════════════════════════════════════════════════
 
   RINGKASAN
@@ -23,24 +23,24 @@
 ────────────────────────────────────────────────────────────────────────
 
 ┌───────────────────────────────────────────────────────────────────────
-│  #001  —  tts
+│  #001  —  INFOBOLA
 ├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
 │  PESAN ERROR
-│  Unexpected server response: 429
+│  [INFOBOLA] Fetch error: timeout
 │
 │  DETAIL
-│  Sumber      : tts
+│  Sumber      : INFOBOLA
 │  Frekuensi   : 1x (baru terjadi)
-│  Pertama     : 15/10/2026, 12.54.32
-│  Terakhir    : 15/10/2026, 12.54.32
+│  Pertama     : 17/10/2026, 16.12.49
+│  Terakhir    : 17/10/2026, 16.12.49
 │
 │  STACK TRACE (3 baris pertama)
-│  ▶  Error: Unexpected server response: 429
-│     at ClientRequest.<anonymous> (/home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/node_modules/ws/lib/websocket.js:944:7)
-│     at ClientRequest.emit (node:events:514:28)
+│  ▶  Error: [INFOBOLA] Fetch error: timeout
+│     at console.error (file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/index.js:434:27)
+│     at handleInfobola (file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/SEMUA_FITUR/info/infobola-cmd.js?t=1792228203861.1177:173:21)
 └───────────────────────────────────────────────────────────────────────
 
 ════════════════════════════════════════════════════════════════════════
   End of Report  —  Total: 1 jenis, 1 kejadian
-  Terakhir diperbarui: 15/10/2026, 12.54.32
+  Terakhir diperbarui: 17/10/2026, 16.12.49
 ════════════════════════════════════════════════════════════════════════

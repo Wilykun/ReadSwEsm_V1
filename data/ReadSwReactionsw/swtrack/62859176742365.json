@@ -1,0 +1,47 @@
+{
+  "AC4048878C790915AC0C2102C5EBA4D6": {
+    "id": "AC4048878C790915AC0C2102C5EBA4D6",
+    "sender": "62859176742365@s.whatsapp.net",
+    "name": "𝗕︎︎︎𝘂𝘁𝘁𝗲𝗿𝗳𝗹𝘆 𝗲𝗳𝗳𝗲𝗰𝘁",
+    "type": "videoMessage",
+    "arrivedAt": "2026-10-17T06:56:05.328Z",
+    "read": true,
+    "reacted": true,
+    "reactionExpected": true,
+    "emoji": "🐡",
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "62859176742365",
+    "resolvedPn": "62859176742365@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "62859176742365@s.whatsapp.net",
+      "fromMe": false,
+      "id": "AC4048878C790915AC0C2102C5EBA4D6",
+      "participant": "188003687383048@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-10-17T07:53:50.870Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "62859176742365@s.whatsapp.net",
+        "fromMe": false,
+        "id": "AC4048878C790915AC0C2102C5EBA4D6",
+        "participant": "188003687383048@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "62859176742365@s.whatsapp.net",
+        "fromMe": false,
+        "id": "AC4048878C790915AC0C2102C5EBA4D6",
+        "participant": "62859176742365@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-10-17T06:56:14.056Z",
+    "deleted": true,
+    "deletedAt": "2026-10-17T07:53:50.870Z"
+  }
+}

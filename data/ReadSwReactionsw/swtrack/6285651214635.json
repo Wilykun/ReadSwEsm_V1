@@ -1,12 +1,13 @@
 {
-  "AC93FB75178B45875E83266BE5952A2F": {
-    "id": "AC93FB75178B45875E83266BE5952A2F",
+  "ACB9156F80540332BFD7E5FF9E8746EB": {
+    "id": "ACB9156F80540332BFD7E5FF9E8746EB",
     "sender": "6285651214635@s.whatsapp.net",
-    "name": "Selin",
+    "name": "セリーナ",
     "type": "videoMessage",
-    "arrivedAt": "2026-09-30T11:13:47.481Z",
+    "arrivedAt": "2026-10-17T06:06:25.087Z",
     "read": true,
     "reacted": true,
+    "reactionExpected": true,
     "emoji": "🐟",
     "resolve": "PN langsung ✓",
     "source": "status",
@@ -16,17 +17,17 @@
       "remoteJid": "status@broadcast",
       "remoteJidAlt": "6285651214635@s.whatsapp.net",
       "fromMe": false,
-      "id": "AC93FB75178B45875E83266BE5952A2F",
+      "id": "ACB9156F80540332BFD7E5FF9E8746EB",
       "participant": "81441253769412@lid",
       "addressingMode": "lid"
     },
-    "updatedAt": "2026-09-30T11:14:12.462Z",
+    "updatedAt": "2026-10-17T06:06:38.677Z",
     "receiptKeys": [
       {
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6285651214635@s.whatsapp.net",
         "fromMe": false,
-        "id": "AC93FB75178B45875E83266BE5952A2F",
+        "id": "ACB9156F80540332BFD7E5FF9E8746EB",
         "participant": "81441253769412@lid",
         "addressingMode": "lid"
       },
@@ -34,11 +35,11 @@
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6285651214635@s.whatsapp.net",
         "fromMe": false,
-        "id": "AC93FB75178B45875E83266BE5952A2F",
+        "id": "ACB9156F80540332BFD7E5FF9E8746EB",
         "participant": "6285651214635@s.whatsapp.net",
         "addressingMode": "lid"
       }
     ],
-    "processedAt": "2026-09-30T11:14:12.461Z"
+    "processedAt": "2026-10-17T06:06:38.677Z"
   }
 }
