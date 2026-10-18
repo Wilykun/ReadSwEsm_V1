@@ -1,0 +1,45 @@
+{
+  "AC5E6C03435A1E2A8074A991B3E9AB26": {
+    "id": "AC5E6C03435A1E2A8074A991B3E9AB26",
+    "sender": "6285159456022@s.whatsapp.net",
+    "name": "Mamah Dinda",
+    "type": "conversation",
+    "arrivedAt": "2026-10-18T12:29:50.602Z",
+    "read": true,
+    "reacted": true,
+    "reactionExpected": true,
+    "emoji": "🐠",
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "6285159456022",
+    "resolvedPn": "6285159456022@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "6285159456022@s.whatsapp.net",
+      "fromMe": false,
+      "id": "AC5E6C03435A1E2A8074A991B3E9AB26",
+      "participant": "196121762787520@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-10-18T12:29:58.389Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6285159456022@s.whatsapp.net",
+        "fromMe": false,
+        "id": "AC5E6C03435A1E2A8074A991B3E9AB26",
+        "participant": "196121762787520@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6285159456022@s.whatsapp.net",
+        "fromMe": false,
+        "id": "AC5E6C03435A1E2A8074A991B3E9AB26",
+        "participant": "6285159456022@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-10-18T12:29:58.388Z"
+  }
+}

@@ -1,83 +1,14 @@
 {
-  "AC745836B8EE0142232D9F37EE952E99": {
-    "id": "AC745836B8EE0142232D9F37EE952E99",
-    "sender": "62895346275224@s.whatsapp.net",
-    "name": "Nanael",
-    "type": "imageMessage",
-    "arrivedAt": "2026-10-17T05:04:33.832Z",
-    "read": true,
-    "reacted": true,
-    "reactionExpected": true,
-    "emoji": "🐠",
-    "resolve": "PN langsung ✓",
-    "source": "status",
-    "number": "62895346275224",
-    "resolvedPn": "62895346275224@s.whatsapp.net",
-    "messageKey": {
-      "remoteJid": "status@broadcast",
-      "remoteJidAlt": "62895346275224@s.whatsapp.net",
-      "fromMe": false,
-      "id": "AC745836B8EE0142232D9F37EE952E99",
-      "participant": "258960858849386@lid",
-      "addressingMode": "lid"
-    },
-    "updatedAt": "2026-10-17T05:04:54.295Z",
-    "receiptKeys": [
-      {
-        "remoteJid": "status@broadcast",
-        "remoteJidAlt": "62895346275224@s.whatsapp.net",
-        "fromMe": false,
-        "id": "AC745836B8EE0142232D9F37EE952E99",
-        "participant": "258960858849386@lid",
-        "addressingMode": "lid"
-      },
-      {
-        "remoteJid": "status@broadcast",
-        "remoteJidAlt": "62895346275224@s.whatsapp.net",
-        "fromMe": false,
-        "id": "AC745836B8EE0142232D9F37EE952E99",
-        "participant": "62895346275224@s.whatsapp.net",
-        "addressingMode": "lid"
-      }
-    ],
-    "processedAt": "2026-10-17T05:04:54.295Z"
-  },
-  "ACF532149F8CA7A9666F5657DE5195FC": {
-    "id": "ACF532149F8CA7A9666F5657DE5195FC",
-    "sender": "62895346275224@s.whatsapp.net",
-    "name": "Nanael",
-    "type": "imageMessage",
-    "arrivedAt": "2026-10-17T05:09:52.209Z",
-    "read": false,
-    "reacted": false,
-    "reactionExpected": true,
-    "emoji": null,
-    "resolve": "PN langsung ✓",
-    "source": "status",
-    "number": "62895346275224",
-    "resolvedPn": "62895346275224@s.whatsapp.net",
-    "messageKey": {
-      "remoteJid": "status@broadcast",
-      "remoteJidAlt": "62895346275224@s.whatsapp.net",
-      "fromMe": false,
-      "id": "ACF532149F8CA7A9666F5657DE5195FC",
-      "participant": "258960858849386@lid",
-      "addressingMode": "lid"
-    },
-    "updatedAt": "2026-10-17T05:09:53.951Z",
-    "deleted": true,
-    "deletedAt": "2026-10-17T05:09:53.951Z"
-  },
-  "ACB4EDD36CFBBD04B816176C9340450E": {
-    "id": "ACB4EDD36CFBBD04B816176C9340450E",
+  "ACA8CF659D1BF3869AE9822EB935E834": {
+    "id": "ACA8CF659D1BF3869AE9822EB935E834",
     "sender": "62895346275224@s.whatsapp.net",
     "name": "Nanael",
     "type": "videoMessage",
-    "arrivedAt": "2026-10-17T05:10:43.759Z",
+    "arrivedAt": "2026-10-18T12:30:32.594Z",
     "read": true,
     "reacted": true,
     "reactionExpected": true,
-    "emoji": "🐳",
+    "emoji": "🐬",
     "resolve": "PN langsung ✓",
     "source": "status",
     "number": "62895346275224",
@@ -86,17 +17,17 @@
       "remoteJid": "status@broadcast",
       "remoteJidAlt": "62895346275224@s.whatsapp.net",
       "fromMe": false,
-      "id": "ACB4EDD36CFBBD04B816176C9340450E",
+      "id": "ACA8CF659D1BF3869AE9822EB935E834",
       "participant": "258960858849386@lid",
       "addressingMode": "lid"
     },
-    "updatedAt": "2026-10-17T05:10:47.221Z",
+    "updatedAt": "2026-10-18T12:30:37.426Z",
     "receiptKeys": [
       {
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "62895346275224@s.whatsapp.net",
         "fromMe": false,
-        "id": "ACB4EDD36CFBBD04B816176C9340450E",
+        "id": "ACA8CF659D1BF3869AE9822EB935E834",
         "participant": "258960858849386@lid",
         "addressingMode": "lid"
       },
@@ -104,11 +35,11 @@
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "62895346275224@s.whatsapp.net",
         "fromMe": false,
-        "id": "ACB4EDD36CFBBD04B816176C9340450E",
+        "id": "ACA8CF659D1BF3869AE9822EB935E834",
         "participant": "62895346275224@s.whatsapp.net",
         "addressingMode": "lid"
       }
     ],
-    "processedAt": "2026-10-17T05:10:47.221Z"
+    "processedAt": "2026-10-18T12:30:37.426Z"
   }
 }

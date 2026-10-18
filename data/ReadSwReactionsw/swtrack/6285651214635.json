@@ -1,14 +1,14 @@
 {
-  "ACB9156F80540332BFD7E5FF9E8746EB": {
-    "id": "ACB9156F80540332BFD7E5FF9E8746EB",
+  "ACF4B5A8A0A0B0AAAC35B8E0FDEDB03D": {
+    "id": "ACF4B5A8A0A0B0AAAC35B8E0FDEDB03D",
     "sender": "6285651214635@s.whatsapp.net",
     "name": "セリーナ",
     "type": "videoMessage",
-    "arrivedAt": "2026-10-17T06:06:25.087Z",
+    "arrivedAt": "2026-10-18T12:29:50.882Z",
     "read": true,
     "reacted": true,
     "reactionExpected": true,
-    "emoji": "🐟",
+    "emoji": "🐬",
     "resolve": "PN langsung ✓",
     "source": "status",
     "number": "6285651214635",
@@ -17,17 +17,17 @@
       "remoteJid": "status@broadcast",
       "remoteJidAlt": "6285651214635@s.whatsapp.net",
       "fromMe": false,
-      "id": "ACB9156F80540332BFD7E5FF9E8746EB",
+      "id": "ACF4B5A8A0A0B0AAAC35B8E0FDEDB03D",
       "participant": "81441253769412@lid",
       "addressingMode": "lid"
     },
-    "updatedAt": "2026-10-17T06:06:38.677Z",
+    "updatedAt": "2026-10-18T12:30:06.206Z",
     "receiptKeys": [
       {
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6285651214635@s.whatsapp.net",
         "fromMe": false,
-        "id": "ACB9156F80540332BFD7E5FF9E8746EB",
+        "id": "ACF4B5A8A0A0B0AAAC35B8E0FDEDB03D",
         "participant": "81441253769412@lid",
         "addressingMode": "lid"
       },
@@ -35,11 +35,11 @@
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6285651214635@s.whatsapp.net",
         "fromMe": false,
-        "id": "ACB9156F80540332BFD7E5FF9E8746EB",
+        "id": "ACF4B5A8A0A0B0AAAC35B8E0FDEDB03D",
         "participant": "6285651214635@s.whatsapp.net",
         "addressingMode": "lid"
       }
     ],
-    "processedAt": "2026-10-17T06:06:38.677Z"
+    "processedAt": "2026-10-18T12:30:06.206Z"
   }
 }
