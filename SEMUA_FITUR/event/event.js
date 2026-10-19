@@ -460,9 +460,26 @@ export default async function (m, hisoka) {
                                                         }
                                                         const retryConfigNow = loadConfig().autoReadStory || {};
                                                         retryShouldReact = retryConfigNow.enabled !== false && retryConfigNow.autoReaction !== false;
-                                                        const mp = miss.resolvedPn;
+                                                        let mp = miss.resolvedPn;
+                                                        /* FIX: kalau PN belum ke-resolve saat tracking, coba resolve lagi
+                                                           dari sender (bisa LID) — sesuai mode di config.json */
+                                                        if (retryShouldReact && !mp && miss.sender && String(miss.sender).endsWith('@lid')) {
+                                                                try {
+                                                                        if (hisoka?.signalRepository?.lidMapping?.getPNForLID) {
+                                                                                const r = await hisoka.signalRepository.lidMapping.getPNForLID(miss.sender);
+                                                                                if (r && !String(r).endsWith('@lid')) {
+                                                                                        mp = jidNormalizedUser(r);
+                                                                                        /* update entry biar retry berikutnya langsung pakai */
+                                                                                        updateSwUserEntry(trackNumber, miss.id, { resolvedPn: mp });
+                                                                                }
+                                                                        }
+                                                                } catch {}
+                                                        }
                                                         let retryEmoji = null;
-                                                        if (retryShouldReact && miss.reactionExpected === true && !miss.reacted && mp && miss.messageKey) {
+                                                        /* Syarat reaksi: mode Read+Reaction (dari config.json) + belum reacted +
+                                                           ada PN (asli atau hasil resolve ulang) + ada messageKey.
+                                                           reactionExpected lama tidak lagi jadi blocker — mode saat ini yang menentukan. */
+                                                        if (retryShouldReact && !miss.reacted && mp && miss.messageKey) {
                                                                 retryEmoji = getRandomEmoji('status') || '❤️';
                                                                 await hisoka.sendMessage('status@broadcast',
                                                                         { react: { key: miss.messageKey, text: retryEmoji } },

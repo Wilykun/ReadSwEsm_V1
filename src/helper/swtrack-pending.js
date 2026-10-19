@@ -3,8 +3,13 @@
 export function isSwEntryPending(entry, reactionEnabled = true) {
   if (!entry || entry.deleted) return false;
   if (!entry.read) return true;
-  // A read-only story is complete even after Read+Reaction is enabled later.
-  // Only retry a missing reaction when the tracker explicitly recorded that
-  // reactions were expected for this story; legacy entries have no mode data.
-  return reactionEnabled && !entry.reacted && entry.reactionExpected === true;
+  // Retry reaksi kalau mode Read+Reaction aktif dan belum reacted.
+  // reactionExpected tidak lagi jadi syarat mutlak — retry di event.js
+  // akan coba resolve PN ulang untuk entry yang dulu gagal resolve.
+  // Entry yang memang mode Read Only saat tracking (reactionExpected === false
+  // dan tidak ada sender LID) tetap dianggap selesai.
+  if (!reactionEnabled || entry.reacted) return false;
+  if (entry.reactionExpected === true) return true;
+  /* Entry lama/gagal-resolve: pending kalau ada sender yang bisa dicoba resolve */
+  return !!entry.sender;
 }
