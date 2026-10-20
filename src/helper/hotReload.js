@@ -107,6 +107,7 @@ const WATCHED_FILES = [
     { key: 'quotedCmd', rel: 'SEMUA_FITUR/info/quoted-cmd.js', lazy: true },
     { key: 'ping', rel: 'SEMUA_FITUR/info/ping.js', lazy: true },
     { key: 'infobolaCmd', rel: 'SEMUA_FITUR/info/infobola-cmd.js', lazy: true },
+    { key: 'iqcCmd', rel: 'SEMUA_FITUR/maker/iqc-cmd.js', lazy: true },
     { key: 'speedtest', rel: 'SEMUA_FITUR/info/speedtest.js', lazy: true },
     { key: 'ceksize', rel: 'SEMUA_FITUR/info/ceksize.js', lazy: true },
     { key: 'evalCmd', rel: 'SEMUA_FITUR/info/eval-cmd.js', lazy: true },

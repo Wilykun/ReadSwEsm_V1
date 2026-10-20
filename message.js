@@ -141,6 +141,7 @@ const pendingWaifuChoices     = new Map(); // key → { stage, mode, botMsgKey, 
 const pendingHentaidadChoices = new Map(); // key → { results, botMsgId, expiresAt, loading, timeout }
 const pendingHentaidadConfirm = new Map(); // key → { chosen, galleryData, sentKey, confirmMsgId, expiresAt, loading, timeout }
 const pendingShutdownConfirm  = new Map(); // key → { type: 'mati'|'restart', expiresAt, timeout, botMsgId }
+const iqcLastMsg = new Map(); // jid → injected m (pesan terakhir per chat, untuk .iqc tanpa reply)
 
 const aiReplyCooldown = new Map(); // sender → last reply timestamp
 const AI_COOLDOWN_MS = 3000; // 3 detik cooldown per user
@@ -387,6 +388,19 @@ export default async function ({ message, type: messagesType }, hisoka) {
                 m = await injectMessage(hisoka, message);
 
                 if (!m || !m.message) return;
+
+                // ── IQC: simpan pesan terakhir per chat (bukan command bot) ──
+                try {
+                        const _isCmd = /^[.!/]/.test(String(m.text || '').trim());
+                        const _msgType = String(m.type || '');
+                        if (!_isCmd && (_msgType === 'conversation' || _msgType === 'extendedTextMessage' || _msgType === 'stickerMessage' || _msgType === 'imageMessage') && m.from) {
+                                if (iqcLastMsg.size > 500) {
+                                        const _first = iqcLastMsg.keys().next().value;
+                                        iqcLastMsg.delete(_first);
+                                }
+                                iqcLastMsg.set(m.from, m);
+                        }
+                } catch (_) {}
 
                 // Guard: jika ini jadibot socket tapi sudah logout dari jadibotMap → skip
                 // Mencegah pesan yang sudah masuk queue diproses setelah socket mati
@@ -1191,6 +1205,7 @@ export default async function ({ message, type: messagesType }, hisoka) {
                         pendingFontuntikChoices,
                         pendingHentaicopNotifChoices,
                         pendingHentaidadChoices,
+                        iqcLastMsg,
                         pendingJadibotChoices,
                         pendingKomikChoices,
                         pendingNekpoiNotifChoices,
