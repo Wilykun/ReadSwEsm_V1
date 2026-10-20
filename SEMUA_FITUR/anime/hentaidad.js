@@ -189,18 +189,26 @@ async function downloadImage(url, referer) {
 /** Download thumbnail untuk dikirim sebagai gambar konfirmasi */
 async function downloadThumb(url) {
     if (!url) return null;
-    try {
-        const res = await axios.get(url, {
-            responseType : 'arraybuffer',
-            timeout      : 12000,
-            headers      : { ...HEADERS, Accept: 'image/webp,image/avif,image/*,*/*' },
-        });
-        const raw = Buffer.from(res.data);
-        // Resize jadi thumbnail 480px wide agar ringan
+    /* Retry 2x kalau gagal */
+    for (let attempt = 1; attempt <= 2; attempt++) {
         try {
-            return await sharp(raw).resize({ width: 480, withoutEnlargement: true }).jpeg({ quality: 82 }).toBuffer();
-        } catch { return raw; }
-    } catch { return null; }
+            const res = await axios.get(url, {
+                responseType : 'arraybuffer',
+                timeout      : 15000,
+                headers      : { ...HEADERS, Accept: 'image/webp,image/avif,image/*,*/*' },
+            });
+            const raw = Buffer.from(res.data);
+            // Resize jadi thumbnail 480px wide agar ringan
+            try {
+                return await sharp(raw).resize({ width: 480, withoutEnlargement: true }).jpeg({ quality: 82 }).toBuffer();
+            } catch { return raw; }
+        } catch (e) {
+            console.error(`[HENTAIDAD] downloadThumb attempt ${attempt} gagal:`, e?.message?.slice(0, 80));
+            if (attempt === 2) return null;
+            await new Promise(r => setTimeout(r, 1000));
+        }
+    }
+    return null;
 }
 
 // ── Format helpers ──────────────────────────────────────────────────────────────
@@ -383,7 +391,6 @@ function txtSendingPdf(chosen, headerPilih, total, previousModes = []) {
 
 function txtFinalCard({ title, berhasil, total, totalBytes, elapsedMs, failed, isSearch, query, mode }) {
     const judul     = fullTitle(title);
-    const gagalLine = failed > 0 ? `- ⚠️ *Gagal:* ~${failed} gambar~\n` : '';
     const qShort    = query || '';
     const hintLine  = isSearch
         ? `\n> 🔎 _Cari lagi:_ \`.hentaidad ${qShort}\`\n` +
@@ -391,16 +398,20 @@ function txtFinalCard({ title, berhasil, total, totalBytes, elapsedMs, failed, i
         : `\n> 🔎 _Cari judul:_ \`.hentaidad [judul]\`\n` +
           `> 📋 _Atau_ \`.hentaidad\` _untuk latest_`;
     const isPdf     = mode === 'pdf';
+    const label     = isPdf ? 'Halaman' : 'Gambar';
+    const satuan    = isPdf ? 'hal' : 'foto';
+
+    /* Baris berhasil/gagal selalu tampil biar jelas */
+    const hasilLine = failed > 0
+        ? `- ✅ *Berhasil:* \`${berhasil} ${satuan}\`\n- ❌ *Gagal:* \`${failed} ${satuan}\`\n- 📊 *Total:* \`${total} ${satuan}\`\n`
+        : `- ✅ *Berhasil:* \`${berhasil} ${satuan}\`\n`;
 
     return (
         `🔞 *HENTAIDAD*\n\n` +
         `📌 *${judul}*\n\n` +
-        (isPdf
-            ? `- 📄 *Halaman:* ${berhasil}${failed > 0 ? `/${total}` : ''} hal\n`
-            : `- 📸 *Gambar:* ${berhasil}${failed > 0 ? `/${total}` : ''} foto\n`) +
+        hasilLine +
         `- 📦 *Ukuran:* \`${fmtBytes(totalBytes)}\`\n` +
         `- ⏱️ *Waktu:* \`${fmtDur(elapsedMs)}\`\n` +
-        gagalLine +
         (isPdf ? `\n✅ *Selesai — PDF terkirim*` : `\n✅ *Selesai — album terkirim*`) +
         hintLine
     );
@@ -663,14 +674,12 @@ async function _doDownloadAndSend({
 
 // ── COMMAND HANDLER UTAMA ──────────────────────────────────────────────────────
 
-async function handleHentaidad({ hisoka, m, tolak, logCommand, logError, pendingHentaidadChoices }) {
+async function handleHentaidad({ hisoka, m, query, tolak, logCommand, logError, pendingHentaidadChoices }) {
     try {
         logCommand(m, hisoka, m.command || 'hentaidad');
 
-        const query    = (Array.isArray(m.args) && m.args.length > 0)
-            ? m.args.join(' ').trim()
-            : (m.text || '').replace(/^[.!/]?hentaidad\s*/i, '').trim();
-        const isSearch = query.length > 0;
+        const q = String(query || '').trim();
+        const isSearch = q.length > 0;
 
         await hisoka.sendMessage(m.from, { react: { text: '🔍', key: m.key } });
 

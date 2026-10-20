@@ -8,7 +8,7 @@
 ════════════════════════════════════════════════════════════════════════
   FILE     : infoerror.txt
   Bot      : Wily Bot
-  Update   : 17/10/2026, 16.12.49  (realtime — diperbarui otomatis setiap ada error)
+  Update   : 20/10/2026, 06.09.09  (realtime — diperbarui otomatis setiap ada error)
 ════════════════════════════════════════════════════════════════════════
 
   RINGKASAN
@@ -23,24 +23,24 @@
 ────────────────────────────────────────────────────────────────────────
 
 ┌───────────────────────────────────────────────────────────────────────
-│  #001  —  INFOBOLA
+│  #001  —  HENTAIDAD
 ├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
 │  PESAN ERROR
-│  [INFOBOLA] Fetch error: timeout
+│  [HENTAIDAD] Gagal kirim thumbnail, fallback text: Media upload failed on all hosts
 │
 │  DETAIL
-│  Sumber      : INFOBOLA
+│  Sumber      : HENTAIDAD
 │  Frekuensi   : 1x (baru terjadi)
-│  Pertama     : 17/10/2026, 16.12.49
-│  Terakhir    : 17/10/2026, 16.12.49
+│  Pertama     : 20/10/2026, 06.09.09
+│  Terakhir    : 20/10/2026, 06.09.09
 │
 │  STACK TRACE (3 baris pertama)
-│  ▶  Error: [INFOBOLA] Fetch error: timeout
+│  ▶  Error: [HENTAIDAD] Gagal kirim thumbnail, fallback text: Media upload failed on all hosts
 │     at console.error (file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/index.js:434:27)
-│     at handleInfobola (file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/SEMUA_FITUR/info/infobola-cmd.js?t=1792228203861.1177:173:21)
+│     at _sendConfirmMsg (file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/SEMUA_FITUR/anime/hentaidad.js?t=1792451185109.852:500:17)
 └───────────────────────────────────────────────────────────────────────
 
 ════════════════════════════════════════════════════════════════════════
   End of Report  —  Total: 1 jenis, 1 kejadian
-  Terakhir diperbarui: 17/10/2026, 16.12.49
+  Terakhir diperbarui: 20/10/2026, 06.09.09
 ════════════════════════════════════════════════════════════════════════

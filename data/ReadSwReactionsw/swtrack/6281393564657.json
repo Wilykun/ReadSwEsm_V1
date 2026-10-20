@@ -1,49 +1,4 @@
 {
-  "AC7433AC7153E136EB656302BD9C484B": {
-    "id": "AC7433AC7153E136EB656302BD9C484B",
-    "sender": "6281393564657@s.whatsapp.net",
-    "name": "γυς ρου",
-    "type": "videoMessage",
-    "arrivedAt": "2026-10-18T12:29:50.885Z",
-    "read": true,
-    "reacted": true,
-    "reactionExpected": true,
-    "emoji": "🐠",
-    "resolve": "PN langsung ✓",
-    "source": "status",
-    "number": "6281393564657",
-    "resolvedPn": "6281393564657@s.whatsapp.net",
-    "messageKey": {
-      "remoteJid": "status@broadcast",
-      "remoteJidAlt": "6281393564657@s.whatsapp.net",
-      "fromMe": false,
-      "id": "AC7433AC7153E136EB656302BD9C484B",
-      "participant": "174577888038922@lid",
-      "addressingMode": "lid"
-    },
-    "updatedAt": "2026-10-19T10:32:00.182Z",
-    "receiptKeys": [
-      {
-        "remoteJid": "status@broadcast",
-        "remoteJidAlt": "6281393564657@s.whatsapp.net",
-        "fromMe": false,
-        "id": "AC7433AC7153E136EB656302BD9C484B",
-        "participant": "174577888038922@lid",
-        "addressingMode": "lid"
-      },
-      {
-        "remoteJid": "status@broadcast",
-        "remoteJidAlt": "6281393564657@s.whatsapp.net",
-        "fromMe": false,
-        "id": "AC7433AC7153E136EB656302BD9C484B",
-        "participant": "6281393564657@s.whatsapp.net",
-        "addressingMode": "lid"
-      }
-    ],
-    "processedAt": "2026-10-18T12:30:02.875Z",
-    "deleted": true,
-    "deletedAt": "2026-10-19T10:32:00.182Z"
-  },
   "AC44D2578D7BF68DEC73E81451B17B7D": {
     "id": "AC44D2578D7BF68DEC73E81451B17B7D",
     "sender": "6281393564657@s.whatsapp.net",
@@ -156,7 +111,7 @@
       "participant": "174577888038922@lid",
       "addressingMode": "lid"
     },
-    "updatedAt": "2026-10-19T10:34:29.282Z",
+    "updatedAt": "2026-10-19T22:25:56.875Z",
     "receiptKeys": [
       {
         "remoteJid": "status@broadcast",
@@ -175,7 +130,9 @@
         "addressingMode": "lid"
       }
     ],
-    "processedAt": "2026-10-19T10:34:29.282Z"
+    "processedAt": "2026-10-19T10:34:29.282Z",
+    "deleted": true,
+    "deletedAt": "2026-10-19T22:25:56.875Z"
   },
   "AC06DB043752F6B39F4AE22B52E8CA63": {
     "id": "AC06DB043752F6B39F4AE22B52E8CA63",
@@ -199,7 +156,7 @@
       "participant": "174577888038922@lid",
       "addressingMode": "lid"
     },
-    "updatedAt": "2026-10-19T11:00:04.410Z",
+    "updatedAt": "2026-10-19T22:25:56.754Z",
     "receiptKeys": [
       {
         "remoteJid": "status@broadcast",
@@ -218,6 +175,51 @@
         "addressingMode": "lid"
       }
     ],
-    "processedAt": "2026-10-19T11:00:04.410Z"
+    "processedAt": "2026-10-19T11:00:04.410Z",
+    "deleted": true,
+    "deletedAt": "2026-10-19T22:25:56.754Z"
+  },
+  "AC50A4DEFEDCC7A284923146DE68CE28": {
+    "id": "AC50A4DEFEDCC7A284923146DE68CE28",
+    "sender": "6281393564657@s.whatsapp.net",
+    "name": "γυς ρου",
+    "type": "videoMessage",
+    "arrivedAt": "2026-10-19T22:25:56.944Z",
+    "read": true,
+    "reacted": true,
+    "reactionExpected": true,
+    "emoji": "🐳",
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "6281393564657",
+    "resolvedPn": "6281393564657@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "6281393564657@s.whatsapp.net",
+      "fromMe": false,
+      "id": "AC50A4DEFEDCC7A284923146DE68CE28",
+      "participant": "174577888038922@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-10-19T22:26:06.793Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6281393564657@s.whatsapp.net",
+        "fromMe": false,
+        "id": "AC50A4DEFEDCC7A284923146DE68CE28",
+        "participant": "174577888038922@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6281393564657@s.whatsapp.net",
+        "fromMe": false,
+        "id": "AC50A4DEFEDCC7A284923146DE68CE28",
+        "participant": "6281393564657@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-10-19T22:26:06.793Z"
   }
 }
