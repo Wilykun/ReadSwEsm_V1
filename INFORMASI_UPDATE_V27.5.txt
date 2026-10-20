@@ -7,7 +7,7 @@ _📅 Selasa, 20 Oktober 2026_
 ━━━━━━━━━━━━━━━━━━━━━━
 🤖 *WILY BOT* — `V27.5`
 ✨ *1 Fitur Baru*
-🐛 *3 Fix Bug*
+🐛 *2 Fix Bug*
 🛠️ *0 Fix Error*
 🚀 *3 Perubahan*
 ⚠️ *0 Hapus Fitur*
@@ -29,13 +29,10 @@ _📅 Selasa, 20 Oktober 2026_
    • Memeriksa identitas PN/LID; pesan hanya dihapus jika pengirim terverifikasi sebagai member biasa dan bot admin.
 > _Hasil: mention massal ditangani akurat tanpa salah menghapus pesan admin._
 
-2. *.hentaidad — Query Handler*
+2. *.hentaidad — Query Handler & Thumbnail Konfirmasi*
    • Handler sekarang pakai `query` dari plugin context (sebelumnya parse `m.args`/`m.text` yang tidak reliable).
-> _Hasil: `.hentaidad <judul>` pencarian berfungsi akurat._
-
-3. *.hentaidad — Thumbnail Konfirmasi*
    • Download thumbnail sekarang retry 2x + timeout 15 detik (sebelumnya gagal diam-diam → konfirmasi tanpa gambar).
-> _Hasil: thumbnail konfirmasi selalu muncul._
+> _Hasil: `.hentaidad <judul>` pencarian berfungsi akurat & thumbnail konfirmasi selalu muncul._
 
 ━━━━━━━━━━━━━━━━━━━━━━
 🛠️ *FIX ERROR*
