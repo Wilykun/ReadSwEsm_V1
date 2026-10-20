@@ -211,6 +211,33 @@ async function downloadThumb(url) {
     return null;
 }
 
+/**
+ * Download gambar konfirmasi dari gambar ASLI galeri (bukan thumb listing).
+ * Thumb listing dari situs cuma 400x300 hasil center-crop → gambar kelihatan
+ * kepotong. Gambar pertama galeri adalah cover utuh (portrait penuh).
+ */
+async function downloadConfirmImage(url) {
+    if (!url) return null;
+    for (let attempt = 1; attempt <= 2; attempt++) {
+        try {
+            const res = await axios.get(url, {
+                responseType : 'arraybuffer',
+                timeout      : 20000,
+                headers      : { ...HEADERS, Referer: BASE + '/', Accept: 'image/webp,image/avif,image/*,*/*' },
+            });
+            const raw = Buffer.from(res.data);
+            try {
+                return await sharp(raw).resize({ width: 720, withoutEnlargement: true }).jpeg({ quality: 85 }).toBuffer();
+            } catch { return raw; }
+        } catch (e) {
+            console.error(`[HENTAIDAD] downloadConfirmImage attempt ${attempt} gagal:`, e?.message?.slice(0, 80));
+            if (attempt === 2) return null;
+            await new Promise(r => setTimeout(r, 1000));
+        }
+    }
+    return null;
+}
+
 // ── Format helpers ──────────────────────────────────────────────────────────────
 
 function fmtBytes(bytes) {
@@ -799,13 +826,21 @@ async function handleHentaidadChoice({
         await editMain(txtDipilih(chosen, headerPilih));
 
         // ── Scrape galeri untuk jumlah gambar yang AKURAT + download thumb ──
-        const [galleryData, thumbBuf] = await Promise.allSettled([
+        const [galleryData, cardThumbBuf] = await Promise.allSettled([
             scrapeGallery(chosen.href),
             downloadThumb(chosen.thumb),
         ]).then(results => [
             results[0].status === 'fulfilled' ? results[0].value : { title: chosen.title, images: [] },
             results[1].status === 'fulfilled' ? results[1].value : null,
         ]);
+
+        // ── Gambar konfirmasi: pakai gambar ASLI pertama galeri (cover utuh,
+        //    bukan thumb listing 400x300 yang ke-crop) — fallback card thumb ──
+        let thumbBuf = null;
+        if (galleryData.images?.length > 0) {
+            thumbBuf = await downloadConfirmImage(galleryData.images[0]);
+        }
+        if (!thumbBuf) thumbBuf = cardThumbBuf;
 
         const imageCount  = galleryData.images.length;
         const galleryTitle = galleryData.title || chosen.title;

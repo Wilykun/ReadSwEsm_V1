@@ -379,7 +379,7 @@
       "participant": "97393282437222@lid",
       "addressingMode": "lid"
     },
-    "updatedAt": "2026-10-19T22:26:07.830Z",
+    "updatedAt": "2026-10-20T10:51:13.222Z",
     "receiptKeys": [
       {
         "remoteJid": "status@broadcast",
@@ -398,6 +398,184 @@
         "addressingMode": "lid"
       }
     ],
-    "processedAt": "2026-10-19T22:26:07.830Z"
+    "processedAt": "2026-10-19T22:26:07.830Z",
+    "deleted": true,
+    "deletedAt": "2026-10-20T10:51:13.222Z"
+  },
+  "AC67D3B494CD16D15051216FB58F0545": {
+    "id": "AC67D3B494CD16D15051216FB58F0545",
+    "sender": "6283822135658@s.whatsapp.net",
+    "name": "zen",
+    "type": "videoMessage",
+    "arrivedAt": "2026-10-20T10:51:12.696Z",
+    "read": true,
+    "reacted": true,
+    "reactionExpected": true,
+    "emoji": "🐬",
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "6283822135658",
+    "resolvedPn": "6283822135658@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "6283822135658@s.whatsapp.net",
+      "fromMe": false,
+      "id": "AC67D3B494CD16D15051216FB58F0545",
+      "participant": "97393282437222@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-10-20T10:51:22.183Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6283822135658@s.whatsapp.net",
+        "fromMe": false,
+        "id": "AC67D3B494CD16D15051216FB58F0545",
+        "participant": "97393282437222@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6283822135658@s.whatsapp.net",
+        "fromMe": false,
+        "id": "AC67D3B494CD16D15051216FB58F0545",
+        "participant": "6283822135658@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-10-20T10:51:22.181Z"
+  },
+  "ACB87C0E1FA57F2772D5CE77E47A0810": {
+    "id": "ACB87C0E1FA57F2772D5CE77E47A0810",
+    "sender": "6283822135658@s.whatsapp.net",
+    "name": "zen",
+    "type": "imageMessage",
+    "arrivedAt": "2026-10-20T10:51:13.216Z",
+    "read": true,
+    "reacted": true,
+    "reactionExpected": true,
+    "emoji": "🐳",
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "6283822135658",
+    "resolvedPn": "6283822135658@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "6283822135658@s.whatsapp.net",
+      "fromMe": false,
+      "id": "ACB87C0E1FA57F2772D5CE77E47A0810",
+      "participant": "97393282437222@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-10-20T11:57:04.664Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6283822135658@s.whatsapp.net",
+        "fromMe": false,
+        "id": "ACB87C0E1FA57F2772D5CE77E47A0810",
+        "participant": "97393282437222@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6283822135658@s.whatsapp.net",
+        "fromMe": false,
+        "id": "ACB87C0E1FA57F2772D5CE77E47A0810",
+        "participant": "6283822135658@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-10-20T10:51:19.745Z",
+    "deleted": true,
+    "deletedAt": "2026-10-20T11:57:04.664Z"
+  },
+  "ACCAE946A57720C2222D1B1454A1CD52": {
+    "id": "ACCAE946A57720C2222D1B1454A1CD52",
+    "sender": "6283822135658@s.whatsapp.net",
+    "name": "zen",
+    "type": "videoMessage",
+    "arrivedAt": "2026-10-20T10:51:13.296Z",
+    "read": true,
+    "reacted": true,
+    "reactionExpected": true,
+    "emoji": "🐳",
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "6283822135658",
+    "resolvedPn": "6283822135658@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "6283822135658@s.whatsapp.net",
+      "fromMe": false,
+      "id": "ACCAE946A57720C2222D1B1454A1CD52",
+      "participant": "97393282437222@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-10-20T10:51:22.269Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6283822135658@s.whatsapp.net",
+        "fromMe": false,
+        "id": "ACCAE946A57720C2222D1B1454A1CD52",
+        "participant": "97393282437222@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6283822135658@s.whatsapp.net",
+        "fromMe": false,
+        "id": "ACCAE946A57720C2222D1B1454A1CD52",
+        "participant": "6283822135658@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-10-20T10:51:22.269Z"
+  },
+  "AC8BDC9E0526CBBE92529E25821369DE": {
+    "id": "AC8BDC9E0526CBBE92529E25821369DE",
+    "sender": "6283822135658@s.whatsapp.net",
+    "name": "zen",
+    "type": "imageMessage",
+    "arrivedAt": "2026-10-20T10:51:13.354Z",
+    "read": true,
+    "reacted": true,
+    "reactionExpected": true,
+    "emoji": "🐙",
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "6283822135658",
+    "resolvedPn": "6283822135658@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "6283822135658@s.whatsapp.net",
+      "fromMe": false,
+      "id": "AC8BDC9E0526CBBE92529E25821369DE",
+      "participant": "97393282437222@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-10-20T11:56:33.290Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6283822135658@s.whatsapp.net",
+        "fromMe": false,
+        "id": "AC8BDC9E0526CBBE92529E25821369DE",
+        "participant": "97393282437222@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6283822135658@s.whatsapp.net",
+        "fromMe": false,
+        "id": "AC8BDC9E0526CBBE92529E25821369DE",
+        "participant": "6283822135658@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-10-20T10:51:24.465Z",
+    "deleted": true,
+    "deletedAt": "2026-10-20T11:56:33.290Z"
   }
 }

@@ -29,10 +29,11 @@ _📅 Selasa, 20 Oktober 2026_
    • Memeriksa identitas PN/LID; pesan hanya dihapus jika pengirim terverifikasi sebagai member biasa dan bot admin.
 > _Hasil: mention massal ditangani akurat tanpa salah menghapus pesan admin._
 
-2. *.hentaidad — Query Handler & Thumbnail Konfirmasi*
+2. *.hentaidad — Query Handler & Gambar Konfirmasi*
    • Handler sekarang pakai `query` dari plugin context (sebelumnya parse `m.args`/`m.text` yang tidak reliable).
    • Download thumbnail sekarang retry 2x + timeout 15 detik (sebelumnya gagal diam-diam → konfirmasi tanpa gambar).
-> _Hasil: `.hentaidad <judul>` pencarian berfungsi akurat & thumbnail konfirmasi selalu muncul._
+   • Gambar konfirmasi sekarang pakai gambar asli pertama galeri (cover utuh) — sebelumnya pakai thumbnail listing 400x300 hasil crop situs sehingga kelihatan kepotong.
+> _Hasil: `.hentaidad <judul>` pencarian berfungsi akurat, thumbnail konfirmasi selalu muncul & gambar konfirmasi tampil utuh._
 
 ━━━━━━━━━━━━━━━━━━━━━━
 🛠️ *FIX ERROR*
