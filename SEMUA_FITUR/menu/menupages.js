@@ -51,7 +51,7 @@ antitagsw | antitagsw global on/off | antitagsw status/reset
 
 「 💬 *PESAN & STICKER* 」
 s/sticker | toimg | tovn | tomp3 | stickerly | stickerpack
-rvo | rvo2 | quoted
+rvo | rvo2 | quoted | iqc
 
 「 👥 *FITUR GRUP* 」
 hidetag (.ht) | ghosttag (.gt)

@@ -3,17 +3,23 @@
 🛠️ *Recode By:* `Bang Wily`
 
 📢 *INFORMASI RILIS*
-_📅 Senin, 12 Oktober 2026_
+_📅 Selasa, 20 Oktober 2026_
 ━━━━━━━━━━━━━━━━━━━━━━
 🤖 *WILY BOT* — `V27.5`
-✨ *0 Fitur Baru*
-🐛 *1 Fix Bug*
+✨ *1 Fitur Baru*
+🐛 *3 Fix Bug*
 🛠️ *0 Fix Error*
 🚀 *3 Perubahan*
 ⚠️ *0 Hapus Fitur*
 ━━━━━━━━━━━━━━━━━━━━━━
 ✨ *FITUR BARU*
 ━━━━━━━━━━━━━━━━━━━━━━
+1. *.iqc — iPhone Quoted Chat*
+   • Ketik `.iqc <teks>` → langsung jadi gambar screenshot ala iPhone.
+   • `.iqc` tanpa teks → ambil pesan terakhir di chat (teks/sticker) atau quote acak.
+   • Reply pesan teks/sticker lalu `.iqc` → screenshot dari pesan itu.
+   • Pakai library `iqc-canvas` (Hann Universe): bar reaksi emoji warna, menu Beri Bintang/Balas/Teruskan/Salin.
+> _Hasil: screenshot chat ala iPhone langsung dari bot, akurat._
 
 ━━━━━━━━━━━━━━━━━━━━━━
 🐛 *BUG FIX*
@@ -22,6 +28,14 @@ _📅 Senin, 12 Oktober 2026_
    • Mendeteksi `@semua` dan mention ke minimal 90% anggota, termasuk payload native Baileys.
    • Memeriksa identitas PN/LID; pesan hanya dihapus jika pengirim terverifikasi sebagai member biasa dan bot admin.
 > _Hasil: mention massal ditangani akurat tanpa salah menghapus pesan admin._
+
+2. *.hentaidad — Query Handler*
+   • Handler sekarang pakai `query` dari plugin context (sebelumnya parse `m.args`/`m.text` yang tidak reliable).
+> _Hasil: `.hentaidad <judul>` pencarian berfungsi akurat._
+
+3. *.hentaidad — Thumbnail Konfirmasi*
+   • Download thumbnail sekarang retry 2x + timeout 15 detik (sebelumnya gagal diam-diam → konfirmasi tanpa gambar).
+> _Hasil: thumbnail konfirmasi selalu muncul._
 
 ━━━━━━━━━━━━━━━━━━━━━━
 🛠️ *FIX ERROR*
@@ -43,6 +57,14 @@ _📅 Senin, 12 Oktober 2026_
 3. *ENV — Backup Konfigurasi Bot via GitHub*
    • `push.sh` mempertahankan konfigurasi bot saat menyiapkan file untuk upload.
 > _Hasil: konfigurasi dapat ikut dicadangkan bersama source code._
+
+4. *.hentaidad — Kartu Hasil Berhasil/Gagal*
+   • Kartu hasil sekarang selalu tampilkan `✅ Berhasil`, `❌ Gagal`, `📊 Total` bila ada gambar yang gagal didownload.
+> _Hasil: statistik pengiriman lebih jelas._
+
+5. *Menu Utama — Entry .iqc*
+   • `.iqc` ditambahkan ke menu utama bagian PESAN & STICKER.
+> _Hasil: fitur .iqc mudah ditemukan._
 
 ━━━━━━━━━━━━━━━━━━━━━━
 ⚠️ *HAPUS FITUR*
