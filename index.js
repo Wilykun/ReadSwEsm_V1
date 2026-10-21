@@ -90,6 +90,7 @@ import { saveViewOnceCache, cleanOldViewOnceCache, hasViewOnceCache } from './sr
 import { setupCrashGuard } from './src/helper/crashGuard.js';
 import { logError } from './src/db/errorLog.js';
 import { initHotReload, getHandler, stopHotReload, onReload } from './src/helper/hotReload.js';
+import { getProxyAgents } from './src/helper/proxyAgent.js'; // proxy env-gated: aktif hanya jika HTTPS_PROXY ter-set (VM)
 
 /* ================= VOONCE AUTO-SAVE ================= */
 async function autoSaveViewOnce(message, hisoka) {
@@ -685,6 +686,7 @@ async function main() {
 
         const hisoka = injectClient(
                 makeWASocket({
+                        ...getProxyAgents(), // proxy env-gated (aktif hanya jika HTTPS_PROXY ter-set)
                         version,
                         logger,
                         auth: {

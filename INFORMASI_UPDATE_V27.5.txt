@@ -3,13 +3,13 @@
 🛠️ *Recode By:* `Bang Wily`
 
 📢 *INFORMASI RILIS*
-_📅 Selasa, 20 Oktober 2026_
+_📅 Rabu, 21 Oktober 2026_
 ━━━━━━━━━━━━━━━━━━━━━━
 🤖 *WILY BOT* — `V27.5`
 ✨ *1 Fitur Baru*
-🐛 *2 Fix Bug*
+🐛 *3 Fix Bug*
 🛠️ *0 Fix Error*
-🚀 *3 Perubahan*
+🚀 *6 Perubahan*
 ⚠️ *0 Hapus Fitur*
 ━━━━━━━━━━━━━━━━━━━━━━
 ✨ *FITUR BARU*
@@ -34,6 +34,12 @@ _📅 Selasa, 20 Oktober 2026_
    • Download thumbnail sekarang retry 2x + timeout 15 detik (sebelumnya gagal diam-diam → konfirmasi tanpa gambar).
    • Gambar konfirmasi sekarang pakai gambar asli pertama galeri (cover utuh) — sebelumnya pakai thumbnail listing 400x300 hasil crop situs sehingga kelihatan kepotong.
 > _Hasil: `.hentaidad <judul>` pencarian berfungsi akurat, thumbnail konfirmasi selalu muncul & gambar konfirmasi tampil utuh._
+
+3. *.stickerpack — Sticker Blank di Paket*
+   • Paket terkirim tapi semua sticker tampil blank/abu-abu: file paket sebelumnya di-upload pakai kunci enkripsi media sticker biasa.
+   • Sekarang upload pakai jalur + kunci khusus sticker-pack WhatsApp (`/mms/sticker-pack`), thumbnail paket jalurnya sendiri, plus tray icon 252x252 di dalam paket.
+   • Keyword pendek (mis. `anime`) yang lolos pola ID pack sekarang otomatis fallback ke pencarian (sebelumnya error "tidak ditemukan").
+> _Hasil: sticker di dalam paket tampil normal, paket bisa disimpan utuh._
 
 ━━━━━━━━━━━━━━━━━━━━━━
 🛠️ *FIX ERROR*
@@ -63,6 +69,15 @@ _📅 Selasa, 20 Oktober 2026_
 5. *Menu Utama — Entry .iqc*
    • `.iqc` ditambahkan ke menu utama bagian PESAN & STICKER.
 > _Hasil: fitur .iqc mudah ditemukan._
+
+6. *.stickerly/.stickerpack — Pencarian Realtime & Pilihan Paket*
+   • Pencarian realtime ke Stickerly (semua bahasa, semua jenis sticker): `.stickerly <keyword>` sekarang tampilkan daftar *30 paket* — balas pesan daftarnya dengan angka buat memilih, atau ketik `batal`.
+   • Info tiap paket lengkap: nama, kreator + username, pengikut kreator, kode paket, jumlah sticker, views, download/export, dan link paket.
+   • Paket dikirim sebagai *1 paket native* berisi semua sticker (fallback kirim satuan bila paket gagal).
+   • Animasi loading menyatu di 1 pesan info (progress bar + fase proses), tanpa pesan berserakan.
+   • Semua sticker di paket otomatis memakai pack/author dari `config.json` (`"sticker": { "pack", "author" }`) — mengikuti config seperti `.sticker`/`.wm`, tanpa re-encode (animasi utuh).
+   • Tampilan balasan tanpa garis kotak: formatting WhatsApp native (tebal, miring, kode, daftar bernomor/berpoint, kutip) sesuai konteks.
+> _Hasil: cari, pilih, dan simpan paket Stickerly utuh langsung dari chat — realtime seperti aplikasi aslinya._
 
 ━━━━━━━━━━━━━━━━━━━━━━
 ⚠️ *HAPUS FITUR*

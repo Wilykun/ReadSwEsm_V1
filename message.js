@@ -140,6 +140,7 @@ const pendingFontuntikChoices = new Map(); // key → { text, botMsgId, expiresA
 const pendingWaifuChoices     = new Map(); // key → { stage, mode, botMsgKey, expiresAt, timeout }
 const pendingHentaidadChoices = new Map(); // key → { results, botMsgId, expiresAt, loading, timeout }
 const pendingHentaidadConfirm = new Map(); // key → { chosen, galleryData, sentKey, confirmMsgId, expiresAt, loading, timeout }
+const pendingStickerlyChoices = new Map(); // key → { results, botMsgId, expiresAt, loading, timeout }
 const pendingShutdownConfirm  = new Map(); // key → { type: 'mati'|'restart', expiresAt, timeout, botMsgId }
 const iqcLastMsg = new Map(); // jid → injected m (pesan terakhir per chat, untuk .iqc tanpa reply)
 
@@ -955,6 +956,12 @@ export default async function ({ message, type: messagesType }, hisoka) {
                         if (await handleHentaidadChoice({ hisoka, m, pendingHentaidadChoices, pendingHentaidadConfirm, getQuotedStanzaId, tolak, logCommand, logError })) return;
                 }
 
+                // ── Handle pending stickerly choice → stickerly.js ──
+                {
+                        const { handleStickerlyChoice } = await importLazy(path.resolve('./SEMUA_FITUR/download/stickerly.js'));
+                        if (await handleStickerlyChoice({ hisoka, m, pendingStickerlyChoices, getQuotedStanzaId, tolak, logCommand, logError })) return;
+                }
+
                 // ── Handle pending cosplaytele search choice → cosplay-cmd.js ──
                 if (await handleCosplayChoice({ hisoka, m, pendingCosplayChoices, getQuotedStanzaId, tolak, logCommand, logError })) return;
 
@@ -1205,6 +1212,7 @@ export default async function ({ message, type: messagesType }, hisoka) {
                         pendingFontuntikChoices,
                         pendingHentaicopNotifChoices,
                         pendingHentaidadChoices,
+                        pendingStickerlyChoices,
                         iqcLastMsg,
                         pendingJadibotChoices,
                         pendingKomikChoices,

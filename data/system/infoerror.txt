@@ -8,7 +8,7 @@
 ════════════════════════════════════════════════════════════════════════
   FILE     : infoerror.txt
   Bot      : Wily Bot
-  Update   : 20/10/2026, 06.09.09  (realtime — diperbarui otomatis setiap ada error)
+  Update   : 21/10/2026, 15.12.17  (realtime — diperbarui otomatis setiap ada error)
 ════════════════════════════════════════════════════════════════════════
 
   RINGKASAN
@@ -23,24 +23,24 @@
 ────────────────────────────────────────────────────────────────────────
 
 ┌───────────────────────────────────────────────────────────────────────
-│  #001  —  HENTAIDAD
+│  #001  —  console.error
 ├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
 │  PESAN ERROR
-│  [HENTAIDAD] Gagal kirim thumbnail, fallback text: Media upload failed on all hosts
+│  [31m[HotReload] ✗ Gagal reload 'SEMUA_FITUR/download/stickerly.js', pakai versi lama.[39m
 │
 │  DETAIL
-│  Sumber      : HENTAIDAD
+│  Sumber      : console.error
 │  Frekuensi   : 1x (baru terjadi)
-│  Pertama     : 20/10/2026, 06.09.09
-│  Terakhir    : 20/10/2026, 06.09.09
+│  Pertama     : 21/10/2026, 15.12.17
+│  Terakhir    : 21/10/2026, 15.12.17
 │
 │  STACK TRACE (3 baris pertama)
-│  ▶  Error: [HENTAIDAD] Gagal kirim thumbnail, fallback text: Media upload failed on all hosts
+│  ▶  Error: [31m[HotReload] ✗ Gagal reload 'SEMUA_FITUR/download/stickerly.js', pakai versi lama.[39m
 │     at console.error (file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/index.js:434:27)
-│     at _sendConfirmMsg (file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/SEMUA_FITUR/anime/hentaidad.js?t=1792451185109.852:500:17)
+│     at Timeout._onTimeout (file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/src/helper/hotReload.js:289:29)
 └───────────────────────────────────────────────────────────────────────
 
 ════════════════════════════════════════════════════════════════════════
   End of Report  —  Total: 1 jenis, 1 kejadian
-  Terakhir diperbarui: 20/10/2026, 06.09.09
+  Terakhir diperbarui: 21/10/2026, 15.12.17
 ════════════════════════════════════════════════════════════════════════
