@@ -248,6 +248,7 @@ async function uploadPackMedia(hisoka, buffer, { hkdfInfo, mediaPath, mediaKey =
                                         });
                                 });
                                 req.on('error', reject);
+                                req.setTimeout(60000, () => req.destroy(new Error('Upload timeout 60 detik')));
                                 req.write(encBuffer);
                                 req.end();
                         });
@@ -417,8 +418,28 @@ function injectStickerExif(webpBuffer, exif) {
         } catch (_) { return webpBuffer; }
 }
 
+/* ── Guard anti-dobel: pack yang sama + chat yang sama hanya boleh diproses
+      1x dalam satu waktu — run kedua ditolak sopan, bukan bikin pesan baru
+      yang menumpuk (spam). ── */
+const stickerlyInFlight = new Set();
+
 /* ── Proses 1 pack detail → kirim (dipakai handler utama + pilihan reply) ── */
-async function processStickerlyPack({ hisoka, m, tolak, logCommand, pack, isSatuanSend }) {
+async function processStickerlyPack(args) {
+        const { hisoka, m, tolak, pack } = args;
+        const flightKey = `${m.from}:${pack?.id || ''}`;
+        if (stickerlyInFlight.has(flightKey)) {
+                await tolak(hisoka, m, `⏳ _Pack *${pack.name}* lagi diproses — tunggu sebentar ya, pesannya lagi jalan._`);
+                return;
+        }
+        stickerlyInFlight.add(flightKey);
+        try {
+                return await processStickerlyPackInner(args);
+        } finally {
+                stickerlyInFlight.delete(flightKey);
+        }
+}
+
+async function processStickerlyPackInner({ hisoka, m, tolak, logCommand, pack, isSatuanSend, statusKey }) {
         try {
         const stickers = pack.stickers;
         /* Brand EXIF dari config.json — auto mengikuti config, fallback identitas pack asli */
@@ -444,25 +465,61 @@ async function processStickerlyPack({ hisoka, m, tolak, logCommand, pack, isSatu
                 `- 📤 *Export:* ${pack.exportCount.toLocaleString('id-ID')}\n` +
                 `- 🔗 ${pack.url}`;
 
-        const loadingMsg = await tolak(hisoka, m, infoBody + `\n\n> _${isSatuanSend ? 'Mengirim sticker satuan...' : 'Mengirim sebagai 1 paket sticker...'}_`);
+        /* Pesan status: bila dipanggil dari pilihan reply, PAKAI ULANG pesan
+           daftar pilihan (di-edit jadi info + loading) — tidak ada pesan baru,
+           daftar tidak tertinggal di chat. Gagal edit → pesan status baru. */
+        let loadingMsg = null;
+        if (statusKey) {
+                try {
+                        await hisoka.sendMessage(m.from, { text: infoBody + `\n\n> _${isSatuanSend ? 'Mengirim sticker satuan...' : 'Mengirim sebagai 1 paket sticker...'}_`, edit: statusKey });
+                        loadingMsg = { key: statusKey };
+                } catch (_) { loadingMsg = null; }
+        }
+        if (!loadingMsg) {
+                loadingMsg = await tolak(hisoka, m, infoBody + `\n\n> _${isSatuanSend ? 'Mengirim sticker satuan...' : 'Mengirim sebagai 1 paket sticker...'}_`);
+        }
 
-        /* ── Animasi loading MENYATU di pesan info yang sama (tanpa pesan baru) ── */
-        const phaseRef = { text: isSatuanSend ? 'Mengirim sticker satuan...' : 'Menyiapkan sticker...' };
-        const animBars = ['▱▱▱▱▱▱▱▱', '▰▱▱▱▱▱▱▱', '▰▰▱▱▱▱▱▱', '▰▰▰▱▱▱▱▱', '▰▰▰▰▱▱▱▱', '▰▰▰▰▰▱▱▱', '▰▰▰▰▰▰▱▱', '▰▰▰▰▰▰▰▱', '▰▰▰▰▰▰▰▰'];
+        /* ── Loading MENYATU di pesan info yang sama + progres PERSEN ASLI ──
+           Bar & persen dihitung dari jumlah stiker yang BENAR-BENAR selesai
+           (unduh / kirim satuan), bukan animasi waktu. Frame yang sama persis
+           tidak di-edit ulang (anti-spam API). 1 pesan dari awal sampai akhir. */
+        const prog = { phase: isSatuanSend ? 'satuan' : 'siap', done: 0, total: stickers.length, attempt: 1 };
+        const bar10 = (pct) => { const f = Math.max(0, Math.min(10, Math.round(pct / 10))); return '▰'.repeat(f) + '▱'.repeat(10 - f); };
         const animSpins = ['⏳', '⌛'];
         let animTick = 0;
+        let lastFrame = '';
+        const renderFrame = () => {
+                const spin = animSpins[animTick % 2];
+                if ((prog.phase === 'unduh' || prog.phase === 'satuan') && prog.total > 0) {
+                        const pct = Math.min(100, Math.floor((prog.done / prog.total) * 100));
+                        const label = prog.phase === 'unduh' ? 'Mengunduh' : 'Mengirim';
+                        return `${spin} ${infoBody}\n\n[${bar10(pct)}] ${pct}%\n> _${label} sticker ${prog.done}/${prog.total}..._`;
+                }
+                if (prog.phase === 'kirim') return `${spin} ${infoBody}\n\n[${bar10(100)}] 100%\n> _Mengirim paket ke WhatsApp${prog.attempt > 1 ? ` (percobaan ${prog.attempt}/3)` : ''}..._`;
+                return `${spin} ${infoBody}\n\n> _Menyiapkan sticker..._`;
+        };
         const animTimer = loadingMsg?.key ? setInterval(() => {
                 animTick++;
-                if (animTick > 45) { clearInterval(animTimer); return; }
-                const bar = animBars[Math.min(animTick, animBars.length - 1)];
-                const frame = `${animSpins[animTick % 2]} ${infoBody}\n\n[${bar}]\n> _${phaseRef.text}_`;
+                const frame = renderFrame();
+                if (frame === lastFrame) return;
+                lastFrame = frame;
                 hisoka.sendMessage(m.from, { text: frame, edit: loadingMsg.key }).catch(() => {});
-        }, 1100) : null;
+        }, 1200) : null;
         const stopAnim = () => { if (animTimer) clearInterval(animTimer); };
+        /* Edit final yang aman: gagal edit → kirim sebagai pesan baru. */
+        const finishEdit = async (text) => {
+                if (loadingMsg?.key) {
+                        try { await m.reply({ edit: loadingMsg.key, text }); return; }
+                        catch (_) {}
+                }
+                await tolak(hisoka, m, text);
+        };
 
         /* ── Kirim satuan (dipakai mode satuan + fallback) ── */
         const sendSatuan = async () => {
                 const { Sticker, StickerTypes } = await import('wa-sticker-formatter');
+                prog.phase = 'satuan';
+                prog.done = 0;
                 let sent = 0, failed = 0;
                 for (const item of stickers) {
                         try {
@@ -479,6 +536,7 @@ async function processStickerlyPack({ hisoka, m, tolak, logCommand, pack, isSatu
                                 sent++;
                                 if (sent % 5 === 0) await new Promise(resolve => setTimeout(resolve, 700));
                         } catch (sendErr) { failed++; console.error('[StickerLy] Failed sticker:', sendErr.message); }
+                        prog.done = sent + failed;
                 }
                 return { sent, failed };
         };
@@ -491,7 +549,8 @@ async function processStickerlyPack({ hisoka, m, tolak, logCommand, pack, isSatu
                         const { Sticker, StickerTypes } = await import('wa-sticker-formatter');
                         const sharp = (await import('sharp')).default;
 
-                        phaseRef.text = `Mengunduh ${stickers.length} sticker...`;
+                        prog.phase = 'unduh';
+                        prog.done = 0;
                         // Download semua stiker (paralel per batch 5)
                         const builtFiles = [];
                         for (let i = 0; i < stickers.length; i += 5) {
@@ -515,6 +574,7 @@ async function processStickerlyPack({ hisoka, m, tolak, logCommand, pack, isSatu
                                         return { id: item.id, fileName, isAnimated: !!item.isAnimated, buffer: stickerBuffer };
                                 }));
                                 builtFiles.push(...results);
+                                prog.done = builtFiles.length;
                         }
                         if (!builtFiles.length) throw new Error('Tidak ada stiker berhasil diunduh.');
 
@@ -528,11 +588,28 @@ async function processStickerlyPack({ hisoka, m, tolak, logCommand, pack, isSatu
                         const zipBuffer = await zipFiles(zipFilesArr);
 
                         const packFiles = builtFiles.map(f => ({ id: f.id, fileName: f.fileName, isAnimated: f.isAnimated }));
-                        phaseRef.text = 'Mengirim paket ke WhatsApp...';
-                        await sendStickerPackCard(hisoka, m.from, m, { ...pack, files: packFiles }, zipBuffer, trayBuffer);
-                        const doneText = `✅ *Paket Stickerly terkirim sebagai 1 paket!*\n\n- 📦 *Pack:* ${pack.name}\n- 🧩 *Isi:* ${builtFiles.length} sticker\n\n> _Tap kartu paketnya untuk simpan semua sticker sekaligus._`;
+                        prog.phase = 'kirim';
+                        /* Kirim paket dicoba sampai 3x (media_conn + kunci segar tiap
+                           percobaan) — gangguan jaringan sesaat seperti "socket hang up"
+                           TIDAK lagi langsung jatuh ke satuan. Satuan hanya jaring
+                           pengaman terakhir setelah 3x gagal. */
+                        let packSent = false;
+                        let lastPackErr = null;
+                        for (let attempt = 1; attempt <= 3 && !packSent; attempt++) {
+                                prog.attempt = attempt;
+                                try {
+                                        await sendStickerPackCard(hisoka, m.from, m, { ...pack, files: packFiles }, zipBuffer, trayBuffer);
+                                        packSent = true;
+                                } catch (attErr) {
+                                        lastPackErr = attErr;
+                                        console.error(`[StickerLy] Kirim paket percobaan ${attempt}/3 gagal:`, attErr.message);
+                                        if (attempt < 3) await new Promise(r => setTimeout(r, attempt * 2000));
+                                }
+                        }
+                        if (!packSent) throw lastPackErr || new Error('Kirim paket gagal 3x.');
+                        const doneText = `✅ *Paket Stickerly terkirim sebagai 1 paket!*\n\n- 📦 *Pack:* ${pack.name}\n- 🆔 *Kode:* \`${pack.id}\`\n- 👤 *Kreator:* ${pack.author.name}${pack.author.username ? ` (@${pack.author.username})` : ''}\n- 👥 *Pengikut:* ${(pack.author.followers || 0).toLocaleString('id-ID')}\n- 🧩 *Isi:* ${builtFiles.length} sticker\n- 👁️ *Views:* ${pack.viewCount.toLocaleString('id-ID')}\n- 📤 *Export:* ${pack.exportCount.toLocaleString('id-ID')}\n- 🔗 ${pack.url}\n\n> _Tap kartu paketnya untuk simpan semua sticker sekaligus._`;
                         stopAnim();
-                        if (loadingMsg?.key) await m.reply({ edit: loadingMsg.key, text: doneText }); else await tolak(hisoka, m, doneText);
+                        await finishEdit(doneText);
                         await hisoka.sendMessage(m.from, { react: { text: '✅', key: m.key } });
                         logCommand(m, hisoka, m.command || 'stickerly');
                         return;
@@ -541,7 +618,7 @@ async function processStickerlyPack({ hisoka, m, tolak, logCommand, pack, isSatu
                         const { sent, failed } = await sendSatuan();
                         const doneText = `✅ *Stickerly selesai* — _mode satuan (kartu paket tidak didukung)_\n\n- Terkirim: *${sent}* sticker${failed ? `\n- Gagal: *${failed}* sticker` : ''}`;
                         stopAnim();
-                        if (loadingMsg?.key) await m.reply({ edit: loadingMsg.key, text: doneText }); else await tolak(hisoka, m, doneText);
+                        await finishEdit(doneText);
                         await hisoka.sendMessage(m.from, { react: { text: sent ? '✅' : '❌', key: m.key } });
                         logCommand(m, hisoka, m.command || 'stickerly');
                         return;
@@ -554,7 +631,7 @@ async function processStickerlyPack({ hisoka, m, tolak, logCommand, pack, isSatu
                 ? `✅ *Stickerly selesai.*\n\n- Terkirim: *${sent}* sticker\n- Gagal: *${failed}* sticker`
                 : `✅ *Stickerly selesai.* _${sent} sticker berhasil dikirim._`;
         stopAnim();
-                        if (loadingMsg?.key) await m.reply({ edit: loadingMsg.key, text: doneText }); else await tolak(hisoka, m, doneText);
+                        await finishEdit(doneText);
         await hisoka.sendMessage(m.from, { react: { text: sent ? '✅' : '❌', key: m.key } });
         logCommand(m, hisoka, m.command || 'stickerly');
         } catch (error) {
@@ -607,9 +684,20 @@ export async function handleStickerlyChoice({ hisoka, m, pendingStickerlyChoices
         const chosen = pending.results[idx];
 
         await hisoka.sendMessage(m.from, { react: { text: '⏳', key: m.key } });
+
+        /* Pesan daftar pilihan LANGSUNG berubah jadi pesan loading (di-edit,
+           bukan pesan baru) — daftar tidak tertinggal di chat. */
+        let statusKey = null;
+        if (pending.botMsgId) {
+                const listKey = { remoteJid: m.from, fromMe: true, id: pending.botMsgId };
+                try {
+                        await hisoka.sendMessage(m.from, { text: `🧩 *STICKERLY PACK*\n\n> _⏳ Memuat pack pilihan ${idx + 1}: *${chosen.name}*..._`, edit: listKey });
+                        statusKey = listKey;
+                } catch (_) { statusKey = null; }
+        }
         try {
                 const pack = await detail(chosen.url || chosen.id);
-                await processStickerlyPack({ hisoka, m, tolak, logCommand, pack, isSatuanSend: false });
+                await processStickerlyPack({ hisoka, m, tolak, logCommand, pack, isSatuanSend: false, statusKey });
         } catch (err) {
                 console.error('[StickerLy] Choice error:', err.message);
                 if (logError) logError(err, 'stickerly:choice');

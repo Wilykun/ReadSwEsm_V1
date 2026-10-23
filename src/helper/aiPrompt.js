@@ -2027,3 +2027,24 @@ ${buildPersonalityBoost(userName, personaName)}
 ${userMemory ? formatMemoryForPrompt(userMemory, userName) : ''}
 ${buildDynamicAIBoost({ userMessage, hasImage, hasSticker, isStickerOnly: hasSticker && !hasImage, hasVideo, isDocumentMode, history })}`;
 }
+
+// ─── Prompt analisis FRAME VIDEO generik (multi-frame, API resmi) ────────────
+export function buildVideoFramesAnalysisPrompt(platform = 'video') {
+    return `Kamu adalah AI spesialis analisis konten video ${platform}.
+
+Berikut 5 frame yang diambil berurutan dari satu video (awal sampai akhir). Analisis sebagai SATU kesatuan video dan jawab 4 hal berikut (jawab langsung tanpa label/heading):
+
+1. *Aksi utama*: Apa yang sedang terjadi atau ditampilkan sepanjang video? (spesifik, akurat)
+2. *Subjek*: Siapa atau apa yang ada di sini? (orang, hewan, objek, aplikasi/situs — sebut spesifik)
+3. *Setting*: Di mana latarnya? (rekaman layar HP/komputer, dalam ruangan, outdoor, dll)
+4. *Vibe/nuansa*: Apa suasananya? (lucu, mengharukan, menegangkan, informatif, tutorial, viral, absurd, dll)
+
+Aturan WAJIB:
+- Bahasa Indonesia, akurat berdasarkan yang BENAR-BENAR terlihat di frame
+- Jangan mengarang, jangan tebak-tebakan di luar frame
+- Jika ada teks/tulisan di frame → sebut isinya
+- Jika ada nama aplikasi/situs/brand yang terlihat → sebut namanya
+- Maksimal 4-5 kalimat total, ringkas dan to the point
+- Jangan tulis "Berdasarkan frame..." atau label apapun
+- Jangan bilang kamu AI`;
+}

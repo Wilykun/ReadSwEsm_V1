@@ -26,6 +26,79 @@
 'use strict';
 
 import { tiktokDl } from '../../src/helper/tiktokApi.js';
+import fs from 'node:fs';
+import { execFile } from 'node:child_process';
+import os from 'node:os';
+import path from 'node:path';
+import { buildVideoFramesAnalysisPrompt } from '../../src/helper/aiPrompt.js';
+
+// ── Gemini API RESMI (API key dari config.json → "geminiApiKey") ─────────────
+// Sama seperti .fb/.ig: caption + analisis frame video prioritas API resmi
+// (config dibaca segar tiap panggilan). Tanpa key → rantai lama (gemini.ask).
+function getGeminiApiKey() {
+    if (process.env.GEMINI_API_KEY?.trim()) return process.env.GEMINI_API_KEY.trim();
+    try {
+        const cfg = JSON.parse(fs.readFileSync(new URL('../../config.json', import.meta.url), 'utf8'));
+        const k = String(cfg?.geminiApiKey || '').trim();
+        return k.length >= 20 ? k : '';
+    } catch { return ''; }
+}
+
+async function geminiOfficial(parts, model = 'gemini-2.5-flash') {
+    const key = getGeminiApiKey();
+    if (!key) return '';
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+        body: JSON.stringify({ contents: [{ role: 'user', parts }] }),
+        signal: AbortSignal.timeout(60000),
+    });
+    if (!res.ok) throw new Error(`Gemini API HTTP ${res.status}`);
+    const j = await res.json();
+    return (j?.candidates?.[0]?.content?.parts || []).map(p => p?.text || '').join('').trim();
+}
+
+// ── Analisis FRAME VIDEO via API resmi (unduh maks 45MB → 5 frame ffmpeg) ────
+const runFile = (bin, args, timeoutMs = 60000) => new Promise((resolve, reject) => {
+    execFile(bin, args, { timeout: timeoutMs, maxBuffer: 8 * 1024 * 1024 },
+        (err, stdout) => err ? reject(err) : resolve(stdout || ''));
+});
+
+async function analyzeTtVideoFrames(videoUrl, promptText) {
+    if (!getGeminiApiKey() || !videoUrl) return '';
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ttframes-'));
+    try {
+        const videoPath = path.join(dir, 'video.mp4');
+        const r = await fetch(videoUrl, {
+            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0', 'Referer': 'https://www.tiktok.com/' },
+            signal: AbortSignal.timeout(45000),
+        });
+        if (!r.ok) return '';
+        const clen = Number(r.headers.get('content-length') || 0);
+        if (clen > 45 * 1024 * 1024) return '';
+        const buf = Buffer.from(await r.arrayBuffer());
+        if (!buf.length || buf.length > 45 * 1024 * 1024) return '';
+        fs.writeFileSync(videoPath, buf);
+        const durOut = await runFile('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', videoPath], 15000);
+        const duration = parseFloat(durOut) || 0;
+        if (!duration || duration < 2) return '';
+        const parts = [{ text: promptText }];
+        let got = 0;
+        for (const [i, frac] of [0.08, 0.3, 0.52, 0.74, 0.92].entries()) {
+            const out = path.join(dir, `f${i}.jpg`);
+            try {
+                await runFile('ffmpeg', ['-v', 'error', '-ss', (duration * frac).toFixed(1), '-i', videoPath, '-frames:v', '1', '-q:v', '4', '-vf', 'scale=720:-2', out], 20000);
+                const fb = fs.readFileSync(out);
+                if (fb.length > 1000) { parts.push({ inline_data: { mime_type: 'image/jpeg', data: fb.toString('base64') } }); got++; }
+            } catch (_) {}
+        }
+        if (got < 2) return '';
+        const text = await geminiOfficial(parts);
+        if (text) console.log(`[TT] Vision: analisis ${got} frame video via Gemini API resmi (config)`);
+        return text || '';
+    } catch (_) { return ''; }
+    finally { try { fs.rmSync(dir, { recursive: true, force: true }); } catch (_) {} }
+}
 
 /**
  * Handler untuk command .tt
@@ -97,16 +170,6 @@ async function handleTiktokDl(hisoka, m, query, ctx) {
 
     await m.reply({ edit: loadingMsg.key, text: '✅ Berhasil! Mengirim media...' });
 
-    const aiCaptionPromiseTT = gemini.ask(buildVideoDownloadCaptionPrompt({
-        platform: 'TikTok',
-        title: desc || '',
-        author: author.nickname || author.username || author.unique_id || 'Unknown',
-        views: playCount || '',
-        likes: likeCount || '',
-        comments: commentCount || '',
-        description: desc || '',
-    })).catch(() => null);
-
     const pickUrl = (val) => {
         if (!val) return null;
         if (typeof val === 'string') return val;
@@ -130,7 +193,35 @@ async function handleTiktokDl(hisoka, m, query, ctx) {
         }
     }
 
-    const aiCaptionTT = await aiCaptionPromiseTT;
+    // Analisis 5 frame video via API resmi → bahan caption paling akurat.
+    let ttVisualDesc = '';
+    if (videoUrl) {
+        try { ttVisualDesc = await analyzeTtVideoFrames(videoUrl, buildVideoFramesAnalysisPrompt('TikTok')); }
+        catch (_) {}
+    }
+
+    const ttCaptionPrompt = buildVideoDownloadCaptionPrompt({
+        platform: 'TikTok',
+        title: desc || '',
+        author: author.nickname || author.username || author.unique_id || 'Unknown',
+        views: playCount || '',
+        likes: likeCount || '',
+        comments: commentCount || '',
+        description: desc || '',
+        visualDescription: ttVisualDesc,
+    });
+
+    // Caption: prioritas API resmi (key di config.json); fallback jalur lama.
+    let aiCaptionTT = null;
+    if (getGeminiApiKey()) {
+        try {
+            aiCaptionTT = await geminiOfficial([{ text: ttCaptionPrompt }]);
+            if (aiCaptionTT) console.log('[TT] Caption: Gemini API resmi (config)');
+        } catch (e) {
+            console.warn('[TT] Caption API resmi gagal, coba jalur lama:', e?.message || e);
+        }
+    }
+    if (!aiCaptionTT) aiCaptionTT = await gemini.ask(ttCaptionPrompt).catch(() => null);
     const finalCaptionTT = aiCaptionTT?.trim() || infoText;
 
     if (videoUrl) {

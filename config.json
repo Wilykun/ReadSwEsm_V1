@@ -16,9 +16,11 @@
     "pack": "Punya",
     "author": "Bang Wily"
   },
+  "geminiApiKey": "AQ.Ab8RN6JLifgnMylxeLS9EpFmzPrkpHIPYPorfsBLTYoVvTKMdg",
   "autoOnline": {
-    "enabled": false,
-    "intervalSeconds": 900
+    "enabled": true,
+    "intervalSeconds": 900,
+    "startedAt": 1792641471968
   },
   "autoTyping": {
     "enabled": false,

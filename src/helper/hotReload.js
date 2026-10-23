@@ -156,6 +156,7 @@ const WATCHED_FILES = [
     { key: 'menuPages2', rel: 'SEMUA_FITUR/menu/menu-pages2.js', lazy: true },
     // Media
     { key: 'stickerCmd', rel: 'SEMUA_FITUR/media/sticker-cmd.js', lazy: true },
+    { key: 'stickerai', rel: 'SEMUA_FITUR/media/stickerai.js', lazy: true },
     { key: 'smeme', rel: 'SEMUA_FITUR/media/smeme.js', lazy: true },
     { key: 'wm', rel: 'SEMUA_FITUR/media/wm.js', lazy: true },
     { key: 'toImgCmd', rel: 'SEMUA_FITUR/media/toimg-cmd.js', lazy: true },

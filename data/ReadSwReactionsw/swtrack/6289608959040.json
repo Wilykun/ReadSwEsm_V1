@@ -1,40 +1,14 @@
 {
-  "ACF1AA842A69A363D94C4A75766DC642": {
-    "id": "ACF1AA842A69A363D94C4A75766DC642",
+  "AC7FC230B74307C2C6AF572D30F69BF3": {
+    "id": "AC7FC230B74307C2C6AF572D30F69BF3",
     "sender": "6289608959040@s.whatsapp.net",
-    "name": "mlaa🫧",
+    "name": "nadha...",
     "type": "videoMessage",
-    "arrivedAt": "2026-10-18T12:30:27.691Z",
-    "read": false,
-    "reacted": false,
-    "reactionExpected": true,
-    "emoji": null,
-    "resolve": "PN langsung ✓",
-    "source": "status",
-    "number": "6289608959040",
-    "resolvedPn": "6289608959040@s.whatsapp.net",
-    "messageKey": {
-      "remoteJid": "status@broadcast",
-      "remoteJidAlt": "6289608959040@s.whatsapp.net",
-      "fromMe": false,
-      "id": "ACF1AA842A69A363D94C4A75766DC642",
-      "participant": "176257136341194@lid",
-      "addressingMode": "lid"
-    },
-    "updatedAt": "2026-10-18T12:30:32.593Z",
-    "deleted": true,
-    "deletedAt": "2026-10-18T12:30:32.593Z"
-  },
-  "AC0EFF03184F92252E4F33711A85A2D4": {
-    "id": "AC0EFF03184F92252E4F33711A85A2D4",
-    "sender": "6289608959040@s.whatsapp.net",
-    "name": "mlaa🫧",
-    "type": "videoMessage",
-    "arrivedAt": "2026-10-19T10:31:16.928Z",
+    "arrivedAt": "2026-10-22T13:00:33.281Z",
     "read": true,
     "reacted": true,
     "reactionExpected": true,
-    "emoji": "🐋",
+    "emoji": "🐡",
     "resolve": "PN langsung ✓",
     "source": "status",
     "number": "6289608959040",
@@ -43,17 +17,17 @@
       "remoteJid": "status@broadcast",
       "remoteJidAlt": "6289608959040@s.whatsapp.net",
       "fromMe": false,
-      "id": "AC0EFF03184F92252E4F33711A85A2D4",
+      "id": "AC7FC230B74307C2C6AF572D30F69BF3",
       "participant": "176257136341194@lid",
       "addressingMode": "lid"
     },
-    "updatedAt": "2026-10-19T11:39:29.566Z",
+    "updatedAt": "2026-10-22T22:01:56.421Z",
     "receiptKeys": [
       {
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6289608959040@s.whatsapp.net",
         "fromMe": false,
-        "id": "AC0EFF03184F92252E4F33711A85A2D4",
+        "id": "AC7FC230B74307C2C6AF572D30F69BF3",
         "participant": "176257136341194@lid",
         "addressingMode": "lid"
       },
@@ -61,13 +35,56 @@
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6289608959040@s.whatsapp.net",
         "fromMe": false,
-        "id": "AC0EFF03184F92252E4F33711A85A2D4",
+        "id": "AC7FC230B74307C2C6AF572D30F69BF3",
         "participant": "6289608959040@s.whatsapp.net",
         "addressingMode": "lid"
       }
     ],
-    "processedAt": "2026-10-19T10:31:33.534Z",
+    "processedAt": "2026-10-22T13:00:52.945Z",
     "deleted": true,
-    "deletedAt": "2026-10-19T11:39:29.566Z"
+    "deletedAt": "2026-10-22T22:01:56.421Z"
+  },
+  "ACBB29D312EC64E34BA2F93087FB290F": {
+    "id": "ACBB29D312EC64E34BA2F93087FB290F",
+    "sender": "6289608959040@s.whatsapp.net",
+    "name": "nadha...",
+    "type": "videoMessage",
+    "arrivedAt": "2026-10-23T05:35:50.311Z",
+    "read": true,
+    "reacted": true,
+    "reactionExpected": true,
+    "emoji": "🦈",
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "6289608959040",
+    "resolvedPn": "6289608959040@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "6289608959040@s.whatsapp.net",
+      "fromMe": false,
+      "id": "ACBB29D312EC64E34BA2F93087FB290F",
+      "participant": "176257136341194@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-10-23T05:35:52.856Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6289608959040@s.whatsapp.net",
+        "fromMe": false,
+        "id": "ACBB29D312EC64E34BA2F93087FB290F",
+        "participant": "176257136341194@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6289608959040@s.whatsapp.net",
+        "fromMe": false,
+        "id": "ACBB29D312EC64E34BA2F93087FB290F",
+        "participant": "6289608959040@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-10-23T05:35:52.856Z"
   }
 }

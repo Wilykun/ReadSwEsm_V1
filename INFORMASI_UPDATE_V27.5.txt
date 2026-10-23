@@ -3,13 +3,13 @@
 🛠️ *Recode By:* `Bang Wily`
 
 📢 *INFORMASI RILIS*
-_📅 Rabu, 21 Oktober 2026_
+_📅 Jumat, 23 Oktober 2026_
 ━━━━━━━━━━━━━━━━━━━━━━
 🤖 *WILY BOT* — `V27.5`
-✨ *1 Fitur Baru*
-🐛 *3 Fix Bug*
+✨ *2 Fitur Baru*
+🐛 *4 Fix Bug*
 🛠️ *0 Fix Error*
-🚀 *6 Perubahan*
+🚀 *10 Perubahan*
 ⚠️ *0 Hapus Fitur*
 ━━━━━━━━━━━━━━━━━━━━━━
 ✨ *FITUR BARU*
@@ -20,6 +20,13 @@ _📅 Rabu, 21 Oktober 2026_
    • Reply pesan teks/sticker lalu `.iqc` → screenshot dari pesan itu.
    • Pakai library `iqc-canvas` (Hann Universe): bar reaksi emoji warna, menu Beri Bintang/Balas/Teruskan/Salin.
 > _Hasil: screenshot chat ala iPhone langsung dari bot, akurat._
+
+2. *.stickerai — Sticker dari Prompt AI*
+   • Ketik `.stickerai <prompt>` → bot buat gambar AI (model flux via Pollinations, tanpa API key) lalu otomatis jadi sticker die-cut gaya chibi/anime.
+   • Alias: `.aisticker`, `.aistiker`, `.stikerai`. Brand pack/author mengikuti `config.json` seperti `.sticker`.
+   • Prompt dibungkus blok negatif eksplisit (tanpa teks/logo/watermark/tangan) + gambar di-crop tengah 86% sebelum konversi — hasil bersih dari teks acak & watermark palsu yang kadang digambar model.
+   • Reaksi proses ⏳/✅/❌ seperti `.sticker`, timeout generate 120 detik + retry 1x dengan seed baru bila gagal.
+> _Hasil: sticker AI custom dari teks prompt, bersih dan siap pakai._
 
 ━━━━━━━━━━━━━━━━━━━━━━
 🐛 *BUG FIX*
@@ -40,6 +47,12 @@ _📅 Rabu, 21 Oktober 2026_
    • Sekarang upload pakai jalur + kunci khusus sticker-pack WhatsApp (`/mms/sticker-pack`), thumbnail paket jalurnya sendiri, plus tray icon 252x252 di dalam paket.
    • Keyword pendek (mis. `anime`) yang lolos pola ID pack sekarang otomatis fallback ke pencarian (sebelumnya error "tidak ditemukan").
 > _Hasil: sticker di dalam paket tampil normal, paket bisa disimpan utuh._
+
+4. *.stickerly — Paket Kadang Kekirim Satuan*
+   • Penyebab: upload paket terputus di tengah jalan (koneksi ke server media WhatsApp putus, `socket hang up`) — sebelumnya sekali gagal langsung jatuh ke kirim satuan sehingga sticker terkirim satu-satu.
+   • Sekarang kirim paket dicoba sampai *3x* (koneksi + kunci upload segar tiap percobaan, jeda 2 & 4 detik, timeout upload 60 detik); status percobaan tampil di pesan loading.
+   • Kirim satuan sekarang hanya jaring pengaman terakhir setelah 3x gagal.
+> _Hasil: paket Stickerly terkirim utuh sebagai 1 paket, tidak lagi pecah satuan karena gangguan jaringan sesaat._
 
 ━━━━━━━━━━━━━━━━━━━━━━
 🛠️ *FIX ERROR*
@@ -78,6 +91,27 @@ _📅 Rabu, 21 Oktober 2026_
    • Semua sticker di paket otomatis memakai pack/author dari `config.json` (`"sticker": { "pack", "author" }`) — mengikuti config seperti `.sticker`/`.wm`, tanpa re-encode (animasi utuh).
    • Tampilan balasan tanpa garis kotak: formatting WhatsApp native (tebal, miring, kode, daftar bernomor/berpoint, kutip) sesuai konteks.
 > _Hasil: cari, pilih, dan simpan paket Stickerly utuh langsung dari chat — realtime seperti aplikasi aslinya._
+
+7. *.fb / .ig / .tt — Caption Full AI (Gemini API Resmi)*
+   • Vision & caption sekarang memakai *Gemini API resmi* — API key disimpan di `config.json` (`"geminiApiKey"`), dibaca segar tiap panggilan sehingga ganti key langsung berlaku tanpa restart. Jalur lama (scraper) menjadi fallback.
+   • Analisis konten naik kelas: bukan cuma thumbnail — bot mengunduh video (maks 45MB) dan menganalisis *5 frame* dari awal sampai akhir video, jadi caption menggambarkan isi video yang sebenarnya.
+   • Sebelumnya jalur vision lama mati diam-diam (auth scraper kedaluwarsa) sehingga caption hanya dari metadata + formatting kadang rusak — sekarang caption full AI dengan formatting WhatsApp native yang bersih.
+> _Hasil: caption `.fb`, `.ig`, `.tt` akurat sesuai isi video, bukan tebakan dari sampul._
+
+8. *.stickerly — Loading Persen Asli & Anti Dobel*
+   • Bar loading sekarang *persen asli* dari jumlah sticker yang benar-benar selesai diunduh/dikirim (sebelumnya bar animasi berbasis waktu yang berhenti di tengah dan terasa macet).
+   • Semua tahap tetap menyatu di *1 pesan* yang di-edit: info paket → persen unduhan → kirim paket → selesai.
+   • Penjaga anti dobel: paket yang sama di chat yang sama tidak bisa diproses dua kali bersamaan — perintah kedua dijawab sopan, bukan membuat pesan tumpuk.
+> _Hasil: progres jelas dan jujur, chat bersih tanpa spam._
+
+9. *.stickerly — Pesan Daftar Berubah Jadi Loading*
+   • Setelah membalas angka pilihan, *pesan daftar paket langsung berubah* (di-edit) menjadi pesan loading "Memuat pack pilihan..." lalu berlanjut ke info + persen + selesai di pesan yang sama.
+   • Daftar pilihan tidak lagi tertinggal di chat. Bila edit ditolak WhatsApp, bot otomatis kembali memakai pesan status baru.
+> _Hasil: dari daftar sampai paket terkirim, cukup 1 pesan yang berubah-ubah._
+
+10. *.stickerly — Pesan Sukses Info Realtime Penuh*
+   • Pesan sukses paket terkirim sekarang memuat info pack realtime lengkap: nama, kode, kreator + username, pengikut, isi, views, export, dan link pack.
+> _Hasil: sekali lihat langsung tahu paket apa yang baru disimpan dan sepopuler apa._
 
 ━━━━━━━━━━━━━━━━━━━━━━
 ⚠️ *HAPUS FITUR*

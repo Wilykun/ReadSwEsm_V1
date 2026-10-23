@@ -8,7 +8,7 @@
 ════════════════════════════════════════════════════════════════════════
   FILE     : infoerror.txt
   Bot      : Wily Bot
-  Update   : 21/10/2026, 15.12.17  (realtime — diperbarui otomatis setiap ada error)
+  Update   : 23/10/2026, 10.57.03  (realtime — diperbarui otomatis setiap ada error)
 ════════════════════════════════════════════════════════════════════════
 
   RINGKASAN
@@ -23,24 +23,24 @@
 ────────────────────────────────────────────────────────────────────────
 
 ┌───────────────────────────────────────────────────────────────────────
-│  #001  —  console.error
+│  #001  —  StickerLy
 ├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
 │  PESAN ERROR
-│  [31m[HotReload] ✗ Gagal reload 'SEMUA_FITUR/download/stickerly.js', pakai versi lama.[39m
+│  [StickerLy] Failed sticker: Media upload failed on all hosts
 │
 │  DETAIL
-│  Sumber      : console.error
+│  Sumber      : StickerLy
 │  Frekuensi   : 1x (baru terjadi)
-│  Pertama     : 21/10/2026, 15.12.17
-│  Terakhir    : 21/10/2026, 15.12.17
+│  Pertama     : 23/10/2026, 10.57.03
+│  Terakhir    : 23/10/2026, 10.57.03
 │
 │  STACK TRACE (3 baris pertama)
-│  ▶  Error: [31m[HotReload] ✗ Gagal reload 'SEMUA_FITUR/download/stickerly.js', pakai versi lama.[39m
+│  ▶  Error: [StickerLy] Failed sticker: Media upload failed on all hosts
 │     at console.error (file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/index.js:434:27)
-│     at Timeout._onTimeout (file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/src/helper/hotReload.js:289:29)
+│     at sendSatuan (file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/SEMUA_FITUR/download/stickerly.js?t=1792727611925.0203:517:63)
 └───────────────────────────────────────────────────────────────────────
 
 ════════════════════════════════════════════════════════════════════════
   End of Report  —  Total: 1 jenis, 1 kejadian
-  Terakhir diperbarui: 21/10/2026, 15.12.17
+  Terakhir diperbarui: 23/10/2026, 10.57.03
 ════════════════════════════════════════════════════════════════════════

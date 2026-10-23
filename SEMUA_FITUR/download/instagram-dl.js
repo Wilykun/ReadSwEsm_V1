@@ -28,6 +28,79 @@ import axios from 'axios';
 import * as cheerio from 'cheerio';
 import FormData from 'form-data';
 import snapInstagram from 'cakkatrok-instagram-downloader';
+import fs from 'node:fs';
+import { execFile } from 'node:child_process';
+import os from 'node:os';
+import path from 'node:path';
+import { buildIgVideoFramesPrompt } from '../../src/helper/AiPromptIg.js';
+
+// ── Gemini API RESMI (API key dari config.json → "geminiApiKey") ─────────────
+// Sama seperti .fb: vision + caption prioritas API resmi (config dibaca segar
+// tiap panggilan → ganti key langsung berlaku). Tanpa key → rantai lama.
+function getGeminiApiKey() {
+    if (process.env.GEMINI_API_KEY?.trim()) return process.env.GEMINI_API_KEY.trim();
+    try {
+        const cfg = JSON.parse(fs.readFileSync(new URL('../../config.json', import.meta.url), 'utf8'));
+        const k = String(cfg?.geminiApiKey || '').trim();
+        return k.length >= 20 ? k : '';
+    } catch { return ''; }
+}
+
+async function geminiOfficial(parts, model = 'gemini-2.5-flash') {
+    const key = getGeminiApiKey();
+    if (!key) return '';
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+        body: JSON.stringify({ contents: [{ role: 'user', parts }] }),
+        signal: AbortSignal.timeout(60000),
+    });
+    if (!res.ok) throw new Error(`Gemini API HTTP ${res.status}`);
+    const j = await res.json();
+    return (j?.candidates?.[0]?.content?.parts || []).map(p => p?.text || '').join('').trim();
+}
+
+// ── Analisis FRAME VIDEO via API resmi (unduh maks 45MB → 5 frame ffmpeg) ────
+const runFile = (bin, args, timeoutMs = 60000) => new Promise((resolve, reject) => {
+    execFile(bin, args, { timeout: timeoutMs, maxBuffer: 8 * 1024 * 1024 },
+        (err, stdout) => err ? reject(err) : resolve(stdout || ''));
+});
+
+async function analyzeIgVideoFrames(videoUrl, promptText) {
+    if (!getGeminiApiKey() || !videoUrl) return '';
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'igframes-'));
+    try {
+        const videoPath = path.join(dir, 'video.mp4');
+        const r = await fetch(videoUrl, {
+            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0', 'Referer': 'https://www.instagram.com/' },
+            signal: AbortSignal.timeout(45000),
+        });
+        if (!r.ok) return '';
+        const clen = Number(r.headers.get('content-length') || 0);
+        if (clen > 45 * 1024 * 1024) return '';
+        const buf = Buffer.from(await r.arrayBuffer());
+        if (!buf.length || buf.length > 45 * 1024 * 1024) return '';
+        fs.writeFileSync(videoPath, buf);
+        const durOut = await runFile('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', videoPath], 15000);
+        const duration = parseFloat(durOut) || 0;
+        if (!duration || duration < 2) return '';
+        const parts = [{ text: promptText }];
+        let got = 0;
+        for (const [i, frac] of [0.08, 0.3, 0.52, 0.74, 0.92].entries()) {
+            const out = path.join(dir, `f${i}.jpg`);
+            try {
+                await runFile('ffmpeg', ['-v', 'error', '-ss', (duration * frac).toFixed(1), '-i', videoPath, '-frames:v', '1', '-q:v', '4', '-vf', 'scale=720:-2', out], 20000);
+                const fb = fs.readFileSync(out);
+                if (fb.length > 1000) { parts.push({ inline_data: { mime_type: 'image/jpeg', data: fb.toString('base64') } }); got++; }
+            } catch (_) {}
+        }
+        if (got < 2) return '';
+        const text = await geminiOfficial(parts);
+        if (text) console.log(`[IG] Vision: analisis ${got} frame video via Gemini API resmi (config)`);
+        return text || '';
+    } catch (_) { return ''; }
+    finally { try { fs.rmSync(dir, { recursive: true, force: true }); } catch (_) {} }
+}
 
 /**
  * Handler untuk command .ig
@@ -301,7 +374,14 @@ async function handleInstagramDl(hisoka, m, query, ctx) {
     }
 
     let igVisualDesc = '';
-    if (igThumbUrl) {
+    // Prioritas tertinggi: analisis 5 FRAME VIDEO via API resmi (paling akurat).
+    const igFirstVideoItem = Array.isArray(mediaItems) ? mediaItems.find(it => it && typeof it === 'object' && (it.media_format === 'video' || /\.(mp4|mov|webm)(\?|$)/i.test(String(it.url || it.src || '')))) : null;
+    const igFirstVideoUrl = igFirstVideoItem ? (igFirstVideoItem.url || igFirstVideoItem.src) : null;
+    if (igFirstVideoUrl) {
+        try { igVisualDesc = await analyzeIgVideoFrames(igFirstVideoUrl, buildIgVideoFramesPrompt()); }
+        catch (_) {}
+    }
+    if (!igVisualDesc && igThumbUrl) {
         try {
             const { default: axiosLib } = await import('axios');
             const thumbRes = await axiosLib.get(igThumbUrl, {
@@ -312,7 +392,21 @@ async function handleInstagramDl(hisoka, m, query, ctx) {
             const thumbBuf = Buffer.from(thumbRes.data);
             if (thumbBuf.length > 500) {
                 const mimeThumb = thumbRes.headers['content-type']?.split(';')[0] || 'image/jpeg';
-                igVisualDesc = await gemini.askWithImage(buildIgVisionPrompt(), thumbBuf, mimeThumb);
+                // Prioritas: API resmi (key di config.json); fallback jalur lama.
+                if (getGeminiApiKey()) {
+                    try {
+                        igVisualDesc = await geminiOfficial([
+                            { inline_data: { mime_type: mimeThumb, data: thumbBuf.toString('base64') } },
+                            { text: buildIgVisionPrompt() },
+                        ]);
+                        if (igVisualDesc) console.log('[IG] Vision: Gemini API resmi (config)');
+                    } catch (e) {
+                        console.warn('[IG] Vision API resmi gagal, coba jalur lama:', e?.message || e);
+                    }
+                }
+                if (!igVisualDesc) {
+                    igVisualDesc = await gemini.askWithImage(buildIgVisionPrompt(), thumbBuf, mimeThumb);
+                }
             }
         } catch (_) {}
     }
@@ -330,7 +424,17 @@ async function handleInstagramDl(hisoka, m, query, ctx) {
             likes: likesStr, comments: commentsStr,
             mediaType, visualDesc: igVisualDesc,
         });
-        const aiCaptionIG = await gemini.ask(captionPrompt);
+        // Prioritas: API resmi (key di config.json); fallback jalur lama.
+        let aiCaptionIG = '';
+        if (getGeminiApiKey()) {
+            try {
+                aiCaptionIG = await geminiOfficial([{ text: captionPrompt }]);
+                if (aiCaptionIG) console.log('[IG] Caption: Gemini API resmi (config)');
+            } catch (e) {
+                console.warn('[IG] Caption API resmi gagal, coba jalur lama:', e?.message || e);
+            }
+        }
+        if (!aiCaptionIG) aiCaptionIG = await gemini.ask(captionPrompt);
         if (aiCaptionIG?.trim()) finalCaptionIG = aiCaptionIG.trim();
     } catch (_) {}
 
