@@ -1,12 +1,12 @@
 <div align="center">
 
-<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,100:128C7E&height=230&section=header&text=WILY+BOT&fontSize=78&fontColor=ffffff&animation=fadeIn&fontAlignY=36&desc=WhatsApp+Automation+Suite+%E2%80%A2+Node.js+%E2%80%A2+Baileys&descSize=19&descAlignY=60" alt="WILY BOT Hero" />
+<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,100:128C7E&height=230&section=header&text=WILY+BOT&fontSize=78&fontColor=ffffff&animation=fadeIn&fontAlignY=36&desc=WhatsApp+Automation+Suite+%E2%80%A2+ESM+Plugin+System+%E2%80%A2+Baileys&descAlignY=60&descSize=19" alt="WILY BOT Hero" />
 
-### Fast to deploy. Easy to extend. Built for real communities.
+### Cepat dipasang. Gampang dikembangkan. Siap untuk komunitas nyata.
 
 <br/>
 
-<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=22&duration=3000&pause=1000&color=25D366&center=true&vCenter=true&width=640&lines=299+Perintah+Siap+Pakai;Auto+Read+Story+%26+Auto+React;Tenor+GIF+Picker+%2B+Sticker+WM;Deploy+di+Replit+%7C+Railway+%7C+Fly.io" alt="Typing SVG" />
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=22&duration=3000&pause=1000&color=25D366&center=true&vCenter=true&width=680&lines=306+Command+Siap+Pakai;Caption+AI+Gemini+untuk+FB+%2F+IG+%2F+TikTok;Stickerly+Paket+Native+%2B+Sticker+AI;Plugin+ESM+%2B+Hot+Reload+Tanpa+Restart" alt="Typing SVG" />
 
 <br/>
 
@@ -18,15 +18,15 @@
 
 [![Node.js](https://img.shields.io/badge/Node.js-20%2B-22C55E?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![Baileys](https://img.shields.io/badge/WhatsApp-Baileys-25D366?style=for-the-badge&logo=whatsapp&logoColor=white)](https://github.com/WhiskeySockets/Baileys)
-[![Commands](https://img.shields.io/badge/Commands-299-8B5CF6?style=for-the-badge&logo=probot&logoColor=white)](#-fitur-unggulan)
-[![Status](https://img.shields.io/badge/Status-Active-06B6D4?style=for-the-badge&logo=statuspage&logoColor=white)](#-update-terbaru-patch-oktober-2026)
+[![Commands](https://img.shields.io/badge/Commands-306-8B5CF6?style=for-the-badge&logo=probot&logoColor=white)](#-fitur-unggulan)
+[![Version](https://img.shields.io/badge/Version-V27.5-06B6D4?style=for-the-badge&logo=gitbook&logoColor=white)](#-update-terbaru--v275)
 [![License](https://img.shields.io/badge/License-MIT-F59E0B?style=for-the-badge&logo=opensourceinitiative&logoColor=white)](LICENSE)
 
 <br/>
 
-[![Run on Replit](https://img.shields.io/badge/Run%20on-Replit-F26207?style=for-the-badge&logo=replit&logoColor=white)](https://replit.com/new/github/Wilykun/ReadSwEsm_V1)
 [![Deploy on Railway](https://img.shields.io/badge/Deploy%20on-Railway-111827?style=for-the-badge&logo=railway&logoColor=white)](https://railway.com/new/template?template=https://github.com/Wilykun/ReadSwEsm_V1)
 [![Deploy on Fly.io](https://img.shields.io/badge/Deploy%20on-Fly.io-7C3AED?style=for-the-badge&logo=fly.io&logoColor=white)](https://fly.io/docs/launch/)
+[![Pterodactyl](https://img.shields.io/badge/Panel-Pterodactyl-CE6D24?style=for-the-badge&logo=pterodactyl&logoColor=white)](#-deploy)
 
 <br/><br/>
 
@@ -34,36 +34,40 @@
 
 </div>
 
-> **WILY BOT** adalah bot WhatsApp multi-fitur untuk komunitas, otomasi grup, downloader media, utilitas admin, AI chat, dan multi-session **Jadibot**.
+> **WILY BOT** adalah bot WhatsApp multi-fitur berbasis **plugin ESM** — downloader media dengan caption AI, sticker tools lengkap, otomasi grup & story, proteksi anti-fitur, sampai **Jadibot** multi-session.
 >
 > Dibuat untuk dipakai, dikembangkan, dan dipelajari bersama. **Gratis untuk penggunaan pribadi dan komunitas — jangan diperjualbelikan.**
 
 <div align="center">
 
-### 🛠️ Tech Stack
+### ◆ Tech Stack
 
-<img src="https://skillicons.dev/icons?i=nodejs,js,ffmpeg,git,github&theme=dark" alt="Tech Stack" />
+<img src="https://skillicons.dev/icons?i=nodejs,js,ffmpeg,git,github,docker,linux&theme=dark" alt="Tech Stack" />
 
 <br/>
 
-### 🏗️ Arsitektur
+### ◆ Arsitektur
 
 ```mermaid
 flowchart LR
-    WA["📱 WhatsApp"] <--> BL["🔌 Baileys Socket"]
-    BL --> INJ["💉 Message Inject"]
-    INJ --> DSP["🧩 Plugin Dispatcher"]
-    DSP --> C1["🎬 299 Commands"]
-    DSP --> C2["👁️ Auto Read Story"]
-    DSP --> C3["🤖 Jadibot Multi-Session"]
-    DSP --> C4["🛡️ Anti-Fitur"]
-    C1 --> MD[("💾 config.json + data/")]
+    WA["WhatsApp"] <--> BL["Baileys Socket"]
+    BL --> INJ["Message Inject"]
+    INJ --> DSP["Plugin Dispatcher"]
+    DSP --> C1["306 Commands"]
+    DSP --> C2["Auto Read Story"]
+    DSP --> C3["Jadibot Multi-Session"]
+    DSP --> C4["Anti-Fitur"]
+    C1 --> AI["Gemini AI<br/>(caption & vision)"]
+    C1 --> MD[("config.json + data/")]
     C2 --> MD
     C3 --> MD
     style WA fill:#25D366,stroke:#fff,color:#fff
     style BL fill:#0d1117,stroke:#25D366,color:#fff
     style DSP fill:#8B5CF6,stroke:#fff,color:#fff
+    style AI fill:#06B6D4,stroke:#fff,color:#fff
 ```
+
+<sub>166 plugin descriptor di 21 kategori folder <code>SEMUA_FITUR/</code> — semua <b>hot reload</b>: edit file plugin, bot langsung memakai versi baru tanpa restart.</sub>
 
 </div>
 
@@ -72,18 +76,14 @@ flowchart LR
 ## 📋 Daftar Isi
 
 - [✨ Fitur Unggulan](#-fitur-unggulan)
-- [⚡ Deploy ke Replit (Paling Cepat)](#-deploy-ke-replit-paling-cepat)
-- [🚀 Deploy ke Railway](#-deploy-ke-railway)
-- [✈️ Deploy ke Fly.io (Gratis + Volume)](#️-deploy-ke-flyio-gratis--volume)
-- [📦 Instalasi Manual](#-instalasi-manual)
+- [🆕 Update Terbaru — V27.5](#-update-terbaru--v275)
+- [📦 Instalasi](#-instalasi)
+- [🚀 Deploy](#-deploy)
 - [⚙️ Konfigurasi](#️-konfigurasi)
-- [📖 Daftar Command](#-daftar-command)
-- [🎬 YouTube Downloader](#-youtube-downloader)
-- [🤖 Jadibot (Multi-Session)](#-jadibot-multi-session)
-- [🛡️ Fitur Keamanan](#️-fitur-keamanan)
-- [❓ Troubleshooting / FAQ](#-troubleshooting--faq)
-- [🆕 Update Terbaru (Patch Oktober 2026)](#-update-terbaru-patch-oktober-2026)
-- [🆕 Update Terbaru (V27.1)](#-update-terbaru-v271)
+- [📖 Daftar Command Pilihan](#-daftar-command-pilihan)
+- [🗂️ Struktur Proyek](#️-struktur-proyek)
+- [🛡️ Stabilitas & Keamanan](#️-stabilitas--keamanan)
+- [❓ FAQ](#-faq)
 - [📝 Kredit](#-kredit)
 
 ---
@@ -92,1058 +92,340 @@ flowchart LR
 
 <table>
   <tr>
-    <td align="center">🎵</td>
-    <td><b>YouTube Downloader</b><br/>Download audio MP3 & video MP4 dari YouTube dengan thumbnail real-time</td>
-  </tr>
-  <tr>
-    <td align="center">🤖</td>
-    <td><b>Jadibot (Multi-Session)</b><br/>Clone bot ke nomor WhatsApp lain via pairing code</td>
-  </tr>
-  <tr>
     <td align="center">🧠</td>
-    <td><b>Auto Simi (AI Chat)</b><br/>Balas pesan otomatis menggunakan AI Groq/Llama-3.1</td>
+    <td><b>Caption Full AI — Gemini</b><br/><code>.fb</code> <code>.ig</code> <code>.tt</code> — video dianalisis dari <b>5 frame</b> isi videonya (bukan cuma sampul) lalu ditulis caption akurat oleh Gemini API resmi. Key cukup isi di <code>config.json</code>.</td>
   </tr>
   <tr>
-    <td align="center">👁️</td>
-    <td><b>Auto Read Story</b><br/>Otomatis lihat & react story WhatsApp kontak</td>
+    <td align="center">🎨</td>
+    <td><b>Sticker AI (<code>.stickerai</code>)</b><br/>Ketik prompt → gambar AI dibuat → langsung jadi sticker die-cut bersih (tanpa teks acak/watermark), brand pack & author dari config.</td>
   </tr>
   <tr>
-    <td align="center">🛡️</td>
-    <td><b>Anti-Delete</b><br/>Simpan & kirim ulang pesan yang dihapus</td>
+    <td align="center">🧩</td>
+    <td><b>Stickerly Paket Native (<code>.stickerly</code>)</b><br/>Cari pack realtime, pilih dari daftar 30 pack dengan reply angka, terkirim sebagai <b>1 kartu paket utuh</b> — loading persen asli menyatu di 1 pesan, info pack realtime lengkap.</td>
   </tr>
   <tr>
-    <td align="center">📵</td>
-    <td><b>Anti-Call</b><br/>Tolak panggilan suara/video otomatis dengan pesan custom</td>
+    <td align="center">📱</td>
+    <td><b>iPhone Quoted Chat (<code>.iqc</code>)</b><br/>Ubah teks/pesan jadi screenshot chat ala iPhone (library <code>iqc-canvas</code>) lengkap dengan bar reaksi & menu konteks iOS.</td>
+  </tr>
+  <tr>
+    <td align="center">🗣️</td>
+    <td><b>TTS 142 Bahasa (<code>.tts</code>)</b><br/>284 suara Edge TTS, picker bahasa & suara, deteksi bahasa otomatis, dan auto-translate teks ke bahasa suara tujuan via AI.</td>
   </tr>
   <tr>
     <td align="center">📥</td>
-    <td><b>Multi Downloader</b><br/>TikTok, Instagram, Facebook, YouTube dalam satu bot</td>
-  </tr>
-  <tr>
-    <td align="center">🖼️</td>
-    <td><b>Sticker Tools</b><br/>Buat sticker dari gambar, konversi sticker ke gambar</td>
+    <td><b>Multi Downloader</b><br/>TikTok (tanpa watermark), Instagram, Facebook, YouTube (<code>.play</code> / <code>.ytmp3</code> / <code>.ytmp4</code> via yt-dlp), Twitter/X, dan lainnya.</td>
   </tr>
   <tr>
     <td align="center">🎞️</td>
-    <td><b>Tenor GIF Picker (.animgif)</b><br/>Cari GIF anime via Tenor API, pilih format GIF SD / HD / MP4 lewat tombol interaktif</td>
+    <td><b>GIF Picker (<code>.animgif</code>)</b><br/>Cari GIF via Tenor dengan query bebas, pilih format GIF SD / HD / MP4, caption memuat statistik file asli.</td>
   </tr>
   <tr>
     <td align="center">🏷️</td>
-    <td><b>Sticker WM Otomatis</b><br/>Pack & author stiker video/GIF otomatis dari config; <code>.wm</code> custom dengan auto-detect</td>
+    <td><b>Sticker Tools Lengkap</b><br/><code>.sticker</code> gambar/video/GIF, <code>.wm</code>/<code>.swm</code> pack & author custom (otomatis dari config bila tanpa argumen), <code>.toimg</code>, <code>.smeme</code>.</td>
   </tr>
   <tr>
-    <td align="center">📲</td>
-    <td><b>View-Once Bypass</b><br/>Ambil & simpan media view-once sebelum menghilang</td>
+    <td align="center">👁️</td>
+    <td><b>Auto Read Story</b><br/>Lihat & react story kontak otomatis dengan delay acak natural 1–20 detik, plus backup story ke Telegram.</td>
   </tr>
   <tr>
-    <td align="center">📡</td>
-    <td><b>Telegram Integration</b><br/>Forward story/log WhatsApp ke Telegram bot</td>
+    <td align="center">🤖</td>
+    <td><b>Jadibot Multi-Session</b><br/>Clone bot ke nomor WhatsApp lain via pairing code — start berurutan dengan jeda agar stabil & aman dari rate-limit.</td>
+  </tr>
+  <tr>
+    <td align="center">🛡️</td>
+    <td><b>Proteksi Grup & Chat</b><br/>AntiLink, AntiTag, AntiTagSW, AntiDelete, AntiCall — semua dengan toggle per grup / global dan laporan akurat.</td>
+  </tr>
+  <tr>
+    <td align="center">📊</td>
+    <td><b>Info Realtime</b><br/><code>.cekip</code> info nomor WA (bisnis, operator, status, foto profil) • <code>.infobola klasemen</code> klasemen liga realtime • <code>.ping</code> dengan gauge skor kualitas koneksi.</td>
   </tr>
 </table>
 
 ---
 
-## ⚡ Deploy ke Replit (Paling Cepat)
+## 🆕 Update Terbaru — V27.5
 
-> Replit adalah cara **tercepat** untuk menjalankan Wily Bot — tidak perlu install apapun, tidak perlu CLI, langsung dari browser. Cocok untuk pemula yang baru mulai.
+> 📅 **Jumat, 23 Oktober 2026** — ✨ 2 Fitur Baru • 🐛 3 Fix Bug • 🚀 7 Perubahan
+> 📄 Detail lengkap per item (penyebab & cara fix): [`INFORMASI_UPDATE_V27.5.txt`](./INFORMASI_UPDATE_V27.5.txt)
 
-<div align="center">
+**✨ Fitur Baru**
+1. **`.iqc` — iPhone Quoted Chat** — teks/pesan jadi screenshot ala iPhone.
+2. **`.stickerai` — Sticker dari Prompt AI** — gambar AI (flux) langsung jadi sticker bersih.
 
-[![Run on Replit](https://img.shields.io/badge/▶%20Run%20on-Replit-F26207?style=for-the-badge&logo=replit&logoColor=white)](https://replit.com/new/github/hitlabmodv2/ReadSwDika_WhiskeySockets)
+**🐛 Fix Bug Pilihan**
+- **`.stickerly` paket blank & kadang kekirim satuan** — upload memakai kunci khusus sticker-pack (`/mms/sticker-pack`) + retry 3x anti putus koneksi; satuan hanya jaring pengaman terakhir.
+- **AntiTag** — mention massal ditangani akurat tanpa salah hapus pesan admin.
 
-</div>
-
-<details>
-<summary><b>🔽 Klik untuk panduan lengkap deploy ke Replit (Bahasa Indonesia)</b></summary>
-
-<br/>
-
-### Apa itu Replit?
-Replit adalah platform coding berbasis browser yang bisa menjalankan bot Node.js secara online. Kamu bisa deploy, edit kode, dan lihat log — semua dari browser tanpa install apapun di komputer.
-
----
-
-### Persyaratan
-- Akun Replit (daftar gratis di [replit.com](https://replit.com))
-- Akun GitHub (untuk fork repo)
+**🚀 Perubahan Pilihan**
+- **`.fb` / `.ig` / `.tt` caption full AI** — Gemini API resmi dari `config.json` + analisis 5 frame video.
+- **`.stickerly`** — loading persen asli menyatu di 1 pesan, penjaga anti dobel, pesan daftar pilihan berubah jadi loading, pesan sukses info realtime penuh.
+- **`.tts`** — 5 suara → 142 bahasa / 284 suara + auto-translate.
+- **`.ping`** — gauge skor kualitas koneksi A+ s/d D.
 
 ---
 
-### Langkah-Langkah Deploy
+## 📦 Instalasi
 
-#### 1. Fork Repository ke GitHub Kamu
-Sebelum deploy ke Replit, fork dulu repo ini ke akun GitHub kamu:
-- Klik tombol **Fork** di pojok kanan atas halaman GitHub repo ini
-- Pilih akun GitHub kamu sebagai tujuan fork
-
-#### 2. Deploy ke Replit via Tombol
-- Klik tombol **"Run on Replit"** di atas, **ATAU**
-- Buka [replit.com/new/github](https://replit.com/new/github) dan paste URL repo GitHub kamu
-- Replit akan otomatis mendeteksi project Node.js dan menyiapkan lingkungan
-
-#### 3. Atur Environment Variables (Wajib!)
-Setelah project terbuka di Replit, pergi ke menu **Secrets** (ikon 🔒 di panel kiri) dan tambahkan:
-
-| Key | Value | Keterangan |
-|---|---|---|
-| `BOT_NUMBER_PAIR` | `6281234567890` | Nomor WA bot (tanpa +, pakai kode negara) |
-| `BOT_SESSION_NAME` | `hisoka` | Nama sesi bot (bebas, huruf kecil) |
-| `BOT_PREFIX` | `.` | Prefix command bot |
-| `BOT_MAX_RETRIES` | `5` | Maksimal reconnect otomatis |
-| `BOT_LOG_MESSAGE` | `true` | Log pesan masuk |
-| `BOT_LOGGER_LEVEL` | `silent` | Level log Baileys |
-
-> ⚠️ **`BOT_NUMBER_PAIR` wajib diisi** — ini nomor WhatsApp yang akan dipasangkan dengan bot.
-
-> 💡 Di Replit, Environment Variables disimpan di **Secrets** (bukan file `.env`) agar aman dan tidak ikut terupload ke GitHub.
-
-#### 4. Jalankan Bot
-- Klik tombol **▶ Run** di bagian atas Replit
-- Replit akan otomatis install dependencies (`npm install`) lalu menjalankan bot
-- Tunggu beberapa detik hingga muncul **Pairing Code** di panel Console
-
-#### 5. Ambil Pairing Code dari Console
-Perhatikan panel **Console** di Replit, akan muncul output seperti:
-```
-📌 Kode Pairing: ABCD-1234
-```
-
-#### 6. Pairing WhatsApp
-1. Buka **WhatsApp** di HP
-2. Ketuk **⋮** (titik tiga) → **Perangkat Tertaut**
-3. Pilih **Tautkan Perangkat** → **Tautkan dengan Nomor Telepon**
-4. Masukkan kode pairing dari Console Replit
-
-#### 7. Bot Siap Digunakan! 🎉
-Setelah pairing berhasil, bot akan online dan siap menerima command.
-
----
-
-### Menjaga Sesi Agar Tidak Hilang (Penting!)
-
-> ⚠️ Replit pada free tier dapat **mematikan** project saat tidak aktif. Sesi WhatsApp bot yang tersimpan di folder `sessions/` bisa hilang jika container di-reset total.
-
-**Tips agar sesi tetap aman:**
-- Gunakan **Replit Deployments** (klik tombol **Deploy** di panel atas) untuk membuat bot berjalan 24/7 sebagai production app — sesi tersimpan permanen
-- Atau aktifkan **Always On** jika kamu menggunakan Replit Core/Teams
-- Sebagai alternatif, pertimbangkan Railway atau Fly.io untuk storage volume permanen gratis
-
----
-
-### Deploy ke Production (Replit Deployments)
-
-Jika ingin bot berjalan **24/7 secara permanen** di Replit:
-
-1. Klik tombol **Deploy** (ikon roket 🚀) di bagian atas editor Replit
-2. Pilih tipe deployment **Reserved VM** (untuk Node.js bot)
-3. Ikuti langkah-langkah setup deployment
-4. Setelah deployed, bot akan berjalan terus meskipun browser ditutup
-5. Sesi WhatsApp tersimpan permanen di environment production
-
-> ✅ Replit Deployments memiliki storage persistent — sesi login WhatsApp **tidak hilang** meskipun bot restart.
-
----
-
-### Perintah Berguna di Replit Shell
-
-Buka tab **Shell** di Replit untuk menjalankan perintah manual:
-
-| Perintah | Fungsi |
-|---|---|
-| `npm start` | Jalankan bot manual |
-| `npm install` | Install ulang dependencies |
-| `ls sessions/` | Cek apakah sesi tersimpan |
-| `cat config.json` | Lihat konfigurasi bot |
-
----
-
-### Tips & Catatan
-- Replit adalah cara **termudah** untuk mencoba bot — tidak perlu VPS atau CLI
-- Untuk penggunaan jangka panjang, gunakan **Replit Deployments** agar bot jalan 24/7
-- Edit `config.json` langsung di editor Replit untuk konfigurasi bot
-- Lihat log bot di panel **Console** secara real-time
-
-</details>
-
----
-
-## 🚀 Deploy ke Railway
-
-> Railway adalah platform hosting cloud gratis (ada free tier) yang bisa jalankan bot kamu 24 jam tanpa perlu VPS.
-
-<div align="center">
-
-[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/template?template=https://github.com/Wilykun1994/wily-bot)
-
-</div>
-
-<details>
-<summary><b>🔽 Klik untuk panduan lengkap deploy ke Railway (Bahasa Indonesia)</b></summary>
-
-<br/>
-
-### Apa itu Railway?
-Railway adalah layanan cloud hosting yang memungkinkan kamu menjalankan bot Node.js secara online tanpa perlu menyewa VPS sendiri. Bot kamu akan jalan 24/7 selama ada koneksi internet.
-
----
-
-### Langkah-Langkah Deploy
-
-#### 1. Siapkan Repository GitHub
-Sebelum deploy, pastikan kode bot kamu sudah ada di GitHub:
-```bash
-git init
-git add .
-git commit -m "first commit"
-git remote add origin https://github.com/USERNAME/wily-bot.git
-git push -u origin main
-```
-
-#### 2. Buat Akun Railway
-- Buka [railway.com](https://railway.com) dan daftar dengan akun GitHub
-- Verifikasi akun kamu (penting untuk bisa deploy)
-
-#### 3. Buat Proyek Baru
-- Klik tombol **"Deploy on Railway"** di atas, **ATAU**
-- Masuk ke dashboard Railway → klik **"New Project"** → pilih **"Deploy from GitHub repo"**
-- Pilih repository `wily-bot` kamu
-
-#### 4. Atur Environment Variables (Wajib!)
-Setelah proyek dibuat, pergi ke tab **Variables** di Railway dan tambahkan variabel berikut:
-
-| Variabel | Nilai | Keterangan |
-|---|---|---|
-| `BOT_NUMBER_PAIR` | `6281234567890` | Nomor WA bot (tanpa +, pakai kode negara) |
-| `BOT_SESSION_NAME` | `hisoka` | Nama sesi bot (bebas) |
-| `BOT_LOGGER_LEVEL` | `silent` | Level log (biarkan silent) |
-| `BOT_LOG_MESSAGE` | `true` | Log pesan masuk |
-| `BOT_MAX_RETRIES` | `5` | Maksimal reconnect otomatis |
-| `BOT_PREFIX` | `.` | Prefix command bot |
-| `BOT_ALLOWED_NO_PREFIX` | `false` | Izinkan command tanpa prefix |
-
-> ⚠️ **`BOT_NUMBER_PAIR` wajib diisi** — ini nomor WhatsApp yang akan dipairing dengan bot.
-
-#### 5. Tambahkan Volume (WAJIB — Agar Sesi Tidak Hilang!)
-
-> ⚠️ **Tanpa Volume, setiap kali Railway restart bot → sesi WhatsApp HILANG → harus pairing ulang dari awal!**
-
-Cara pasang Volume di Railway:
-
-1. Buka **service** bot kamu di Railway dashboard
-2. Klik tab **"Volumes"** (di sebelah Variables, Settings)
-3. Klik tombol **"Create Volume"** / **"Add Volume"**
-4. Tambahkan **3 volume** berikut satu per satu:
-
-| No | Isi kolom **Mount Path** | Isi kolom **Volume Name** |
-|---|---|---|
-| 1 | `/app/sessions` | `sessions` |
-| 2 | `/app/jadibot` | `jadibot` |
-| 3 | `/app/data` | `data` |
-
-5. Klik **"Add"** / **"Save"** untuk setiap volume
-6. Railway akan otomatis redeploy setelah volume ditambahkan
-
-> ✅ Setelah volume dipasang, sesi login WhatsApp akan **tetap tersimpan** meskipun bot restart berkali-kali — tidak perlu pairing ulang.
-
-#### 6. Deploy & Lihat Log
-- Railway otomatis build menggunakan **Dockerfile** yang sudah ada
-- Buka tab **"Logs"** untuk lihat proses deployment
-- Tunggu sampai muncul **Pairing Code** di log
-
-#### 7. Pairing WhatsApp
-Saat bot pertama kali jalan, Railway akan tampilkan **Pairing Code** di log, contoh:
-```
-📌 Kode Pairing: ABCD-1234
-```
-Cara masukkan kode:
-1. Buka **WhatsApp** di HP
-2. Ketuk **⋮** (titik tiga) → **Perangkat Tertaut**
-3. Pilih **Tautkan Perangkat** → **Tautkan dengan Nomor Telepon**
-4. Masukkan kode pairing dari log Railway
-
-#### 8. Bot Siap Digunakan! 🎉
-Setelah pairing berhasil, bot akan online dan bisa menerima command.
-
----
-
-### File Penting untuk Railway
-
-| File | Fungsi |
-|---|---|
-| `Dockerfile` | Instruksi untuk Railway build lingkungan bot (Node.js 20 + FFmpeg) |
-| `railway.toml` | Konfigurasi build dan restart otomatis jika bot crash |
-| `.env` | **Jangan diupload!** Gunakan Variables di Railway dashboard |
-
----
-
-### Tips & Catatan
-- **Free tier Railway** memberikan $5 kredit/bulan, cukup untuk bot ringan
-- Jika bot tiba-tiba mati, Railway akan **restart otomatis** (sudah dikonfigurasi)
-- Sesi login tersimpan di volume, jadi **tidak perlu pairing ulang** setelah restart
-- Jika volume belum diatur, sesi akan hilang setiap kali Railway restart container
-
-</details>
-
----
-
-## ✈️ Deploy ke Fly.io (Gratis + Volume)
-
-> Fly.io adalah pilihan terbaik jika ingin **gratis selamanya** dengan **Volume permanen** (sesi tidak hilang saat restart). Mendukung Docker langsung — `Dockerfile` yang sudah ada langsung bisa dipakai.
-
-<div align="center">
-
-[![Deploy on Fly.io](https://img.shields.io/badge/Deploy%20ke-Fly.io-8B5CF6?style=for-the-badge&logo=fly.io&logoColor=white)](https://fly.io/docs/launch/)
-
-</div>
-
-<details>
-<summary><b>🔽 Klik untuk panduan lengkap deploy ke Fly.io (Bahasa Indonesia)</b></summary>
-
-<br/>
-
-### Apa itu Fly.io?
-Fly.io adalah platform cloud yang menjalankan container Docker di server global. Free tier-nya memberikan **3 VM gratis** dan **3GB Volume storage gratis** — cukup untuk menjalankan bot WhatsApp 24/7 tanpa bayar.
-
----
-
-### Persyaratan
-- Akun Fly.io (daftar di [fly.io](https://fly.io))
-- `flyctl` (CLI Fly.io) terinstal di komputer
-
----
-
-### Langkah-Langkah Deploy
-
-#### 1. Install flyctl (CLI Fly.io)
-
-**Windows:**
-```powershell
-iwr https://fly.io/install.ps1 -useb | iex
-```
-
-**Linux / Mac:**
-```bash
-curl -L https://fly.io/install.sh | sh
-```
-
-#### 2. Login ke Fly.io
-```bash
-fly auth login
-```
-Browser akan terbuka → login dengan akun Fly.io kamu.
-
-#### 3. Clone & Masuk Folder Bot
-```bash
-git clone https://github.com/USERNAME/wily-bot.git
-cd wily-bot
-```
-
-#### 4. Buat App di Fly.io
-```bash
-fly launch --no-deploy
-```
-- Saat ditanya nama app, ketik: `wily-bot` (atau nama lain)
-- Saat ditanya region, pilih: **Singapore (sin)** — paling dekat ke Indonesia
-- File `fly.toml` sudah tersedia, pilih **"Yes"** jika ditanya pakai yang ada
-
-#### 5. Buat Volume (Gratis 3GB)
-Jalankan perintah berikut **satu per satu**:
-```bash
-fly volumes create sessions_vol --size 1 --region sin
-fly volumes create jadibot_vol  --size 1 --region sin
-fly volumes create data_vol     --size 1 --region sin
-```
-
-> ✅ Volume ini **gratis** dan **permanen** — sesi WhatsApp tidak akan hilang meskipun bot restart berkali-kali.
-
-#### 6. Set Environment Variables (Wajib!)
-```bash
-fly secrets set BOT_NUMBER_PAIR=6281234567890
-fly secrets set BOT_SESSION_NAME=hisoka
-fly secrets set BOT_PREFIX=.
-fly secrets set BOT_MAX_RETRIES=5
-fly secrets set BOT_LOG_MESSAGE=true
-```
-
-> ⚠️ Ganti `6281234567890` dengan nomor WhatsApp bot kamu (tanpa +, pakai kode negara).
-
-#### 7. Deploy Bot
-```bash
-fly deploy
-```
-Fly.io akan build Docker image dan jalankan bot. Tunggu sampai selesai.
-
-#### 8. Lihat Log & Ambil Pairing Code
-```bash
-fly logs
-```
-Tunggu sampai muncul **Pairing Code** di log, contoh:
-```
-📌 Kode Pairing: ABCD-1234
-```
-
-#### 9. Pairing WhatsApp
-1. Buka **WhatsApp** di HP
-2. Ketuk **⋮** (titik tiga) → **Perangkat Tertaut**
-3. Pilih **Tautkan Perangkat** → **Tautkan dengan Nomor Telepon**
-4. Masukkan kode pairing dari log Fly.io
-
-#### 10. Bot Siap! 🎉
-Setelah pairing berhasil, bot akan online 24/7.
-
----
-
-### Perintah Berguna
-
-| Perintah | Fungsi |
-|---|---|
-| `fly logs` | Lihat log bot secara real-time |
-| `fly status` | Cek status bot |
-| `fly deploy` | Update bot setelah edit kode |
-| `fly ssh console` | Masuk langsung ke dalam container |
-| `fly apps restart wily-bot` | Restart bot |
-
----
-
-### File Penting untuk Fly.io
-
-| File | Fungsi |
-|---|---|
-| `Dockerfile` | Sudah ada — dipakai langsung oleh Fly.io |
-| `fly.toml` | Konfigurasi app, volume, dan region Fly.io |
-| `.env` | **Jangan diupload!** Gunakan `fly secrets set` |
-
----
-
-### Tips & Catatan
-- **Free tier Fly.io** memberikan 3 VM + 3GB storage gratis selamanya
-- Volume `sessions_vol`, `jadibot_vol`, `data_vol` sudah dikonfigurasi di `fly.toml`
-- Region **sin (Singapore)** dipilih karena paling dekat ke Indonesia → koneksi lebih stabil
-- Jika bot crash, Fly.io akan **restart otomatis**
-
-</details>
-
----
-
-## 📦 Instalasi Manual
-
-<details>
-<summary><b>🔽 Klik untuk melihat langkah instalasi lengkap</b></summary>
-
-<br/>
-
-### Persyaratan
-- **Node.js** v18 atau lebih baru
-- **npm** v8+
-- **ffmpeg** (untuk YouTube audio/video)
-- **yt-dlp** (sudah disertakan di folder `tmp/`)
-
-### Langkah-langkah
+**Persyaratan:** Node.js **20+**, npm, **ffmpeg**, koneksi internet.
 
 ```bash
-# 1. Clone repositori
-git clone https://github.com/username/wily-bot.git
-cd wily-bot
+# 1. Clone repo
+git clone https://github.com/Wilykun/ReadSwEsm_V1.git
+cd ReadSwEsm_V1
 
 # 2. Install dependensi
 npm install
 
-# 3. Pastikan yt-dlp bisa dieksekusi
-chmod +x tmp/yt-dlp
+# 3. Atur config.json (lihat bagian Konfigurasi)
 
-# 4. Edit konfigurasi (lihat bagian Konfigurasi)
-nano config.json
-
-# 5. Jalankan bot
+# 4. Jalankan bot
 node index.js
 ```
 
-### Pairing Bot
-Saat pertama kali dijalankan, bot akan meminta nomor WhatsApp untuk mendapatkan **Pairing Code**. Masukkan kode tersebut di WhatsApp:
+Saat pertama jalan, masukkan nomor WhatsApp bot untuk menerima **Pairing Code**, lalu di HP:
 
-> **Perangkat Tertaut → Tautkan Perangkat → Tautkan dengan Nomor Telepon**
+> **WhatsApp → Perangkat Tertaut → Tautkan Perangkat → Tautkan dengan Nomor Telepon → masukkan kode**
 
-</details>
+Untuk panel **Pterodactyl**, cukup pakai startup bawaan repo:
+
+```bash
+bash start-ptero.sh   # atau: npm start
+```
+
+---
+
+## 🚀 Deploy
+
+File deploy sudah tersedia di repo — tinggal pakai:
+
+| Platform | File | Catatan |
+|---|---|---|
+| **Railway** | `railway.toml` + `Dockerfile` | Pasang **Volume** untuk `/app/sessions`, `/app/data`, `/app/jadibot` agar sesi tidak hilang saat restart |
+| **Fly.io** | `fly.toml` + `Dockerfile` | Buat volume per mount di `fly.toml`; region `sin` paling dekat ke Indonesia |
+| **Pterodactyl** | `start-ptero.sh` | Startup resmi bot di panel (dipakai juga oleh `npm start`) |
+| **Docker** | `Dockerfile` | Node.js 20 + ffmpeg sudah termasuk di image |
+
+> ⚠️ Di semua platform: folder **`sessions/`** dan **`data/`** wajib persistent. Tanpa volume, setiap restart = pairing ulang dari awal.
 
 ---
 
 ## ⚙️ Konfigurasi
 
-<details>
-<summary><b>🔽 Klik untuk melihat panduan konfigurasi config.json</b></summary>
-
-<br/>
-
-Edit file `config.json` sesuai kebutuhan:
+Semua pengaturan terpusat di **`config.json`** — dibaca ulang oleh fitur yang membutuhkannya, jadi sebagian perubahan langsung berlaku tanpa restart.
 
 ```json
 {
   "owners": ["6281234567890"],
-
-  "autoOnline": {
-    "enabled": true,
-    "intervalSeconds": 15
+  "geminiApiKey": "",
+  "sticker": {
+    "pack": "Nama Pack",
+    "author": "Nama Author"
   },
-
   "autoReadStory": {
     "enabled": true,
     "autoReaction": true,
     "randomDelay": true,
     "delayMinMs": 1000,
     "delayMaxMs": 20000
-  },
-
-  "antiDelete": {
-    "enabled": false,
-    "privateChat": true,
-    "groupChat": true
-  },
-
-  "antiCall": {
-    "enabled": false,
-    "message": "Maaf, tidak bisa menerima panggilan.",
-    "whitelist": []
-  },
-
-  "telegram": {
-    "enabled": false,
-    "token": "BOT_TOKEN_TELEGRAM",
-    "chatId": "CHAT_ID_TELEGRAM"
-  },
-
-  "autoSimi": {
-    "enabled": false,
-    "apiKey": "API_KEY_GROQ"
-  },
-
-  "sticker": {
-    "pack": "Nama Pack",
-    "author": "Nama Author"
   }
 }
 ```
 
-| Key | Deskripsi |
+| Key | Fungsi |
 |---|---|
-| `owners` | Nomor WhatsApp owner (format: 628xxx tanpa +) |
-| `autoOnline` | Jaga status online secara berkala |
-| `autoReadStory` | Auto lihat & react story |
-| `antiDelete` | Simpan pesan yang dihapus |
-| `antiCall` | Tolak panggilan otomatis |
-| `telegram` | Forward ke Telegram bot |
-| `autoSimi` | Balas otomatis dengan AI |
-
-</details>
+| `owners` | Nomor owner bot (format `628xxx`, tanpa `+`) |
+| `geminiApiKey` | API key Google Gemini (dari [AI Studio](https://aistudio.google.com/apikey)) — mengaktifkan caption & vision AI di `.fb` / `.ig` / `.tt`. Kosong = fitur jalan dengan jalur cadangan |
+| `sticker.pack` / `sticker.author` | Brand pack & author untuk semua sticker (`.sticker`, `.wm`, `.stickerai`, `.stickerly`) |
+| `autoReadStory` | Auto lihat & react story + rentang delay acaknya |
+| `autoOnline`, `antiDelete`, `antiCall`, `telegram`, `autoSimi` | Toggle & pengaturan fitur latar — detailnya langsung di `config.json` |
 
 ---
 
-## 📖 Daftar Command
+## 📖 Daftar Command Pilihan
 
-<details>
-<summary><b>🔽 Utilitas & Info</b></summary>
-
-<br/>
-
-| Command | Deskripsi |
-|---|---|
-| `.menu` | Tampilkan semua daftar command |
-| `.ping` / `.p` | Cek kecepatan respons bot |
-| `.info` | Informasi detail bot |
-| `.owner` | Tampilkan kontak owner |
-| `.quoted` / `.q` | Ambil isi pesan yang di-quote |
-
-</details>
+Daftar lengkap **306 command** selalu tersedia di dalam bot lewat `.menu`. Ini cuplikan per kategori:
 
 <details>
 <summary><b>🔽 Sticker & Media</b></summary>
 
-<br/>
-
-| Command | Deskripsi |
+| Command | Fungsi |
 |---|---|
-| `.s` / `.sticker` | Buat sticker dari gambar/video |
-| `.toimg` | Konversi sticker ke gambar |
-| `.vo` / `.rvo` | Ambil media View-Once |
+| `.stickerai <prompt>` | Buat sticker dari prompt AI |
+| `.s` / `.sticker` | Buat sticker dari gambar/video/GIF |
+| `.wm` / `.swm` | Sticker dengan pack & author custom |
+| `.stickerly <keyword/link>` | Cari & kirim pack Stickerly sebagai 1 paket |
+| `.stickerpack <keyword>` | Sama, langsung mode paket |
+| `.toimg` | Sticker → gambar |
+| `.iqc <teks>` | Screenshot chat ala iPhone |
 
 </details>
 
 <details>
 <summary><b>🔽 Downloader</b></summary>
 
-<br/>
-
-| Command | Deskripsi |
+| Command | Fungsi |
 |---|---|
-| `.tt <link>` | Download video TikTok (tanpa watermark) |
-| `.ig <link>` | Download foto/video Instagram |
-| `.fb <link>` | Download video Facebook |
-| `.play <judul>` | Cari & download audio YouTube (MP3) |
-| `.ytmp3 <link>` | Download audio YouTube (MP3) via URL |
-| `.ytmp4 <link>` | Download video YouTube (MP4, 360p) via URL |
+| `.tt <link>` | TikTok tanpa watermark — caption AI |
+| `.ig <link>` | Foto/video/reel Instagram — caption AI |
+| `.fb <link>` | Video/reel/story Facebook — caption AI |
+| `.play <judul>` | Cari & unduh audio YouTube |
+| `.ytmp3` / `.ytmp4 <link>` | Unduh YouTube via URL |
+| `.animgif <query>` | Cari GIF di Tenor |
 
 </details>
 
 <details>
-<summary><b>🔽 Grup</b></summary>
+<summary><b>🔽 AI & Suara</b></summary>
 
-<br/>
-
-| Command | Deskripsi |
+| Command | Fungsi |
 |---|---|
-| `.hidetag` / `.ht` | Tag semua anggota grup secara tersembunyi |
-| `.all` | Mention semua anggota grup |
-| `.group open` | Buka grup (hanya admin) |
-| `.group close` | Tutup grup (hanya admin) |
+| `.tts <teks>` | Text-to-speech 142 bahasa / 284 suara |
+| `.gemini <tanya>` | Chat AI Gemini |
+| `.simi on/off` | Auto-reply AI di chat |
 
 </details>
 
 <details>
-<summary><b>🔽 Auto & Fitur Aktif</b></summary>
+<summary><b>🔽 Info & Tools</b></summary>
 
-<br/>
-
-| Command | Deskripsi |
+| Command | Fungsi |
 |---|---|
-| `.simi on/off` | Aktifkan/nonaktifkan Auto Simi AI |
-| `.anticall on/off` | Aktifkan/nonaktifkan tolak panggilan suara |
-| `.anticallvid on/off` | Aktifkan/nonaktifkan tolak panggilan video |
-| `.antidel on/off` | Aktifkan/nonaktifkan anti-delete |
-| `.typing on/off` | Aktifkan/nonaktifkan auto typing |
-| `.recording on/off` | Aktifkan/nonaktifkan auto recording |
-| `.readsw on/off` | Aktifkan/nonaktifkan auto baca story |
+| `.ping` | Kecepatan bot + gauge skor kualitas |
+| `.cekip <nomor>` | Info nomor WhatsApp realtime |
+| `.infobola klasemen` | Klasemen liga realtime |
+| `.readsw` / `.ceksw` | Baca & cek story WhatsApp |
+| `.rvo` / `.rvo2` | Buka media view-once |
 
 </details>
 
 <details>
-<summary><b>🔽 Owner Only</b></summary>
+<summary><b>🔽 Grup & Proteksi</b></summary>
 
-<br/>
-
-| Command | Deskripsi |
+| Command | Fungsi |
 |---|---|
-| `.eval <kode>` | Jalankan kode JavaScript |
-| `.bash <perintah>` | Jalankan perintah terminal |
-| `.addowner <nomor>` | Tambah owner baru |
-| `.backup` | Backup file session/config |
-| `.restart` | Restart bot |
+| `.antilink on/off` | Hapus pesan berisi link |
+| `.antitag on/off` | Tangani mention massal |
+| `.antidel on/off` | Kirim ulang pesan yang dihapus |
+| `.anticall on/off` | Tolak panggilan otomatis |
+| `.hidetag` / `.ghosttag` | Mention semua member (tersembunyi) |
 
 </details>
 
 ---
 
-## 🎬 YouTube Downloader
+## 🗂️ Struktur Proyek
+
+```
+ReadSwEsm_V1/
+├─ index.js               # Entry point bot
+├─ message.js             # Dispatcher pesan → plugin
+├─ config.json            # Semua konfigurasi (+ geminiApiKey)
+├─ SEMUA_FITUR/           # 166 plugin ESM dalam 21 kategori
+│  ├─ ai/        anime/      download/   group/
+│  ├─ jadibot/   maker/      media/      menu/
+│  ├─ music/     readsw/     system/     tools/  …
+├─ src/helper/            # Loader plugin, hot reload, AI prompt, auth state
+├─ sessions/              # Sesi WhatsApp (single-file auth state)
+├─ data/                  # Data runtime (statistik, tracking, cache)
+├─ scripts/               # check-plugins.js + snapshot 306 command
+├─ Dockerfile · fly.toml · railway.toml · start-ptero.sh
+└─ INFORMASI_UPDATE_V27.5.txt
+```
+
+Sistem plugin: setiap command adalah file ESM mandiri dengan metadata (`command`, `tags`, `help`). Tambah fitur = tambah 1 file + daftarkan di hot reload — **tanpa mengutak-atik dispatcher**. Validasi konsistensi plugin & snapshot command:
+
+```bash
+node scripts/check-plugins.js                # cek
+node scripts/check-plugins.js --update-snapshot
+```
+
+---
+
+## 🛡️ Stabilitas & Keamanan
+
+- **Crash Guard** — error di handler tidak menjatuhkan bot; proses berat di-skip otomatis bila melewati batas waktu.
+- **Hot Reload** — plugin & helper diperbarui live; file bermasalah tidak memutus proses utama.
+- **Memory Monitor** — pemakaian RAM dipantau berkala dengan log ringkas.
+- **Auto Cleaner** — file temp hasil download dibersihkan berkala.
+- **Single-File Session** — sesi WhatsApp dalam satu file auth state (`sessions/hisoka.json`), gampang dibackup & dipindah.
+
+---
+
+## ❓ FAQ
 
 <details>
-<summary><b>🔽 Cara penggunaan & contoh hasil</b></summary>
+<summary><b>Pairing code tidak muncul?</b></summary>
 
-<br/>
-
-Bot menggunakan **yt-dlp** (binary terbaru 2026) sebagai engine download, sehingga akurat dan stabil untuk semua video YouTube terbaru.
-
-### `.play <judul lagu>`
-Cari dan download audio dari YouTube berdasarkan kata kunci.
-
-```
-.play shape of you ed sheeran
-.play faded alan walker
-```
-
-**Alur:**
-1. 🔍 Bot cari video yang paling relevan
-2. 📸 Thumbnail + info video langsung muncul
-3. ⬇️ Audio MP3 dikirim ke chat
-4. ✅ Selesai
-
----
-
-### `.ytmp3 <url>`
-Download audio MP3 dari link YouTube langsung.
-
-```
-.ytmp3 https://youtu.be/JGwWNGJdvx8
-.ytmp3 https://www.youtube.com/watch?v=JGwWNGJdvx8
-```
-
----
-
-### `.ytmp4 <url>`
-Download video MP4 (kualitas 360p) dari link YouTube.
-
-```
-.ytmp4 https://youtu.be/dQw4w9WgXcQ
-.ytmp4 https://www.youtube.com/watch?v=dQw4w9WgXcQ
-```
-
----
-
-**Info yang ditampilkan di setiap thumbnail:**
-
-```
-╭═══〔 🎵 YTMP3 DOWNLOADER 〕═══╮
-│
-│ 📌 Shape of You
-│ ⏱️ Durasi  : 3:53
-│ 👁️ Views   : 6.692.687.758
-│ 👤 Channel : Ed Sheeran
-│ 👍 Likes   : 35.415.358
-│ 🔗 Link    : https://youtu.be/JGwWNGJdvx8
-│
-│ ⬇️ Sedang mengunduh audio MP3...
-╰══════════════════════════════╯
-```
-
-**Batas durasi:**
-- `.play` & `.ytmp3` → maksimal **10 menit**
-- `.ytmp4` → maksimal **5 menit**
-
+Pastikan nomor bot benar (format `628xxx`), belum melewati batas 4 perangkat tertaut, dan koneksi stabil. Hapus sesi lama bila korup: matikan bot → hapus isi `sessions/` → jalankan lagi.
 </details>
-
----
-
-## 🤖 Jadibot (Multi-Session)
 
 <details>
-<summary><b>🔽 Cara menggunakan fitur Jadibot</b></summary>
+<summary><b>Sesi hilang setiap restart?</b></summary>
 
-<br/>
-
-Fitur Jadibot memungkinkan siapa saja untuk "meminjam" bot ke nomor WhatsApp mereka sendiri menggunakan pairing code.
-
-### Cara Pakai
-
-```
-.jadibot
-```
-
-Bot akan mengirim **Pairing Code** 8 digit. Masukkan kode tersebut di WhatsApp:
-> **Perangkat Tertaut → Tautkan dengan Nomor Telepon → masukkan kode**
-
-### Command Jadibot
-
-| Command | Deskripsi |
-|---|---|
-| `.jadibot` | Mulai sesi jadibot untuk nomormu |
-| `.stopbot` | Hentikan sesi jadibot |
-| `.listbot` | Lihat daftar jadibot yang aktif |
-
-> **Catatan:** Setiap session jadibot tersimpan di folder `jadibot/` dan tetap aktif meskipun bot di-restart.
-
+Itu tanda storage tidak persistent — pasang Volume untuk `sessions/` dan `data/` (Railway/Fly.io) atau pastikan folder tidak terhapus di panel/VPS kamu.
 </details>
-
----
-
-## 🛡️ Fitur Keamanan
 
 <details>
-<summary><b>🔽 Detail fitur keamanan bot</b></summary>
+<summary><b>Caption .fb/.ig/.tt tidak full AI?</b></summary>
 
-<br/>
-
-### Anti-Delete
-Saat seseorang menghapus pesan, bot mendeteksinya dan mengirim ulang isi pesan ke chat yang sama.
-
-```
-.antidel on   → aktifkan
-.antidel off  → nonaktifkan
-```
-
-### Anti-Call
-Bot otomatis menolak panggilan masuk dan membalas dengan pesan custom.
-
-```
-.anticall on    → tolak panggilan suara
-.anticallvid on → tolak panggilan video
-```
-
-### Crash Guard
-Bot dilengkapi sistem perlindungan crash global yang mencegah bot mati akibat error tak terduga.
-
-### Memory Monitor
-Bot memantau penggunaan RAM secara berkala dan dapat auto-restart jika melebihi batas yang dikonfigurasi.
-
-### Auto Cleaner
-File temporary (hasil download) dibersihkan otomatis setiap 6 jam.
-
+Isi `geminiApiKey` di `config.json` dengan key dari [Google AI Studio](https://aistudio.google.com/apikey) (gratis). Tanpa key, bot memakai jalur cadangan dan caption hanya berbasis metadata.
 </details>
-
----
-
-## ❓ Troubleshooting / FAQ
 
 <details>
-<summary><b>🔽 Klik untuk melihat solusi masalah umum</b></summary>
+<summary><b>Command tidak dikenali?</b></summary>
 
-<br/>
-
-### ❌ Pairing Code tidak muncul di log
-
-**Penyebab & solusi:**
-- Pastikan `BOT_NUMBER_PAIR` sudah diisi dengan nomor yang benar (format: `628xxxxxxx`, tanpa + atau spasi)
-- Nomor harus aktif di WhatsApp dan **belum** terhubung ke perangkat lain melebihi batas (max 4 perangkat tertaut)
-- Coba hapus folder sesi lama lalu restart bot:
-  ```bash
-  rm -rf sessions/hisoka/
-  npm start
-  ```
-- Pastikan koneksi internet stabil saat bot pertama kali dijalankan
-
----
-
-### ❌ Sesi hilang / harus pairing ulang setiap restart
-
-**Penyebab & solusi:**
-- Di Railway: Volume belum dipasang — ikuti langkah pasang Volume di section Railway
-- Di Fly.io: Volume belum dibuat — jalankan `fly volumes create`
-- Di Replit: Gunakan **Replit Deployments** agar storage persistent; free tier bisa di-reset sewaktu-waktu
-- Di VPS/lokal: Pastikan folder `sessions/` tidak dihapus oleh skrip cleanup
-
----
-
-### ❌ Bot tidak merespons command sama sekali
-
-**Penyebab & solusi:**
-- Cek apakah bot benar-benar online — lihat log, pastikan ada tulisan `ONLINE 🟢`
-- Pastikan command diawali dengan prefix yang benar (default: `.`) → contoh: `.menu`
-- Cek apakah nomor kamu masuk daftar owner di `config.json` untuk command yang membutuhkan akses owner
-- Jika bot baru saja pairing, tunggu 10–30 detik agar sesi stabil dulu
-- Coba kirim pesan dari private chat dulu, bukan grup
-
----
-
-### ❌ Error saat `npm install`
-
-**Penyebab & solusi:**
-- Pastikan Node.js versi **18 atau lebih baru**:
-  ```bash
-  node -v
-  ```
-- Hapus folder `node_modules` dan file `package-lock.json` lalu install ulang:
-  ```bash
-  rm -rf node_modules package-lock.json
-  npm install
-  ```
-- Pastikan koneksi internet tidak terputus saat install
-
----
-
-### ❌ Jadibot tidak bisa connect / pairing code jadibot tidak muncul
-
-**Penyebab & solusi:**
-- Nomor target jadibot harus aktif di WhatsApp dan belum melebihi batas 4 perangkat tertaut
-- Tunggu 60 detik sebelum coba lagi jika baru saja gagal (WhatsApp ada cooldown)
-- Pastikan nomor diisi lengkap dengan kode negara: `628xxxxxxx` (tanpa + dan tanpa spasi)
-- Jika pairing code sudah dapat tapi tidak bisa diinput: code expired dalam 60 detik, minta generate ulang dengan command yang sama
-
----
-
-### ❌ Bot sering disconnect / auto-reconnect terus
-
-**Penyebab & solusi:**
-- Kemungkinan WhatsApp mendeteksi aktivitas tidak normal — kurangi frekuensi kirim pesan massal
-- Cek apakah ada lebih dari 4 perangkat tertaut di akun WA tersebut — hapus perangkat lama
-- Koneksi internet server tidak stabil — coba ganti provider hosting
-- Jika terjadi di Railway/Fly.io: cek memory usage, bot mungkin di-restart karena kehabisan RAM
-
----
-
-### ❌ Download YouTube / TikTok / Instagram gagal
-
-**Penyebab & solusi:**
-- Pastikan `yt-dlp` ada di folder `tmp/` dan punya izin eksekusi:
-  ```bash
-  ls -la tmp/yt-dlp
-  chmod +x tmp/yt-dlp
-  ```
-- Update `yt-dlp` ke versi terbaru (YouTube sering memblokir versi lama):
-  ```bash
-  ./tmp/yt-dlp --update
-  ```
-- Untuk video privat atau berumur: tidak bisa didownload tanpa login cookies
-- Coba dengan URL yang berbeda atau versi pendek URL
-
----
-
-### ❌ Memory terlalu tinggi / bot auto-restart karena RAM
-
-**Penyebab & solusi:**
-- Normal terjadi jika banyak file media di folder `tmp/` — bot akan auto-clean setiap 6 jam
-- Paksa bersihkan manual:
-  ```bash
-  rm -rf tmp/*.mp4 tmp/*.mp3 tmp/*.jpg tmp/*.png
-  ```
-- Kurangi `autoDetectPercentage` di `config.json` (default 90%) agar bot restart lebih awal sebelum crash:
-  ```json
-  "autoDetectPercentage": 80
-  ```
-- Di Railway/Fly.io: naikkan RAM allocation jika tersedia di plan kamu
-
----
-
-### ❌ Fitur AI / Simi tidak merespons
-
-**Penyebab & solusi:**
-- Pastikan `autoSimi.enabled` di `config.json` di-set `true`
-- Isi `apiKey` yang valid di bagian `autoSimi` atau `wilyAI`
-- Cek koneksi server ke API eksternal (Groq, Simi, dll) tidak diblokir oleh firewall hosting
-
----
-
-### 💡 Tips Umum
-
-| Masalah | Solusi Cepat |
-|---|---|
-| Bot lambat merespons | Cek ping server, pindah region lebih dekat |
-| Dapat error `ECONNRESET` | Koneksi internet putus, bot akan reconnect otomatis |
-| Dapat error `loggedOut` | WA session expired, perlu pairing ulang |
-| Dapat error `forbidden 403` | Bot reconnect otomatis tanpa hapus sesi (sudah dihandle) |
-| Command tidak dikenali | Cek prefix, cek ejaan command dengan `.menu` |
-| Bot kirim pesan double | Cek apakah ada dua instance bot berjalan bersamaan |
-
+Cek prefix (default `.`) dan ejaan lewat `.menu`. Untuk command khusus owner, pastikan nomormu ada di `owners` pada `config.json`.
 </details>
-
----
-
-## 🆕 Update Terbaru (Patch Oktober 2026)
 
 <details>
-<summary><b>🔽 Klik untuk lihat fix & fitur terbaru — .animgif, .sticker, .wm</b></summary>
+<summary><b>Bot disconnect / reconnect terus?</b></summary>
 
-<br/>
-
-### ✨ Fitur Baru
-1. **🎞️ `.animgif` — Tenor GIF Picker** — ketik `.animgif <query>` (bebas, mis. `.animgif anime neko`), pilih format **GIF SD / GIF HD / MP4** lewat tombol single-select. Caption hasil kaya format WhatsApp (judul, deskripsi, ukuran, durasi, dimensi, tanggal, tag).
-2. **🏷️ `.wm` / `.swm` — auto-detect config** — tanpa argumen, pack & author otomatis dari `config.json`; argumen parsial (`.wm Bang|`) melengkapi sisanya dari config.
-3. **🎬 `.wm` / `.swm` — support video/GIF** — reply ke video/GIF kini jadi sticker animasi (maks 10 detik) dengan pack & author kustom.
-
-### 🔧 Bug Fix
-1. **`.sticker` video/GIF tanpa pack & author** — jalur video hanya convert ffmpeg→webp tanpa metadata EXIF; kini pack & author dari config ditulis ke stiker.
-2. **Caption `.animgif` membingungkan** — kini menampilkan stats file yang benar-benar dikirim ("File Terkirim").
-3. **Race condition temp file ffmpeg** — nama file unik per proses + validasi MP4 sebelum dikirim.
-
+Biasanya koneksi server tidak stabil atau perangkat tertaut melebihi batas. Bot reconnect otomatis tanpa menghapus sesi; cek log untuk kode disconnect bila berulang.
 </details>
 
 ---
 
-## 🆕 Update Terbaru (V27.1)
-
-<details>
-<summary><b>🔽 Klik untuk lihat detail rilis WILY BOT V27.1 — fitur, stabilitas, dan perbaikan terbaru</b></summary>
-
-<br/>
-
-> 📅 Pembaruan aktif 2026. Detail lengkap ada di file [`INFORMASI_UPDATE_V27.1.txt`](./INFORMASI_UPDATE_V27.1.txt).
-
-### ✨ Fitur Baru
-1. **🔗 AntiLink — Bulk Toggle "off all" / "on all"** — atur AntiLink di semua grup terdaftar sekaligus, khusus owner.
-2. **🔗 AntiLink — "add all" / "del all" via Balas Status** — cukup balas pesan status AntiLink dengan satu kata untuk terapkan ke semua grup.
-
-### 🔧 Bug/Error Fix (10)
-1. EmojiMode log SW yang selalu tampil "Default" padahal sudah Custom — kini baca sumber data yang benar.
-2. Status AntiLink "off all" yang tidak sinkron dengan `config.json` — kini `enabled` selalu akurat sesuai jumlah grup aktif.
-3. Error `.antitagsw` "isAntiTagSWEnabled is not a function" — dependency yang kurang sudah dilengkapi.
-4. Kotak info command yang tampil dobel di log konsol — kini tepat satu kali per perintah.
-5. `.listbot` reply `1,p` yang salah menghapus data bot permanen — diperbaiki ke fungsi yang benar.
-6. `.listbot` bot Permanent yang tidak berubah statusnya saat diubah ke durasi terbatas — kini realtime akurat.
-7. Log `[SwTrack] SW dihapus` yang kadang tercatat dobel — kini pakai penanda persisten, tidak lagi duplikat.
-8. **`.d` / `.del` gagal hapus pesan** meski bot sudah admin grup (cache status admin basi) — kini diverifikasi live ke `groupMetadata` sebelum ditolak, akurat untuk pesan lama maupun baru.
-9. **Nomor "cek ke-N" di log MemoryMonitor yang meloncat** (mis. `1` lalu langsung `10`) — kini pakai counter tampilan terpisah agar urut 1, 2, 3, dst secara realtime.
-10. **Auto-jadibot setelah downtime lama** — dari 8+ sesi jadibot, sebagian gagal konek/tidak merespon karena semua di-start bersamaan (rebutan resource & rawan rate-limit WhatsApp) — kini start berurutan dengan jeda 3.5 detik antar nomor, stabil tanpa bentrok.
-
-### 🚀 Perubahan (11)
-1. `.online` — tampilan tombol single-select, konsisten dengan `.readsw` & `.emoji`.
-2. `.typing` / `.recording` / `.readchat` — tampilan tombol single-select yang konsisten.
-3. Versi bot tersentralisasi — cukup ubah `botVersion` di `config.json`.
-4. `.emojicustom` / `.emojidefault` — kasih tahu kalau mode yang dipilih sudah aktif sebelumnya.
-5. MemoryMonitor log — tampilan ringkas, warna jelas, info lengkap (ArrB, Arch, Plat, Host, SysUp, FreeMem).
-6. `.ram` — redesign total dengan format WhatsApp native (tebal, miring, monospace, kutip).
-7. `.ping` — gambar hasil didesain ulang total (720×520px), IP server tidak lagi ditampilkan.
-8. `.listbot` — tampilan kartu per bot dengan badge status dan format WA native.
-9. `.listbot` — mendukung multi-stop bot sekaligus (`1,2,3` atau `1.2.3`).
-10. Startup script (`start-ptero.sh`) — tampilan konsol dirombak, alias `npm start` ditambahkan.
-11. Workflow Replit — dijalankan lewat `start-ptero.sh` agar perilaku sama dengan produksi Pterodactyl.
-
-> 📄 Lihat isi lengkap tiap perubahan (penyebab bug, detail fix) di [`INFORMASI_UPDATE_V27.1.txt`](./INFORMASI_UPDATE_V27.1.txt).
-
-</details>
-
----
-
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0,128C7E,25D366&height=120&section=header&text=Kredit%20%7C%20Tim&fontSize=36&fontColor=ffffff&animation=fadeIn&fontAlignY=65" />
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0,128C7E,25D366&height=110&section=header&text=Kredit&fontSize=34&fontColor=ffffff&animation=fadeIn&fontAlignY=65" />
 
 ## 📝 Kredit
 
 <div align="center">
 
-<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=16&pause=1200&color=25D366&center=true&vCenter=true&width=600&height=35&lines=Terima+kasih+kepada+semua+yang+terlibat+%F0%9F%99%8F;Open+source+%E2%80%94+gratis+untuk+semua+%F0%9F%92%9A;Built+with+%E2%9D%A4%EF%B8%8F+by+Bang+Wily" alt="Credits Typing" />
-
-<br/><br/>
-
 <table>
   <tr>
-    <td align="center" width="200">
-      <img src="https://img.shields.io/badge/🛠️-Pengembang%20Utama-25D366?style=for-the-badge&labelColor=1a1a2e" /><br/>
-      <b>Bang Wily</b><br/>
-      <sub>Wilykun</sub>
+    <td align="center" width="220">
+      <b>Bang Wily</b> <sub>(Wilykun)</sub><br/>
+      Pengembang & Recode
     </td>
-    <td align="center" width="200">
-      <img src="https://img.shields.io/badge/🙏-Base%20Script-3498DB?style=for-the-badge&labelColor=1a1a2e" /><br/>
+    <td align="center" width="220">
       <b>Bang Dika Ardnt</b><br/>
-      <sub>Original Creator</sub>
+      Base Script Original
     </td>
-    <td align="center" width="200">
-      <img src="https://img.shields.io/badge/📚-Library-9B59B6?style=for-the-badge&labelColor=1a1a2e" /><br/>
+    <td align="center" width="220">
       <b>WhiskeySockets</b><br/>
-      <sub><a href="https://github.com/WhiskeySockets/Baileys">Baileys</a></sub>
-    </td>
-    <td align="center" width="200">
-      <img src="https://img.shields.io/badge/🎬-YouTube%20Engine-E74C3C?style=for-the-badge&labelColor=1a1a2e" /><br/>
-      <b>yt-dlp</b><br/>
-      <sub><a href="https://github.com/yt-dlp/yt-dlp">yt-dlp/yt-dlp</a></sub>
+      <a href="https://github.com/WhiskeySockets/Baileys">Baileys</a> (WhatsApp Web API)
     </td>
   </tr>
 </table>
 
-<br/>
-
-**🧰 Tech Stack yang Digunakan**
-
-<br/>
-
-<a href="https://nodejs.org" title="Node.js"><img src="https://skillicons.dev/icons?i=nodejs&theme=dark" /></a>
-<a href="https://developer.mozilla.org/docs/Web/JavaScript" title="JavaScript"><img src="https://skillicons.dev/icons?i=javascript&theme=dark" /></a>
-<a href="https://git-scm.com" title="Git"><img src="https://skillicons.dev/icons?i=git&theme=dark" /></a>
-<a href="https://kernel.org" title="Linux"><img src="https://skillicons.dev/icons?i=linux&theme=dark" /></a>
-<a href="https://docker.com" title="Docker"><img src="https://skillicons.dev/icons?i=docker&theme=dark" /></a>
-<a href="https://github.com/hitlabmodv2/ReadSwDika_WhiskeySockets" title="GitHub Repo"><img src="https://skillicons.dev/icons?i=github&theme=dark" /></a>
-<a href="https://code.visualstudio.com" title="VS Code"><img src="https://skillicons.dev/icons?i=vscode&theme=dark" /></a>
-<a href="https://www.gnu.org/software/bash" title="Bash"><img src="https://skillicons.dev/icons?i=bash&theme=dark" /></a>
+<sub>Library & layanan lain: <b>yt-dlp</b> (YouTube) • <b>Google Gemini</b> (AI caption & vision) • <b>Pollinations</b> (gambar AI .stickerai) • <b>Stickerly</b> (sumber pack) • <b>Tenor</b> (GIF) • <b>iqc-canvas</b> (.iqc) • <b>sharp</b> & <b>wa-sticker-formatter</b> (sticker)</sub>
 
 <br/><br/>
 
-<img src="https://capsule-render.vercel.app/api?type=rect&color=0,128C7E,25D366&height=3" />
-
-<br/>
-
-> ⚠️ **Script ini GRATIS dan tidak untuk diperjualbelikan!**
-> Jika kamu menemukannya dijual, lapor ke owner — itu **penipuan**.
-
-<br/>
-
-**Hubungi & Ikuti:**
+> ⚠️ **Script ini GRATIS dan tidak untuk diperjualbelikan.**
+> Kalau kamu menemukannya dijual, itu penipuan — laporkan ke owner.
 
 <br/>
 
 [![WhatsApp Owner](https://img.shields.io/badge/Owner-WhatsApp-25D366?style=for-the-badge&logo=whatsapp&logoColor=white)](https://wa.me/6289681008411)
 &nbsp;
-[![GitHub](https://img.shields.io/badge/GitHub-Repo-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/hitlabmodv2/ReadSwDika_WhiskeySockets)
+[![Telegram](https://img.shields.io/badge/Telegram-@Wilykun1994-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/Wilykun1994)
 &nbsp;
-[![Stars](https://img.shields.io/github/stars/hitlabmodv2/ReadSwDika_WhiskeySockets?style=for-the-badge&logo=github&color=FFD700&labelColor=1a1a2e&label=⭐%20Beri%20Bintang)](https://github.com/hitlabmodv2/ReadSwDika_WhiskeySockets/stargazers)
-
-<br/><br/>
-
-<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=18&pause=2000&color=25D366&center=true&vCenter=true&width=500&height=40&lines=Made+with+%E2%9D%A4%EF%B8%8F+by+Bang+Wily+%F0%9F%87%AE%F0%9F%87%A9" alt="Footer Typing" />
+[![GitHub](https://img.shields.io/badge/GitHub-Wilykun-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Wilykun/ReadSwEsm_V1)
 
 <br/>
+
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=18&pause=2000&color=25D366&center=true&vCenter=true&width=500&height=40&lines=Made+with+%E2%9D%A4%EF%B8%8F+by+Bang+Wily+%F0%9F%87%AE%F0%9F%87%A9" alt="Footer Typing" />
 
 </div>
 
