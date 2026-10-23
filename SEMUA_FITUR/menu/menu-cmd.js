@@ -204,6 +204,7 @@ async function handleMenu({
                                 `.toimg\n` +
                                 `.smeme [teks]\n` +
                                 `.stickerly\n` +
+                                `.stickerai\n` +
                                 `.listgroup\n` +
                                 `.allunduh\n` +
                                 `.tt\n` +

@@ -82,6 +82,8 @@ async function handleGroupmenu({ hisoka, m, tolak, logCommand, loadConfig }) {
 │   _Cari & download sticker_
 ├➤ *.stickerpack [query]*
 │   _Download satu pack sticker_
+├➤ *.stickerai [prompt]*
+│   _Buat sticker dari prompt AI_
 ├➤ *.rvo / .viewonce*
 │   _Buka pesan sekali lihat (kirim ke chat asal)_
 ├➤ *.rvo2*

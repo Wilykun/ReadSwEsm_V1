@@ -50,7 +50,7 @@ anticallvid (.acv) | anticallvid msg/add/del/list
 antitagsw | antitagsw global on/off | antitagsw status/reset
 
 「 💬 *PESAN & STICKER* 」
-s/sticker | toimg | tovn | tomp3 | stickerly | stickerpack
+s/sticker | toimg | tovn | tomp3 | stickerly | stickerpack | stickerai
 rvo | rvo2 | quoted | iqc
 
 「 👥 *FITUR GRUP* 」
