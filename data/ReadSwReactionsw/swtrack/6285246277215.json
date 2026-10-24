@@ -1,14 +1,14 @@
 {
-  "ACC5BACACE7D04E4FB2719E5DE133101": {
-    "id": "ACC5BACACE7D04E4FB2719E5DE133101",
+  "AC342B5525E650865997578AF6B5DA0E": {
+    "id": "AC342B5525E650865997578AF6B5DA0E",
     "sender": "6285246277215@s.whatsapp.net",
     "name": "정한",
     "type": "videoMessage",
-    "arrivedAt": "2026-10-22T22:01:56.486Z",
+    "arrivedAt": "2026-10-24T14:19:11.373Z",
     "read": true,
     "reacted": true,
     "reactionExpected": true,
-    "emoji": "🐡",
+    "emoji": "🐟",
     "resolve": "PN langsung ✓",
     "source": "status",
     "number": "6285246277215",
@@ -17,17 +17,17 @@
       "remoteJid": "status@broadcast",
       "remoteJidAlt": "6285246277215@s.whatsapp.net",
       "fromMe": false,
-      "id": "ACC5BACACE7D04E4FB2719E5DE133101",
+      "id": "AC342B5525E650865997578AF6B5DA0E",
       "participant": "272245645643794@lid",
       "addressingMode": "lid"
     },
-    "updatedAt": "2026-10-22T22:02:04.348Z",
+    "updatedAt": "2026-10-24T14:35:24.110Z",
     "receiptKeys": [
       {
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6285246277215@s.whatsapp.net",
         "fromMe": false,
-        "id": "ACC5BACACE7D04E4FB2719E5DE133101",
+        "id": "AC342B5525E650865997578AF6B5DA0E",
         "participant": "272245645643794@lid",
         "addressingMode": "lid"
       },
@@ -35,11 +35,13 @@
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6285246277215@s.whatsapp.net",
         "fromMe": false,
-        "id": "ACC5BACACE7D04E4FB2719E5DE133101",
+        "id": "AC342B5525E650865997578AF6B5DA0E",
         "participant": "6285246277215@s.whatsapp.net",
         "addressingMode": "lid"
       }
     ],
-    "processedAt": "2026-10-22T22:02:04.348Z"
+    "processedAt": "2026-10-24T14:19:25.266Z",
+    "retriedOnStartup": true,
+    "retriedAt": "2026-10-24T14:35:24.110Z"
   }
 }

@@ -8,7 +8,7 @@
 ════════════════════════════════════════════════════════════════════════
   FILE     : infoerror.txt
   Bot      : Wily Bot
-  Update   : 23/10/2026, 10.57.03  (realtime — diperbarui otomatis setiap ada error)
+  Update   : 24/10/2026, 21.34.06  (realtime — diperbarui otomatis setiap ada error)
 ════════════════════════════════════════════════════════════════════════
 
   RINGKASAN
@@ -23,24 +23,24 @@
 ────────────────────────────────────────────────────────────────────────
 
 ┌───────────────────────────────────────────────────────────────────────
-│  #001  —  StickerLy
+│  #001  —  console.error
 ├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
 │  PESAN ERROR
-│  [StickerLy] Failed sticker: Media upload failed on all hosts
+│  [31m[Groups] Gagal fetch grup:[39m Connection Closed
 │
 │  DETAIL
-│  Sumber      : StickerLy
+│  Sumber      : console.error
 │  Frekuensi   : 1x (baru terjadi)
-│  Pertama     : 23/10/2026, 10.57.03
-│  Terakhir    : 23/10/2026, 10.57.03
+│  Pertama     : 24/10/2026, 21.34.06
+│  Terakhir    : 24/10/2026, 21.34.06
 │
 │  STACK TRACE (3 baris pertama)
-│  ▶  Error: [StickerLy] Failed sticker: Media upload failed on all hosts
+│  ▶  Error: [31m[Groups] Gagal fetch grup:[39m Connection Closed
 │     at console.error (file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/index.js:434:27)
-│     at sendSatuan (file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/SEMUA_FITUR/download/stickerly.js?t=1792727611925.0203:517:63)
+│     at fetchGroupsWithRetry (file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/index.js:1137:65)
 └───────────────────────────────────────────────────────────────────────
 
 ════════════════════════════════════════════════════════════════════════
   End of Report  —  Total: 1 jenis, 1 kejadian
-  Terakhir diperbarui: 23/10/2026, 10.57.03
+  Terakhir diperbarui: 24/10/2026, 21.34.06
 ════════════════════════════════════════════════════════════════════════
