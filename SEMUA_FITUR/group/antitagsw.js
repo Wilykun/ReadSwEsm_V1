@@ -1216,5 +1216,5 @@ export async function handleAntitagswCallbacks({ hisoka, m, tolak: rawTolak, tog
  * ── Plugin ESM (auto-migrasi dari switch-case message.js) ──
  */
 export const plugins = [
-    { command: /^(antitagsw)$/i, tags: ['antitagsw'], help: ['antitagsw'], handler: 'handleAntitagsw' },
+    { command: /^(antitagsw)$/i, tags: ['group'], help: ['antitagsw'], handler: 'handleAntitagsw' },
 ];

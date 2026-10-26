@@ -32,10 +32,6 @@ import { loadPlugins } from '../../src/helper/pluginLoader.js';
 const CATEGORY_META = {
         ai:        { emoji: '🤖', title: 'AI CHAT' },
         anime:    { emoji: '🎌', title: 'ANIME & MANGA' },
-        antidel:   { emoji: '🛡️', title: 'ANTI DELETE' },
-        antilink:  { emoji: '🔗', title: 'ANTI LINK' },
-        antitag:   { emoji: '🚫', title: 'ANTI TAG' },
-        antitagsw: { emoji: '👁️', title: 'ANTI TAG SW' },
         download:  { emoji: '📥', title: 'DOWNLOAD' },
         event:     { emoji: '🎉', title: 'EVENT' },
         group:     { emoji: '👥', title: 'FITUR GRUP' },
@@ -54,7 +50,7 @@ const CATEGORY_META = {
 // Urutan section. Kategori baru (tidak ada di sini) otomatis
 // ditambahkan di akhir sesuai urutan abjad.
 const SECTION_ORDER = [
-        'ai', 'anime', 'antidel', 'antilink', 'antitag', 'antitagsw',
+        'ai', 'anime',
         'download', 'event', 'group', 'info', 'jadibot', 'media',
         'menu', 'music', 'news', 'readsw', 'setting', 'system', 'tools',
 ];
@@ -95,31 +91,37 @@ export async function buildMenuUtama({ pushName, isOwner, uptimeStr, tgl, jam, b
                 ...[...byCat.keys()].filter(c => !SECTION_ORDER.includes(c)).sort(),
         ];
 
-        let body = '';
+        // Satu section per kategori (tidak kepisah): semua command satu
+        // kategori terkumpul di section itu saja, urut abjad di dalamnya.
+        const sections = [];
         for (const cat of orderedCats) {
                 const meta = metaFor(cat);
                 const lines = [];
                 for (const p of byCat.get(cat)) {
                         const aliases = aliasesFrom(p.command);
                         if (!aliases.length) continue;
-                        lines.push(`│ • \`${aliases.join('\` • \`')}\``);
+                        lines.push(`• \`${aliases.join('\` • \`')}\``);
                 }
                 if (!lines.length) continue;
-                body += `├─────────────────────┤\n│ ${meta.emoji} *${meta.title}*\n├─────────────────────┤\n${lines.join('\n')}\n`;
+                sections.push(`${meta.emoji} *${meta.title}*\n${lines.join('\n')}`);
         }
+        // Section dinomori (daftar bernomor); pemisah antar section garis
+        // simple, bukan kotak/pohon.
+        const body = sections.map((s, i) => `${i + 1}. ${s}`).join('\n────────────────────────\n');
 
-        return `╭─────────────────────╮
-│ 🤖 *WILY BOT ${getBotVersion()}* │
-├─────────────────────┤
-│ 👤 *User:* ${pushName} ${isOwner ? '👑' : ''}
-│ ⏱️ *Uptime:* _${uptimeStr}_
-│ 📅 *Tanggal:* ${tgl}
-│ 🕐 *Waktu:* ${jam} WIB
-│ 🖥️ *Device:* ${browserLabel}
-│ 📜 *Total Cmd:* \`${totalCmdCount}\`
-│ 🗂️ *Total Fitur:* \`${totalSemuaFitur}\`
-│ ✅ *Aktif:* ${fiturAktif} │ ❌ *Nonaktif:* ${fiturTidakAktif}
-│ 🌐 *Status:* Online 🟢
-${body}╰─────────────────────╯
+        return `🤖 *WILY BOT ${getBotVersion()}*
+
+👤 *User:* ${pushName} ${isOwner ? '👑' : ''}
+⏱️ *Uptime:* _${uptimeStr}_
+📅 *Tanggal:* ${tgl}
+🕐 *Waktu:* ${jam} WIB
+🖥️ *Device:* ${browserLabel}
+📜 *Total Cmd:* \`${totalCmdCount}\`
+🗂️ *Total Fitur:* \`${totalSemuaFitur}\`
+✅ *Aktif:* ${fiturAktif} · ❌ *Nonaktif:* ${fiturTidakAktif}
+🌐 *Status:* Online 🟢
+────────────────────────
+${body}
+────────────────────────
 > _Ketik command untuk pakai fitur_ `;
 }

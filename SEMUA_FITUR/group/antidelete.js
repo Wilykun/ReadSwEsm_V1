@@ -552,5 +552,5 @@ export async function handleAd({ hisoka, m, query, tolak, logCommand, loadConfig
  * ── Plugin ESM (auto-migrasi dari switch-case message.js) ──
  */
 export const plugins = [
-    { command: /^(antidel|ad)$/i, tags: ['antidel'], help: ['antidel'], handler: 'handleAd' },
+    { command: /^(antidel|ad)$/i, tags: ['group'], help: ['antidel'], handler: 'handleAd' },
 ];

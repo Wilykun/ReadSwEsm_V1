@@ -65,7 +65,7 @@ import {
         prepareWAMessageMedia,
         proto,
 } from '@whiskeysockets/baileys';
-import { createWelcomeCard } from './SEMUA_FITUR/system/welcomeCard.js';
+import { createWelcomeCard } from './SEMUA_FITUR/group/welcomeCard.js';
 import pino from 'pino';
 import { Boom } from '@hapi/boom';
 import qrcode from 'qrcode-terminal';
@@ -1547,8 +1547,8 @@ async function main() {
                                                 if (!perubahan.length) return;
 
                                                 for (const item of perubahan) {
-                                                        const caption = _am.buatCaptionTayang(item);
-                                                        await kirimKeGrup(daftarGrup, caption, item.cover || null);
+                                                        const hasil = await _am.buatPesanLengkap(item);
+                                                        await kirimKeGrup(daftarGrup, hasil.caption, item.cover || null);
                                                         console.log(`[Animasu][SedangTayang] ✅ (${item.tipe}) "${item.judul}" ${item.episodeLabel} → ${daftarGrup.length} grup`);
                                                         await new Promise(r => setTimeout(r, 1500));
                                                 }
@@ -1567,8 +1567,8 @@ async function main() {
                                                 if (!perubahan.length) return;
 
                                                 for (const item of perubahan) {
-                                                        const caption = _am.buatCaptionBaruUpdate(item);
-                                                        await kirimKeGrup(daftarGrup, caption, item.cover || null);
+                                                        const hasil = await _am.buatPesanLengkap(item);
+                                                        await kirimKeGrup(daftarGrup, hasil.caption, item.cover || null);
                                                         console.log(`[Animasu][BaruUpdate] ✅ (${item.tipe}) "${item.judul}" ${item.episodeLabel} → ${daftarGrup.length} grup`);
                                                         await new Promise(r => setTimeout(r, 1500));
                                                 }

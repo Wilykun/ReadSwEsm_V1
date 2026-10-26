@@ -32,7 +32,7 @@ import path from 'path';
 import { isJidGroup, jidNormalizedUser, areJidsSameUser, getContentType } from '@whiskeysockets/baileys';
 
 import { kvGet, kvSet } from '../../src/db/datadb.js';
-import { resolveLidFromContacts } from '../antitagsw/antitagsw.js';
+import { resolveLidFromContacts } from './antitagsw.js';
 
 const CONFIG_PATH = path.join(process.cwd(), 'config.json');
 
@@ -920,5 +920,5 @@ export async function handleAntitag({
 }
 
 export const plugins = [
-    { command: /^(antitag)$/i, tags: ['antitag'], help: ['antitag'], handler: 'handleAntitag' },
+    { command: /^(antitag)$/i, tags: ['group'], help: ['antitag'], handler: 'handleAntitag' },
 ];

@@ -1123,5 +1123,5 @@ export async function handleAntilinkCallbacks({ hisoka, m, tolak }) {
  * ── Plugin ESM (auto-migrasi dari switch-case message.js) ──
  */
 export const plugins = [
-    { command: /^(antilink)$/i, tags: ['antilink'], help: ['antilink'], handler: 'handleAntilink' },
+    { command: /^(antilink)$/i, tags: ['group'], help: ['antilink'], handler: 'handleAntilink' },
 ];

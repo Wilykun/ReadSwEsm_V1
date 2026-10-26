@@ -51,10 +51,10 @@ const _reloadCallbacks = {};
 const WATCHED_FILES = [
     // ── Handler ESM ──────────────────────────────
     { key: 'message',      rel: 'message.js' },
-    { key: 'antidelete',   rel: 'SEMUA_FITUR/antidel/antidelete.js' },
-    { key: 'antitagsw',    rel: 'SEMUA_FITUR/antitagsw/antitagsw.js' },
-    { key: 'antilink',     rel: 'SEMUA_FITUR/antilink/antilink.js' },
-    { key: 'antitagbot',   rel: 'SEMUA_FITUR/antitag/antitag.js' },
+    { key: 'antidelete',   rel: 'SEMUA_FITUR/group/antidelete.js' },
+    { key: 'antitagsw',    rel: 'SEMUA_FITUR/group/antitagsw.js' },
+    { key: 'antilink',     rel: 'SEMUA_FITUR/group/antilink.js' },
+    { key: 'antitagbot',   rel: 'SEMUA_FITUR/group/antitag.js' },
     { key: 'event',        rel: 'SEMUA_FITUR/event/event.js' },
     { key: 'featureEmoji', rel: 'SEMUA_FITUR/helper/emoji.js' },
 
@@ -149,7 +149,7 @@ const WATCHED_FILES = [
     { key: 'autocleaner', rel: 'SEMUA_FITUR/system/autocleaner.js', lazy: true },
     { key: 'backup', rel: 'SEMUA_FITUR/system/backup.js', lazy: true },
     { key: 'sessionclnr', rel: 'SEMUA_FITUR/system/sessioncleaner.js', lazy: true },
-    { key: 'welcomeCard', rel: 'SEMUA_FITUR/system/welcomeCard.js', lazy: true },
+    { key: 'welcomeCard', rel: 'SEMUA_FITUR/group/welcomeCard.js', lazy: true },
     // Menu
     { key: 'menuCmd', rel: 'SEMUA_FITUR/menu/menu-cmd.js', lazy: true },
     { key: 'menupages', rel: 'SEMUA_FITUR/menu/menupages.js', lazy: true },

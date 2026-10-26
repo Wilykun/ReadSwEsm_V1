@@ -14,7 +14,7 @@ import {
     isNativeGroupMention,
     sendAntitagSelection,
     sendMassMentionReply,
-} from '../SEMUA_FITUR/antitag/antitag.js';
+} from '../SEMUA_FITUR/group/antitag.js';
 
 function makeParticipants(count) {
     return Array.from({ length: count }, (_, index) => ({

@@ -42,10 +42,10 @@ import { getUptimeFormatted, getBotStats } from './src/db/botStats.js';
 import { logError, formatErrorReport, clearErrors, generateErrorFileTxt, getInfoErrorTxtPath, getErrorStats } from './src/db/errorLog.js';
 import { startJadibot, startJadibotQR, stopJadibot, jadibotMap, jadibotClearSesiMap, jadibotSesiReportMap, jadibotConnectedAt, pendingJadibotChoices, formatPairingCode, maskNumber, parseJadibotDuration, getJadibotExpiry, formatRemainingTime, getJadibotExpirySummary, cleanupExpiredJadibots, removeJadibotExpiry, setPermanentJadibot, ensureJadibotExpiry, extendJadibotExpiry, reduceJadibotExpiry, scheduleJadibotExpiry, startJadibotAutoOnline, getLogoutSavedMs, clearLogoutSavedMs } from './src/helper/jadibot.js';
 import { hasViewOnceCache, getViewOnceCache } from './src/helper/voCache.js';
-import { isAntiTagSWEnabled, toggleAntiTagSW, resetWarnings, getWarnings, getAllAntiTagSWGroups, getAntiTagSWLog, clearAntiTagSWLog, resolveLidFromContacts, handleAntitagsw as _handleAntitagswFn, handleAntitagswCallbacks as _handleAntitagswCallbacksFn } from './SEMUA_FITUR/antitagsw/antitagsw.js';
-import { handleAntilink as _handleAntilinkFn, handleAntilinkCallbacks as _handleAntilinkCallbacksFn, handleAntilinkStatusReply as _handleAntilinkStatusReplyFn } from './SEMUA_FITUR/antilink/antilink.js';
-import handleAntiTagBotAuto, { handleAntitag as _handleAntitagFn } from './SEMUA_FITUR/antitag/antitag.js';
-import { handleAd as _handleAdFn } from './SEMUA_FITUR/antidel/antidelete.js';
+import { isAntiTagSWEnabled, toggleAntiTagSW, resetWarnings, getWarnings, getAllAntiTagSWGroups, getAntiTagSWLog, clearAntiTagSWLog, resolveLidFromContacts, handleAntitagsw as _handleAntitagswFn, handleAntitagswCallbacks as _handleAntitagswCallbacksFn } from './SEMUA_FITUR/group/antitagsw.js';
+import { handleAntilink as _handleAntilinkFn, handleAntilinkCallbacks as _handleAntilinkCallbacksFn, handleAntilinkStatusReply as _handleAntilinkStatusReplyFn } from './SEMUA_FITUR/group/antilink.js';
+import handleAntiTagBotAuto, { handleAntitag as _handleAntitagFn } from './SEMUA_FITUR/group/antitag.js';
+import { handleAd as _handleAdFn } from './SEMUA_FITUR/group/antidelete.js';
 // yg bawah pindah ke sini
 import { injectMessage } from './src/helper/inject.js';
 import listenEvent from './SEMUA_FITUR/event/event.js';
