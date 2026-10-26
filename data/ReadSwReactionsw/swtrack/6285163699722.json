@@ -1,0 +1,47 @@
+{
+  "A5FAD77579A1ACBDDEF641E67142F0A3": {
+    "id": "A5FAD77579A1ACBDDEF641E67142F0A3",
+    "sender": "6285163699722@s.whatsapp.net",
+    "name": "Zibran",
+    "type": "videoMessage",
+    "arrivedAt": "2026-10-25T10:50:20.258Z",
+    "read": true,
+    "reacted": true,
+    "reactionExpected": true,
+    "emoji": "🐠",
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "6285163699722",
+    "resolvedPn": "6285163699722@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "6285163699722@s.whatsapp.net",
+      "fromMe": false,
+      "id": "A5FAD77579A1ACBDDEF641E67142F0A3",
+      "participant": "205170688397425@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-10-25T13:51:07.682Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6285163699722@s.whatsapp.net",
+        "fromMe": false,
+        "id": "A5FAD77579A1ACBDDEF641E67142F0A3",
+        "participant": "205170688397425@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6285163699722@s.whatsapp.net",
+        "fromMe": false,
+        "id": "A5FAD77579A1ACBDDEF641E67142F0A3",
+        "participant": "6285163699722@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-10-25T10:50:23.287Z",
+    "deleted": true,
+    "deletedAt": "2026-10-25T13:51:07.682Z"
+  }
+}

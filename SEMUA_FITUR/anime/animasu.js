@@ -19,13 +19,13 @@
  * ───────────────────────────────
  *
  *  animasu.js — Scraper Animasu
- *  Cari anime subtitle Indonesia dari animasu.net
+ *  Cari anime subtitle Indonesia dari animasu.love
  * ───────────────────────────────
  */
 /**
  * ═══════════════════════════════════════════════════════════════
  *  Animasu Scraper & Monitor
- *  Cari anime Sub Indo dari animasu.net, pantau update episode
+ *  Cari anime Sub Indo dari animasu.love, pantau update episode
  *  terbaru secara berkala, dan kirim notifikasi otomatis ke
  *  grup WhatsApp yang sudah terdaftar.
  * ═══════════════════════════════════════════════════════════════
@@ -36,10 +36,10 @@
  * ─────────────────────────────────────────────────────
  *  FITUR   : Animasu Sub Indo Realtime
  *  Fungsi  : Pantau episode Sub Indo terbaru dari
- *            v1.animasu.app via WP REST API.
+ *            animasu.love via WP REST API.
  *            Kirim notifikasi ke grup WA saat ada
  *            episode baru yang sudah di-sub Indo.
- *  Sumber  : animasu.app WP REST API + HTML scraping
+ *  Sumber  : animasu.love WP REST API + HTML scraping
  * ─────────────────────────────────────────────────────
  */
 
@@ -51,7 +51,7 @@ const FILE_DATA   = path.join(process.cwd(), 'data', 'animasu', 'state.json');
 const FILE_LOG    = path.join(process.cwd(), 'data', 'animasu', 'log.json');
 fs.mkdirSync(path.join(process.cwd(), 'data', 'animasu'), { recursive: true });
 const FILE_CONFIG = path.join(process.cwd(), 'config.json');
-const BASE_URL    = 'https://v1.animasu.work';
+const BASE_URL    = 'https://animasu.love';
 const API_POSTS   = `${BASE_URL}/wp-json/wp/v2/posts`;
 const HEADERS     = { 'User-Agent': 'Mozilla/5.0 (compatible; WilyBot/1.0)' };
 
@@ -261,11 +261,64 @@ async function fetchDenganRetry(fn, maxRetry = 3, delayMs = 3000) {
     throw lastErr;
 }
 
+// ── BYPASS CLOUDFLARE VIA JINA READER ─────────────────────────────────────────
+// Pola dari SEMUA_FITUR/anime/alqanime.js: alqanime.net juga diblokir Cloudflare,
+// solusinya fetch lewat r.jina.ai TANPA UA browser (Jina memblokir request dengan
+// UA browser spesifik → 403). Jina format html mengembalikan HTML asli situs,
+// sehingga parser yang sudah ada jalan tanpa perubahan.
+// Perilaku fetchHtml: direct sekali dulu (tanpa retry — 403 Cloudflare tidak akan
+// berubah kalau di-retry) → kalau gagal / halaman blokir → fallback Jina (retry
+// 2x untuk error transien ala alqanime). Kalau Jina pun mengembalikan halaman
+// blokir — terbukti untuk path /anime/* dan /wp-json/*, Cloudflare situs ini
+// blokir per-path — lempar error CLOUDFLARE_BLOCKED yang jelas, bukan HTML
+// blokir yang diparse jadi caption kosong.
+
+const JINA_BASE = 'https://r.jina.ai/';
+const JINA_HEADERS = {
+    'Accept-Language': 'id-ID,id;q=0.9,en;q=0.8',
+    'X-Return-Format': 'html',
+};
+
+function isCloudflareBlockPage(html) {
+    return typeof html === 'string' && (
+        html.includes('Attention Required! | Cloudflare') ||
+        html.includes('id="cf-wrapper"')
+    );
+}
+
+function cfBlockedError() {
+    const e = new Error('Halaman Animasu ini diblokir Cloudflare (bahkan via jalur bypass Jina) — detail anime tidak bisa diambil saat ini.');
+    e.code = 'CLOUDFLARE_BLOCKED';
+    return e;
+}
+
+async function fetchHtmlViaJina(url) {
+    let lastErr;
+    for (let attempt = 1; attempt <= 2; attempt++) {
+        try {
+            const r = await axios.get(JINA_BASE + url, { headers: JINA_HEADERS, timeout: 90000 });
+            const html = typeof r.data === 'string' ? r.data : '';
+            if (isCloudflareBlockPage(html)) throw cfBlockedError();
+            return html;
+        } catch (e) {
+            if (e.code === 'CLOUDFLARE_BLOCKED') throw e; // blokir definitif, jangan retry
+            lastErr = e;
+            if (attempt < 2) await new Promise(r => setTimeout(r, 2000));
+        }
+    }
+    throw lastErr;
+}
+
 async function fetchHtml(url) {
-    return fetchDenganRetry(async () => {
+    try {
         const r = await axios.get(url, { headers: HEADERS, timeout: 30000 });
-        return r.data;
-    });
+        const html = r.data;
+        if (isCloudflareBlockPage(html)) throw new Error('CF_BLOCK_PAGE');
+        return html;
+    } catch (_) {
+        // Direct gagal (403 / halaman blokir / error jaringan) → fallback Jina.
+        return fetchHtmlViaJina(url);
+    }
 }
 
 async function fetchRecentPosts(count = 20) {
@@ -307,17 +360,20 @@ function ambilSlugDariUrlAnime(url) {
 
 // Ambil 1 blok kartu anime (bsx) dari potongan HTML tertentu (section homepage)
 function parseAnimeCards(sectionHtml) {
-    const re = /<div class="bsx">\s*<a href="([^"]+)"[^>]*title="([^"]*)"[^>]*>[\s\S]*?<div class="typez[^"]*">([^<]*)<\/div>[\s\S]*?<span class="epx">([^<]*)<\/span>\s*<span class="sb[^"]*">([^<]*)<\/span>[\s\S]*?<img[^>]+src="([^"]+)"[^>]*\/>[\s\S]*?<div class="tt">\s*([\s\S]*?)<\/div>\s*<\/a>/g;
+    const re = /<div class="bsx">\s*<a href="([^"]+)"[^>]*title="([^"]*)"[^>]*>[\s\S]*?<div class="typez[^"]*">([^<]*)<\/div>[\s\S]*?<span class="epx">([^<]*)<\/span>\s*<span class="sb[^"]*">([\s\S]*?)<\/span>[\s\S]*?<img[^>]+src="([^"]+)"[^>]*>[\s\S]*?<div class="tt">\s*([\s\S]*?)<\/div>\s*<\/a>/g;
     const out = [];
     let m;
     while ((m = re.exec(sectionHtml)) !== null) {
         const url = m[1];
+        // Status kadang berisi <img> emoji (alt="🔥") bukan teks polos — ambil
+        // alt-nya dulu supaya label status tidak hilang saat stripHtml.
+        const statusRaw = (m[5] || '').replace(/<img[^>]+alt="([^"]*)"[^>]*>/gi, '$1');
         out.push({
             url,
             slug         : ambilSlugDariUrlAnime(url),
             jenis        : (m[3] || '').trim(),
             episodeLabel : stripHtml(m[4]),
-            statusLabel  : stripHtml(m[5]),
+            statusLabel  : stripHtml(statusRaw),
             cover        : (m[6] || '').split('?')[0].replace(/^https?:\/\/i\d+\.wp\.com\//, 'https://'),
             judul        : stripHtml(m[7]),
         });
@@ -929,7 +985,7 @@ async function handleAnimasu({ hisoka, m, query, tolak, logCommand, sendConfirmW
                         `│ 4. \`${pfx}animasu test grup\` — _kirim ke semua grup aktif_\n` +
                         `│ 5. \`${pfx}animasu status\` — _lihat semua grup_\n` +
                         `│\n` +
-                        `│ > 💡 Bot memantau *2 widget* di _animasu.app_\n` +
+                        `│ > 💡 Bot memantau *2 widget* di _animasu.love_\n` +
                         `│ > secara terpisah & *realtime:*\n` +
                         `│ 🔥 *Sedang Tayang* — episode baru rilis\n` +
                         `│ 🆕🔄 *Baru Ditambah & Diperbarui* — anime\n` +
@@ -1013,7 +1069,7 @@ async function handleAnimasu({ hisoka, m, query, tolak, logCommand, sendConfirmW
                         let txt = `╭─「 📺 *STATUS ANIME ANIMASU* 」\n`;
                         txt += `│ 🕐 _${waktu} WIB_\n`;
                         txt += `│ 📊 Total: *${daftarAnime.length} anime* terpantau\n`;
-                        txt += `│ 📶 Sumber: _animasu.app_ *(realtime)*\n`;
+                        txt += `│ 📶 Sumber: _animasu.love_ *(realtime)*\n`;
                         txt += `│ > _diurutkan: sisa episode terbanyak di atas_\n`;
                         txt += `│\n`;
 

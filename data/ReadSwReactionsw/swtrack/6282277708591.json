@@ -1,0 +1,45 @@
+{
+  "AC46FCFBE1C0F4A3A22C20CF73AE9D0D": {
+    "id": "AC46FCFBE1C0F4A3A22C20CF73AE9D0D",
+    "sender": "6282277708591@s.whatsapp.net",
+    "name": "munawirahmadr",
+    "type": "videoMessage",
+    "arrivedAt": "2026-10-25T04:59:50.024Z",
+    "read": true,
+    "reacted": true,
+    "reactionExpected": true,
+    "emoji": "🐟",
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "6282277708591",
+    "resolvedPn": "6282277708591@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "6282277708591@s.whatsapp.net",
+      "fromMe": false,
+      "id": "AC46FCFBE1C0F4A3A22C20CF73AE9D0D",
+      "participant": "219705377824864@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-10-25T05:00:18.493Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6282277708591@s.whatsapp.net",
+        "fromMe": false,
+        "id": "AC46FCFBE1C0F4A3A22C20CF73AE9D0D",
+        "participant": "219705377824864@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6282277708591@s.whatsapp.net",
+        "fromMe": false,
+        "id": "AC46FCFBE1C0F4A3A22C20CF73AE9D0D",
+        "participant": "6282277708591@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-10-25T05:00:18.493Z"
+  }
+}
