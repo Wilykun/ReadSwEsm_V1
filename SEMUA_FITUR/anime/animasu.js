@@ -1322,6 +1322,111 @@ export { getEnabledGroups, setGroupEnabled, cariEpisodeBaru, buatCaption, ambilU
 export { handleAnimasu };
 // ── COMMAND HANDLER ───────────────────────────────────────────────────────────
 
+// ── JADWAL RILIS (animasu.love/jadwal) ──
+// Kunci hari kanonik: tanpa apostrof (Intl id-ID: "Jumat"; situs: "Jum'at").
+const TAMPIL_HARI = { senin: 'Senin', selasa: 'Selasa', rabu: 'Rabu', kamis: 'Kamis', jumat: "Jum'at", sabtu: 'Sabtu', minggu: 'Minggu' };
+const URL_JADWAL = BASE_URL + '/jadwal/';
+
+function kanonikHari(teks) {
+        return String(teks || '').trim().toLowerCase().replace(/'/g, '').replace(/\s+/g, ' ');
+}
+
+function hariIniWIB() {
+        const w = new Intl.DateTimeFormat('id-ID', { timeZone: 'Asia/Jakarta', weekday: 'long' }).format(new Date());
+        return kanonikHari(w);
+}
+
+function tanggalWIB() {
+        return new Intl.DateTimeFormat('id-ID', { timeZone: 'Asia/Jakarta', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date());
+}
+
+// Parse halaman jadwal: 7 section bixbox (releases + listupd). Judul diambil
+// dari <div class="tt"> (judul yang tampil di situs); bila kosong, fallback
+// ke atribut title. Badge .epx ("Sudah Rilis!" / "??") dan angka .sb TIDAK
+// dipakai — artinya tidak terverifikasi dari halaman, jadi tidak ditampilkan
+// supaya tidak mengarang.
+export function parseJadwalPage(html) {
+        const out = {};
+        const parts = String(html || '').split(/<div class="releases"><h3><span>([^<]+)<\/span><\/h3><\/div>/);
+        for (let i = 1; i + 1 < parts.length; i += 2) {
+                const kunci = kanonikHari(parts[i]);
+                if (!TAMPIL_HARI[kunci]) continue;
+                const isi = parts[i + 1];
+                let judul = [...isi.matchAll(/<div class="tt">([^<]+)<\/div>/g)].map(m => m[1].replace(/\s+/g, ' ').trim()).filter(Boolean);
+                if (!judul.length) {
+                        judul = [...isi.matchAll(/<div class="bsx">\s*<a href="[^"]+" title="([^"]*)"/g)].map(m => m[1].replace(/\s+/g, ' ').trim()).filter(Boolean);
+                }
+                const unik = [...new Set(judul)];
+                if (unik.length) out[kunci] = unik;
+        }
+        return out;
+}
+
+function catatanJadwal(html) {
+        const m = /Jadwal 'update acak'[^<]*/.exec(String(html || ''));
+        return m ? m[0].trim() : null;
+}
+
+async function fetchJadwalHtml() {
+        try {
+                return await fetchHtml(URL_JADWAL);
+        } catch (_) {
+                // Jina ikut gagal → translate.goog (jadwal tanpa gambar, aman).
+                return await fetchHtmlViaTranslateGoog(URL_JADWAL);
+        }
+}
+
+// Format SATU pesan jadwal (maks 1000 char, margin dari limit WA 1024).
+// Mengembalikan null bila hari itu tidak ada / kosong di halaman.
+export function formatJadwal(jadwal, kunci, { tanggal = null, catatan = null } = {}) {
+        const daftar = jadwal?.[kunci];
+        if (!daftar || !daftar.length) return null;
+        const tampil = TAMPIL_HARI[kunci] || kunci;
+        const kepala = `📅 *JADWAL RILIS ANIMASU*\n\n🗓️ *Hari:* ${tampil}${tanggal ? `, ${tanggal}` : ''}\n📺 *${daftar.length} anime*\n\n`;
+        const kaki = `${catatan ? `> _${catatan}_\n` : ''}🔗 https://animasu.love/jadwal/`;
+        const LIMIT = 1000;
+        const baris = [];
+        let pakai = kepala.length + kaki.length + 1;
+        for (let i = 0; i < daftar.length; i++) {
+                const b = `• ${daftar[i]}`;
+                const adaSisa = i < daftar.length - 1;
+                if (pakai + b.length + 1 + (adaSisa ? 40 : 0) > LIMIT) break;
+                baris.push(b);
+                pakai += b.length + 1;
+        }
+        const sisa = daftar.length - baris.length;
+        if (sisa > 0) baris.push(`• _... dan ${sisa} anime lainnya_`);
+        return kepala + baris.join('\n') + '\n' + kaki;
+}
+
+// Format SEMINGGU (7 hari) dalam SATU pesan teks (limit teks WA 4096).
+// Hari ini ditandai 👈 *HARI INI* + tanggal; hari lain hanya nama hari.
+// Bila total melewati 4000 char (data membesar), fallback ke ringkasan
+// hitungan per hari (tetap semua hari + hari ini ditandai) supaya tetap 1 pesan.
+export function formatJadwalMinggu(jadwal, { tanggal = null, catatan = null } = {}) {
+        const kunciHariIni = hariIniWIB();
+        const urutan = ['senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu', 'minggu'];
+        const ada = urutan.filter(h => jadwal?.[h]?.length);
+        if (!ada.length) return null;
+        let txt = `📅 *JADWAL RILIS ANIMASU — SEMINGGU*\n\n`;
+        ada.forEach((h, i) => {
+                const iniHariIni = h === kunciHariIni;
+                if (i) txt += `────────────────────────\n`;
+                txt += `📌 *${TAMPIL_HARI[h]}${iniHariIni && tanggal ? `, ${tanggal}` : ''}*${iniHariIni ? ' 👈 *HARI INI*' : ''}\n`;
+                for (const t of jadwal[h]) txt += `• ${t}\n`;
+                txt += '\n';
+        });
+        txt += `${catatan ? `> _${catatan}_\n` : ''}🔗 https://animasu.love/jadwal/`;
+        if (txt.length <= 4000) return txt;
+        let ringkas = `📅 *JADWAL RILIS ANIMASU — SEMINGGU*\n\n`;
+        for (const h of ada) {
+                const iniHariIni = h === kunciHariIni;
+                ringkas += `• *${TAMPIL_HARI[h]}${iniHariIni && tanggal ? `, ${tanggal}` : ''}* — ${jadwal[h].length} anime${iniHariIni ? ' 👈 *HARI INI*' : ''}\n`;
+        }
+        ringkas += `\n${catatan ? `> _${catatan}_\n` : ''}🔗 https://animasu.love/jadwal/`;
+        return ringkas;
+}
+
 async function handleAnimasu({ hisoka, m, query, tolak, logCommand, sendConfirmWithButtons, fs, path, loadConfig }) {
         if (!m.isOwner) { await tolak(hisoka, m, '❌ Hanya owner yang bisa gunakan perintah ini.'); return; }
         if (!m.isGroup) { await tolak(hisoka, m, '❌ Perintah ini hanya untuk grup.'); return; }
@@ -1344,7 +1449,9 @@ async function handleAnimasu({ hisoka, m, query, tolak, logCommand, sendConfirmW
                         `2. \`${pfx}animasu off\` — _nonaktifkan_\n` +
                         `3. \`${pfx}animasu test\` — _preview notif ke sini_\n` +
                         `4. \`${pfx}animasu test grup\` — _kirim ke semua grup aktif_\n` +
-                        `5. \`${pfx}animasu status\` — _lihat semua grup_\n\n` +
+                        `5. \`${pfx}animasu status\` — _lihat semua grup_\n` +
+                        `6. \`${pfx}animasu jadwal\` — _jadwal seminggu, hari ini ditandai_\n` +
+                        `7. \`${pfx}animasu jadwal <hari>\` — _jadwal 1 hari_\n\n` +
                         `> 💡 Bot memantau *2 widget* di _animasu.love_ secara terpisah & *realtime:*\n` +
                         `• 🔥 *Sedang Tayang* — episode baru rilis\n` +
                         `• 🆕🔄 *Baru Ditambah & Diperbarui* — anime baru masuk atau datanya diupdate`
@@ -1506,6 +1613,48 @@ async function handleAnimasu({ hisoka, m, query, tolak, logCommand, sendConfirmW
                 } catch (err) {
                         await hisoka.sendMessage(m.from, { react: { text: '❌', key: m.key } });
                         await tolak(hisoka, m, `❌ *Gagal fetch Animasu.*\n_${err?.message || err}_`);
+                }
+                return;
+        }
+
+        if (sub === 'jadwal' || sub.startsWith('jadwal ')) {
+                // Validasi hari DULU (tanpa fetch) — hari tak dikenal langsung hint.
+                const argHari = sub === 'jadwal' ? '' : sub.slice('jadwal '.length).trim();
+                const kunciArg = argHari ? kanonikHari(argHari) : '';
+                if (argHari && !TAMPIL_HARI[kunciArg]) {
+                        await tolak(hisoka, m,
+                                `❌ *Hari tidak dikenal: ${argHari}*\n\n` +
+                                `*Hari yang tersedia:*\n` +
+                                `1. \`senin\`\n2. \`selasa\`\n3. \`rabu\`\n4. \`kamis\`\n5. \`jumat\`\n6. \`sabtu\`\n7. \`minggu\`\n\n` +
+                                `> _Contoh:_ \`${pfx}animasu jadwal selasa\` _atau_ \`${pfx}animasu jadwal\` _untuk hari ini._`);
+                        return;
+                }
+                await hisoka.sendMessage(m.from, { react: { text: '⏳', key: m.key } });
+                try {
+                        const html = await fetchJadwalHtml();
+                        const jadwal = parseJadwalPage(html);
+                        const catatan = catatanJadwal(html);
+                        let teks;
+                        if (!kunciArg) {
+                                // Tanpa argumen = SEMINGGU penuh, hari ini ditandai.
+                                teks = formatJadwalMinggu(jadwal, { tanggal: tanggalWIB(), catatan });
+                        } else {
+                                teks = formatJadwal(jadwal, kunciArg, { tanggal: null, catatan });
+                        }
+                        if (!teks) {
+                                if (!kunciArg) {
+                                        await tolak(hisoka, m, `📅 *JADWAL RILIS ANIMASU — SEMINGGU*\n\n_Belum ada jadwal di animasu.love._\n🔗 https://animasu.love/jadwal/`);
+                                } else {
+                                        await tolak(hisoka, m, `📅 *JADWAL RILIS ANIMASU*\n\n🗓️ *Hari:* ${TAMPIL_HARI[kunciArg]}\n\n_Belum ada anime terjadwal untuk ${TAMPIL_HARI[kunciArg]} di animasu.love._\n🔗 https://animasu.love/jadwal/`);
+                                }
+                        } else {
+                                await tolak(hisoka, m, teks);
+                        }
+                        await hisoka.sendMessage(m.from, { react: { text: '✅', key: m.key } });
+                        logCommand(m, hisoka, 'animasu-jadwal');
+                } catch (err) {
+                        await hisoka.sendMessage(m.from, { react: { text: '❌', key: m.key } });
+                        await tolak(hisoka, m, `❌ *Gagal ambil jadwal Animasu.*\n_${err?.message || err}_\n> _Coba lagi sebentar, atau buka_ https://animasu.love/jadwal/`);
                 }
                 return;
         }

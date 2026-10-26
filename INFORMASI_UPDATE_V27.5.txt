@@ -9,7 +9,7 @@ _📅 Jumat, 23 Oktober 2026_
 ✨ *2 Fitur Baru*
 🐛 *4 Fix Bug*
 🛠️ *0 Fix Error*
-🚀 *9 Perubahan*
+🚀 *10 Perubahan*
 ⚠️ *0 Hapus Fitur*
 ━━━━━━━━━━━━━━━━━━━━━━
 ✨ *FITUR BARU*
@@ -117,6 +117,13 @@ _📅 Jumat, 23 Oktober 2026_
    • Folder fitur grup dirapikan: `antidel/`, `antilink/`, `antitag/`, `antitagsw/` dilebur ke `group/` (plus `welcomeCard.js` dari `system/`), tag keempat plugin anti diubah jadi `group`, import silang & referensi path diperbarui — menu utama kini 15 section (dari 19) dengan 1 section FITUR GRUP.
    • Isi tidak berubah: menu utama tetap 166 plugin / 306 command (0 hilang), menu jadibot tetap 68 baris / 52 perintah / total 44.
 > _Hasil: menu & struktur folder rapih, enak dilihat, tanpa fitur hilang._
+
+10. *Animasu Jadwal — Jadwal Rilis Per Hari & Seminggu*
+   • Perintah baru `.animasu jadwal` — jadwal rilis seminggu penuh (Senin–Minggu, 74 anime) dalam 1 pesan, hari ini ditandai 👈 *HARI INI* + tanggal, antar hari dipisah garis simple.
+   • `.animasu jadwal <hari>` — jadwal 1 hari (senin–minggu; `jumat` tanpa apostrof diterima; hari tak dikenal langsung dibalas daftar hari tanpa fetch).
+   • Sumber realtime dari animasu.love/jadwal (fetch segar tiap panggil); pesan 1 hari maks 1000 karakter, pesan seminggu maks 4000 karakter (bila data membesar, otomatis jadi ringkasan hitungan per hari).
+   • Tanpa jam rilis & badge kartu (tidak terverifikasi dari halaman); section "Update Acak" tidak masuk hari manapun.
+> _Hasil: cek jadwal rilis anime harian & semingguan dari chat, realtime, rapih, 1 pesan._
 
 ━━━━━━━━━━━━━━━━━━━━━━
 ⚠️ *HAPUS FITUR*
