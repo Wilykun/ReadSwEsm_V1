@@ -7,9 +7,9 @@ _📅 Jumat, 23 Oktober 2026_
 ━━━━━━━━━━━━━━━━━━━━━━
 🤖 *WILY BOT* — `V27.5`
 ✨ *2 Fitur Baru*
-🐛 *3 Fix Bug*
+🐛 *4 Fix Bug*
 🛠️ *0 Fix Error*
-🚀 *7 Perubahan*
+🚀 *8 Perubahan*
 ⚠️ *0 Hapus Fitur*
 ━━━━━━━━━━━━━━━━━━━━━━
 ✨ *FITUR BARU*
@@ -48,6 +48,14 @@ _📅 Jumat, 23 Oktober 2026_
    • Keyword pendek (mis. `anime`) yang lolos pola ID pack sekarang otomatis fallback ke pencarian (sebelumnya error "tidak ditemukan").
    • Upload paket juga kadang terputus di tengah jalan (`socket hang up`) dan dulu sekali gagal langsung jatuh ke kirim satuan — sekarang dicoba sampai *3x* (koneksi + kunci upload segar, jeda 2 & 4 detik, timeout upload 60 detik), status percobaan tampil di pesan loading; kirim satuan hanya jaring pengaman terakhir setelah 3x gagal.
 > _Hasil: sticker di dalam paket tampil normal dan paket terkirim utuh sebagai 1 paket, tidak lagi pecah satuan karena gangguan jaringan sesaat._
+
+4. *.animasu — Perbaikan Gambar, Detail & Status*
+   • Cover anime sekarang pakai URL Photon asli (sebelumnya di-rewrite ke animasu.love → gambar 403 tidak tampil).
+   • Detail anime sekarang lewat translate.goog dengan retry (sebelumnya WP REST API 403 dari host bot sehingga detail gagal total).
+   • `.animasu status` & `.animasu test grup` sekarang baca dari homepage (sebelumnya WP API → kosong/gagal).
+   • Cache detail lama yang menahan data basi sudah diperbaiki: file dibaca segar tiap fallback, simpan read-then-write.
+   • Baris Rating yang kosong di situs sekarang dihilangkan, bukan tampil tanpa nilai.
+> _Hasil: gambar, detail, status & test animasu tampil akurat dari sumber live._
 
 ━━━━━━━━━━━━━━━━━━━━━━
 🛠️ *FIX ERROR*
@@ -94,6 +102,14 @@ _📅 Jumat, 23 Oktober 2026_
    • Analisis konten naik kelas: bukan cuma thumbnail — bot mengunduh video (maks 45MB) dan menganalisis *5 frame* dari awal sampai akhir video, jadi caption menggambarkan isi video yang sebenarnya.
    • Sebelumnya jalur vision lama mati diam-diam (auth scraper kedaluwarsa) sehingga caption hanya dari metadata + formatting kadang rusak — sekarang caption full AI dengan formatting WhatsApp native yang bersih.
 > _Hasil: caption `.fb`, `.ig`, `.tt` akurat sesuai isi video, bukan tebakan dari sampul._
+
+8. *.animasu — Monitor Update, Status Rapih & Format Baru*
+   • Notifikasi update: SATU pesan lengkap per anime (header per tipe, tanggal WIB, blok info lengkap: status, rilis, jenis, durasi, studio, rating, disimpan, diposting, diupdate, karakter, lanjutan; sinopsis, trailer, episode terbaru, link tonton) — caption mentok 1000 karakter, sinopsis dipotong di batas kata bila perlu.
+   • Detail dilengkapi Kitsu (genre + sinopsis) bila detail situs gagal, dan cache file detail (maks 200 slug, live-first: update terbaru selalu live dari homepage, cache hanya menambal saat sumber live tertutup; tiap sukses live menimpa cache).
+   • `.animasu test` = SATU preview update terbaru realtime (kartu teratas widget Sedang Tayang, atau Baru Ditambah & Diperbarui bila kosong).
+   • `.animasu status` = daftar grup saja, rapih & realtime: hitungan (total, aktif, nonaktif), urutan aktif dulu lalu nama, garis simple pemisah antar grup; per grup jumlah anggota, jumlah admin, dan status bot admin (✅/❌, ❓ bila tak diketahui) — diambil live dari grup, bukan simpanan. Data tersimpan di `config.json` tetap minimal per grup: `{ enabled, diubahPada }`.
+   • Semua pesan .animasu kini tanpa garis kotak/pohon — formatting WhatsApp native (tebal, miring, coret, kode, daftar bernomor/berpoint, kutip) sesuai konteks, URL tetap polos.
+> _Hasil: pantau update anime, cek status grup & kirim preview dari chat — realtime, rapih, dan satu pesan tanpa spam._
 
 ━━━━━━━━━━━━━━━━━━━━━━
 ⚠️ *HAPUS FITUR*

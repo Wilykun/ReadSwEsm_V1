@@ -158,8 +158,10 @@ function parseDetailPage(html, animeUrl) {
     const judulAlt = alterMatch ? stripHtml(alterMatch[1]) : '';
 
     const coverMatch = html.match(/<div class="thumb"[^>]*>[\s\S]*?<img[^>]+src="([^"]+)"/i);
-    const coverRaw   = coverMatch ? coverMatch[1].split('?')[0] : '';
-    const cover      = coverRaw.replace(/^https?:\/\/i\d+\.wp\.com\//, 'https://');
+    // JANGAN rewrite Photon (i*.wp.com) ke animasu.love (bug yang sama dengan
+    // cover kartu): host animasu.love diblokir Cloudflare sehingga Baileys gagal
+    // fetch gambar. Pakai URL cover asli apa adanya.
+    const cover = coverMatch ? coverMatch[1].split('?')[0] : '';
 
     const speMatch = html.match(/<div class="spe">([\s\S]*?)<\/div>/i);
     const speHtml  = speMatch ? speMatch[1] : '';
@@ -180,6 +182,24 @@ function parseDetailPage(html, animeUrl) {
 
     const ratingMatch = html.match(/<strong>Rating\s+([0-9.]+)<\/strong>/i);
     const rating = ratingMatch ? ratingMatch[1] : '';
+
+    // Field tambahan blok info lengkap (terbukti ada di halaman detail).
+    const karakter = ambilField('Karakter').replace(/,\s*$/, '').trim();
+    const disimpanMatch = html.match(/Disimpan oleh\s+(\d+)\s+orang/i);
+    const disimpan = disimpanMatch ? disimpanMatch[1] : '';
+    // Markup asli: <b>Diupdate:</b> <time itemprop="dateModified" ...>Oktober 26, 2026</time>
+    // (alasan gagal yang sama: </b> + tag <time> di antara label dan nilai).
+    const diupdateMatch = html.match(/Diupdate:\s*(?:<[^>]+>|\s+)*([^<]{3,40})/i);
+    const diupdate = diupdateMatch ? diupdateMatch[1].trim() : '';
+    let diposting = '';
+    // Markup asli: <b>Diposting:</b> <i itemprop="name">Animasu</i> — nilai
+    // terbungkus tag, jadi grup pemakan harus selang-seling tag & whitespace
+    // (pola lama gagal karena berhenti di tag pembuka nilai).
+    const dipostingMatch = html.match(/Diposting:\s*(?:<[^>]+>|\s+)*([^<]{1,30})/i);
+    if (dipostingMatch) {
+        diposting = dipostingMatch[1].replace(/\s*Diupdate:.*$/i, '').trim();
+        if (/Diupdate/i.test(diposting)) diposting = '';
+    }
 
     const sinopsisMatch = html.match(/<span class="desc"[^>]*>([\s\S]*?)<\/span>\s*<\/div>/i);
     const sinopsis = sinopsisMatch
@@ -207,6 +227,7 @@ function parseDetailPage(html, animeUrl) {
         durasi, studio, musim, rating, sinopsis,
         latestEpNum, latestEpUrl, totalEp, totalSeri, trailerUrl,
         batchDownload,
+        karakter, disimpan, diupdate, diposting,
         url: animeUrl,
     };
 }
@@ -316,9 +337,62 @@ async function fetchHtml(url) {
         if (isCloudflareBlockPage(html)) throw new Error('CF_BLOCK_PAGE');
         return html;
     } catch (_) {
-        // Direct gagal (403 / halaman blokir / error jaringan) → fallback Jina.
+        // Direct gagal (403 / halaman blokir / error jaringan).
+        // Halaman detail: Jina SELALU diblokir (terbukti berkali-kali, plus Jina
+        // ikut rate-limit) → langsung translate.goog, tanpa buang request ke Jina.
+        // Homepage & lainnya: Jina (TG tidak boleh karena TG menulis ulang URL
+        // gambar cover sehingga Baileys gagal fetch).
+        if (url.startsWith(BASE_URL + '/anime/')) {
+            return fetchHtmlViaTranslateGoog(url);
+        }
         return fetchHtmlViaJina(url);
     }
+}
+
+// Halaman detail via proxy Google Translate (animasu-love.translate.goog).
+// Terbukti: parser asli jalan di HTML-nya tanpa ubahan, sinopsis Indonesia asli.
+// 429 Google di-retry (terbukti sementara). Kalau TG mengembalikan halaman blokir
+// Cloudflare (Google ikut diblokir), lempar CLOUDFLARE_BLOCKED.
+async function fetchHtmlViaTranslateGoog(url) {
+    const tgUrl = `https://animasu-love.translate.goog${url.slice(BASE_URL.length)}?_x_tr_sl=auto&_x_tr_tl=id&_x_tr_hl=id`;
+    let lastErr;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+            const r = await axios.get(tgUrl, {
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+                    'Accept-Language': 'id-ID,id;q=0.9',
+                },
+                timeout: 90000, maxRedirects: 5, validateStatus: null,
+            });
+            const html = typeof r.data === 'string' ? r.data : '';
+            if (r.status === 429) throw new Error('TG_429');
+            if (isCloudflareBlockPage(html)) throw cfBlockedError();
+            if (r.status !== 200 || !html) throw new Error('TranslateGoog gagal: ' + r.status);
+            return html;
+        } catch (e) {
+            if (e.code === 'CLOUDFLARE_BLOCKED') throw e;
+            lastErr = e;
+            if (attempt < 3) await new Promise(r => setTimeout(r, 10000));
+        }
+    }
+    throw lastErr;
+}
+
+// Kembalikan URL yang ditulis ulang translate.goog ke aslinya.
+// Format Google: titik jadi '-', '-' asli jadi '--' (mis. i2-wp-com → i2.wp.com).
+// Plus: buang parameter _x_tr_* (bekas proxy) & decode &amp; supaya link bersih.
+function kembalikanUrlTranslate(url) {
+    const m = (url || '').match(/^https?:\/\/([a-z0-9-]+)\.translate\.goog(\/.*)?$/i);
+    if (!m) return url;
+    const host = m[1].replace(/--/g, '__DASH__').replace(/-/g, '.').replace(/__DASH__/g, '-');
+    let rest = (m[2] || '/').replace(/&amp;/g, '&');
+    const q = rest.indexOf('?');
+    if (q !== -1) {
+        const bersih = rest.slice(q + 1).split('&').filter(p => p && !p.startsWith('_x_tr_')).join('&');
+        rest = bersih ? rest.slice(0, q) + '?' + bersih : rest.slice(0, q);
+    }
+    return 'https://' + host + rest;
 }
 
 async function fetchRecentPosts(count = 20) {
@@ -374,7 +448,11 @@ function parseAnimeCards(sectionHtml) {
             jenis        : (m[3] || '').trim(),
             episodeLabel : stripHtml(m[4]),
             statusLabel  : stripHtml(statusRaw),
-            cover        : (m[6] || '').split('?')[0].replace(/^https?:\/\/i\d+\.wp\.com\//, 'https://'),
+            // JANGAN rewrite Photon (i*.wp.com) ke animasu.love: host animasu.love
+            // diblokir Cloudflare dari host bot sehingga Baileys gagal fetch gambar
+            // ("Failed to fetch stream") saat kirim preview/notif. Photon justru
+            // lolos (200) — pakai URL cover asli dari HTML apa adanya.
+            cover        : (m[6] || '').split('?')[0],
             judul        : stripHtml(m[7]),
         });
     }
@@ -454,6 +532,264 @@ async function cariPerubahanBaruDiperbarui() {
     return perubahan;
 }
 
+// ── ENRICHMENT: GENRE + SINOPSIS VIA KITSU (TANPA KEY) ───────────────────────
+// Halaman detail Animasu diblokir Cloudflare (bahkan via Jina), jadi genre &
+// sinopsis tidak bisa diambil dari Animasu. Kitsu (kitsu.io/api/edge/anime)
+// lolos dari host ini dan mengembalikan genre + sinopsis dari judul kartu.
+// Dipanggil HANYA saat preview diminta atau saat monitor mendeteksi perubahan
+// (bukan tiap tick) — dan TIDAK PERNAH melempar: gagal/tidak cocok → item
+// dikembalikan apa adanya sehingga caption tetap terkirim tanpa enrichment.
+const kitsuCache = new Map(); // slug animasu -> { genre, sinopsis }
+
+function normalisasiJudulAnime(teks) {
+    return (teks || '').toLowerCase().replace(/\[[^\]]*\]/g, ' ')
+        .replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+async function fetchKitsuMeta(judul) {
+    try {
+        const r = await axios.get('https://kitsu.io/api/edge/anime', {
+            params: { 'filter[text]': judul, 'page[limit]': 5, include: 'categories' },
+            headers: { Accept: 'application/vnd.api+json' },
+            timeout: 15000,
+        });
+        const hasil = r.data?.data || [];
+        if (!hasil.length) return null;
+        const kategori = {};
+        for (const inc of (r.data?.included || [])) {
+            if (inc.type === 'categories') kategori[inc.id] = inc.attributes?.title;
+        }
+        // Kandidat judul: judul kartu tanpa [...] + isi [...] (mis. "Link Click: Bridon Arc").
+        const kurung = (judul.match(/\[([^\]]+)\]/) || [])[1] || '';
+        const kandidat = [normalisasiJudulAnime(judul), normalisasiJudulAnime(kurung)].filter(Boolean);
+        let pilih = null;
+        for (const a of hasil) {
+            const at = a.attributes || {};
+            const nama = [normalisasiJudulAnime(at.canonicalTitle), normalisasiJudulAnime(at.titles?.en)].filter(Boolean);
+            if (kandidat.some(k => nama.includes(k))) { pilih = a; break; }
+        }
+        if (!pilih) return null; // tidak ada yang cocok persis — jangan tebak
+        const at = pilih.attributes || {};
+        const genre = (pilih.relationships?.categories?.data || [])
+            .map(c => kategori[c.id]).filter(Boolean).slice(0, 6).join(', ');
+        const sinopsis = (at.synopsis || '').replace(/\s+/g, ' ').trim();
+        return { id: pilih.id, genre, sinopsis };
+    } catch (_) {
+        return null;
+    }
+}
+
+// Lanjutan/versi lain via relasi Kitsu (halaman Animasu tidak punya seksi sekuel
+// yang bisa diparse). Hasil: null = tak diketahui (baris disembunyikan),
+// false = terbukti tidak ada, string = judul lanjutan, true = ada (judul tak ter-resolve).
+// Tidak pernah throw. Cache per judul.
+const kitsuLanjutanCache = new Map();
+async function fetchKitsuLanjutan(judul) {
+    try {
+        if (!judul) return null;
+        if (kitsuLanjutanCache.has(judul)) return kitsuLanjutanCache.get(judul);
+        const meta = await fetchKitsuMeta(judul);
+        if (!meta?.id) { kitsuLanjutanCache.set(judul, null); return null; }
+        const r = await axios.get('https://kitsu.io/api/edge/media-relationships', {
+            params: { 'filter[source_id]': meta.id, 'page[limit]': 20, include: 'destination' },
+            headers: { Accept: 'application/vnd.api+json' },
+            timeout: 15000, validateStatus: null,
+        });
+        const rels = r.data?.data || [];
+        const tujuan = {};
+        for (const inc of (r.data?.included || [])) {
+            if (inc.type === 'anime') tujuan[inc.id] = inc.attributes?.canonicalTitle;
+        }
+        const sekuel = rels.filter(x => /sequel|prequel/i.test(x.attributes?.role || ''));
+        let hasil = false;
+        if (sekuel.length) {
+            const nama = sekuel.map(x => tujuan[x.relationships?.destination?.data?.id]).filter(Boolean);
+            hasil = nama.length ? nama.join(', ') : true;
+        }
+        kitsuLanjutanCache.set(judul, hasil);
+        return hasil;
+    } catch (_) {
+        return null;
+    }
+}
+
+async function perkayasItemDenganKitsu(item) {
+    try {
+        if (!item?.judul) return item;
+        if (kitsuCache.has(item.slug)) {
+            const meta = kitsuCache.get(item.slug);
+            return { ...item, genre: meta.genre, sinopsis: meta.sinopsis };
+        }
+        const meta = await fetchKitsuMeta(item.judul);
+        if (!meta) return item;
+        kitsuCache.set(item.slug, meta);
+        return { ...item, genre: meta.genre, sinopsis: meta.sinopsis };
+    } catch (_) {
+        return item;
+    }
+}
+
+// ── BLOK INFO LENGKAP (DETAIL VIA TRANSLATE.GOOG) ─────────────────────────────
+// Detail lengkap diambil lewat fetchHtml (direct → Jina → translate.goog).
+// URL yang ditulis ulang translate.goog dikembalikan ke aslinya (trailer,
+// episode terbaru, cover) supaya link yang dikirim bisa diklik user.
+const FILE_DETAIL_CACHE = path.join(process.cwd(), 'data', 'animasu', 'detail-cache.json');
+const detailCache = new Map(); // slug -> detail (memori proses; hemat request TG)
+
+// Cache file SELALU dibaca fresh dari disk (tidak di-memoize): seed dari luar
+// (skrip seed / proses lain) langsung terlihat tanpa restart bot. File kecil
+// (<200 entri), dan baca hanya terjadi saat live gagal — jadi murah.
+function muatCacheFileDetail() {
+    try {
+        if (fs.existsSync(FILE_DETAIL_CACHE)) {
+            return new Map(Object.entries(JSON.parse(fs.readFileSync(FILE_DETAIL_CACHE, 'utf-8')) || {}));
+        }
+    } catch (_) {}
+    return new Map();
+}
+
+function simpanCacheFileDetail(slug, entri) {
+    try {
+        const fc = muatCacheFileDetail();
+        fc.set(slug, entri);
+        if (fc.size > 200) {
+            const urut = [...fc.entries()].sort((a, b) => (a[1].fetchedAt || '').localeCompare(b[1].fetchedAt || ''));
+            for (const [k] of urut.slice(0, fc.size - 200)) fc.delete(k);
+        }
+        fs.writeFileSync(FILE_DETAIL_CACHE, JSON.stringify(Object.fromEntries(fc), null, 2), 'utf-8');
+    } catch (_) {}
+}
+
+// Detail lengkap: live dulu (direct → translate.goog), gagal → cache file.
+// Cache file BERTAHAN melewati reboot host (yang tiap jam menghapus cache memori),
+// jadi blok lengkap (rating, disimpan, dll) tetap tampil walau TG sedang 429/blokir.
+// Data cache selalu kalah dari live: tiap sukses live, cache ditimpa yang baru.
+// Mengembalikan null bila live gagal DAN tidak ada cache (pemanggil jatuh ke Kitsu).
+async function fetchDetailLengkap(slug, judulUntukLanjutan) {
+    if (detailCache.has(slug)) return detailCache.get(slug);
+    try {
+        const animeUrl = `${BASE_URL}/anime/${slug}/`;
+        const html = await fetchHtml(animeUrl);
+        const detail = parseDetailPage(html, animeUrl);
+        for (const k of ['trailerUrl', 'latestEpUrl', 'cover']) {
+            if (detail[k] && detail[k].includes('.translate.goog')) {
+                detail[k] = kembalikanUrlTranslate(detail[k]);
+            }
+        }
+        if (detail.judul || detail.sinopsis || detail.genre) {
+            try { detail.lanjutan = await fetchKitsuLanjutan(detail.judul || judulUntukLanjutan); } catch (_) { detail.lanjutan = null; }
+            detailCache.set(slug, detail);
+            simpanCacheFileDetail(slug, { detail, fetchedAt: new Date().toISOString() });
+            return detail;
+        }
+    } catch (_) {}
+    // Live gagal/kosong → cache file (bisa agak basi, tapi lengkap — jauh lebih
+    // baik daripada fallback Kitsu yang tidak punya rating/disimpan/studio/dll).
+    // File dibaca fresh (bukan memoize) agar seed dari luar langsung terpakai.
+    try {
+        const entri = muatCacheFileDetail().get(slug);
+        if (entri?.detail) {
+            detailCache.set(slug, entri.detail);
+            return entri.detail;
+        }
+    } catch (_) {}
+    return null;
+}
+
+// Caption blok lengkap SATU PESAN (sinopsis di dalam caption, bukan pesan
+// terpisah — keputusan Wily 16:00). Caption gambar WA mentok 1024 karakter,
+// jadi bila total melewati 1000 karakter, sinopsis dipotong di batas kata
+// (lihat sesuaikanPanjangCaption) — bukan potong tetap seperti dulu.
+function buatCaptionDetailLengkap(item, detail) {
+    const waktu = new Date().toLocaleString('id-ID', {
+        timeZone: 'Asia/Jakarta', weekday: 'long', day: '2-digit', month: 'long',
+        year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false,
+    });
+    const headerMap = {
+        baru_tayang: '🔥 *ANIME BARU TAYANG!*',
+        episode_baru: '🔥 *SEDANG TAYANG - EPISODE BARU!*',
+        baru_ditambah: '🆕 *ANIME BARU DITAMBAHKAN!*',
+        diperbarui: '🔄 *ANIME DIPERBARUI!*',
+    };
+    const header = headerMap[item.tipe] || '🔥 *ANIME UPDATE!*';
+    let episodeLabel = item.episodeLabel || '';
+    const epM = episodeLabel.match(/^Episode (\d+)$/);
+    if (epM && detail.totalEp) episodeLabel = `Episode ${epM[1]}/${detail.totalEp}`;
+    const isUpdate = item.tipe === 'baru_ditambah' || item.tipe === 'diperbarui';
+    const lanjutanText = detail.lanjutan === false ? 'Belum ada'
+        : (typeof detail.lanjutan === 'string' ? detail.lanjutan
+        : (detail.lanjutan === true ? 'Ada' : ''));
+    const info = buatBarisInfo([
+        // Parser sengaja membuang emoji status; contoh resmi Wily menulis
+        // "Sedang Tayang 🔥", jadi kembalikan 🔥 untuk status itu saja.
+        ['Status', detail.status === 'Sedang Tayang' ? 'Sedang Tayang 🔥' : detail.status],
+        ['Rilis', detail.rilis],
+        ['Jenis', detail.jenis],
+        ['Durasi', detail.durasi],
+        ['Studio', detail.studio],
+        ['Rating', detail.rating],
+        ['Disimpan', detail.disimpan ? `${detail.disimpan} orang` : ''],
+        ['Diposting', detail.diposting],
+        ['Diupdate', detail.diupdate],
+        ['Karakter', detail.karakter],
+        ['Lanjutan', lanjutanText],
+    ]);
+    return (
+        `${header}\n` +
+        `\n` +
+        `📅 _${waktu} WIB_\n` +
+        `\n` +
+        `🎌 *${detail.judul || item.judul}*\n` +
+        `📺 *${episodeLabel}*${isUpdate && item.statusLabel ? ` · ${item.statusLabel}` : ''}\n` +
+        (detail.genre ? `🎭 *Genre:* ${detail.genre}\n` : '') +
+        (item.labelLama ? `↪️ _Sebelumnya: ${item.labelLama}_\n` : '') +
+        (info ? `\n📋 *Info Anime*\n${info}\n` : '') +
+        (detail.sinopsis ? `\n📖 *Sinopsis:*\n${detail.sinopsis.split('\n').map(b => `> ${b}`).join('\n')}\n` : '') +
+        (detail.trailerUrl ? `▶️ *Trailer:* ${detail.trailerUrl}\n` : '') +
+        (detail.latestEpUrl ? `🎬 *Episode Terbaru:* ${detail.latestEpUrl}\n` : '') +
+        `\n🔗 ${item.url}`
+    );
+}
+
+// SATU PESAN, bukan pisah-pisah (keputusan Wily 16:00 — pesan sinopsis terpisah
+// terasa "makin aneh"). Caption gambar WA mentok 1024 karakter, jadi sinopsis
+// HANYA dipotong bila total caption melewati 1000 karakter (margin aman), dan
+// potongnya di batas kata (potongSinopsis) — bukan potong tetap 250 seperti dulu.
+// Untuk data yang sedang tampil (Kitsu: 213 & 616 char) tidak ada yang dipotong.
+function sesuaikanPanjangCaption(caption, sinopsis, buatUlang) {
+    if (!sinopsis || caption.length <= 1000) return caption;
+    const budget = Math.max(20, 1000 - (caption.length - sinopsis.length));
+    return buatUlang(potongSinopsis(sinopsis, budget));
+}
+
+// Satu pintu pesan lengkap untuk preview & monitor, dengan fallback berlapis:
+//  1. Detail lengkap (translate.goog, sinopsis Indonesia)
+//  2. Kitsu (genre + sinopsis Inggris)
+//  3. Kartu saja (tanpa sinopsis)
+// TIDAK PERNAH melempar: semua kegagalan jatuh ke lapisan berikut.
+async function buatPesanLengkap(item) {
+    try {
+        const detail = await fetchDetailLengkap(item.slug, item.judul);
+        if (detail && (detail.judul || detail.sinopsis || detail.genre)) {
+            const caption = sesuaikanPanjangCaption(
+                buatCaptionDetailLengkap(item, detail),
+                detail.sinopsis,
+                s => buatCaptionDetailLengkap(item, { ...detail, sinopsis: s }),
+            );
+            return { caption, urlGambar: item.cover || null };
+        }
+    } catch (_) {}
+    const kaya = await perkayasItemDenganKitsu(item);
+    const isUpdate = item.tipe === 'baru_ditambah' || item.tipe === 'diperbarui';
+    const bangun = k => isUpdate ? buatCaptionBaruUpdate(k) : buatCaptionTayang(k);
+    const caption = sesuaikanPanjangCaption(
+        bangun(kaya),
+        kaya.sinopsis,
+        s => bangun({ ...kaya, sinopsis: s }),
+    );
+    return { caption, urlGambar: item.cover || null };
+}
+
 // ── CAPTION: SEDANG TAYANG & BARU DITAMBAH/DIPERBARUI ─────────────────────────
 
 function buatCaptionTayang(item) {
@@ -464,12 +800,14 @@ function buatCaptionTayang(item) {
     const judul = item.tipe === 'baru_tayang' ? '🔥 *ANIME BARU TAYANG!*' : '🔥 *SEDANG TAYANG - EPISODE BARU!*';
     return (
         `${judul}\n` +
-        `${SEP}\n` +
+        `\n` +
         `📅 _${waktu} WIB_\n` +
-        `${SEP}\n\n` +
+        `\n` +
         `🎌 *${item.judul}*\n` +
         `📺 *${item.episodeLabel}*\n` +
+        (item.genre ? `🎭 *Genre:* ${item.genre}\n` : '') +
         (item.labelLama ? `↪️ _Sebelumnya: ${item.labelLama}_\n` : '') +
+        (item.sinopsis ? `\n📖 *Sinopsis (EN):*\n${item.sinopsis.split('\n').map(b => `> ${b}`).join('\n')}\n` : '') +
         `\n🔗 ${item.url}`
     );
 }
@@ -482,12 +820,14 @@ function buatCaptionBaruUpdate(item) {
     const judul = item.tipe === 'baru_ditambah' ? '🆕 *ANIME BARU DITAMBAHKAN!*' : '🔄 *ANIME DIPERBARUI!*';
     return (
         `${judul}\n` +
-        `${SEP}\n` +
+        `\n` +
         `📅 _${waktu} WIB_\n` +
-        `${SEP}\n\n` +
+        `\n` +
         `🎌 *${item.judul}*\n` +
         `📺 *${item.episodeLabel}* · ${item.statusLabel}\n` +
+        (item.genre ? `🎭 *Genre:* ${item.genre}\n` : '') +
         (item.labelLama ? `↪️ _Sebelumnya: ${item.labelLama}_\n` : '') +
+        (item.sinopsis ? `\n📖 *Sinopsis (EN):*\n${item.sinopsis.split('\n').map(b => `> ${b}`).join('\n')}\n` : '') +
         `\n🔗 ${item.url}`
     );
 }
@@ -498,16 +838,29 @@ async function previewSedangTayang() {
     const { sectionTayang } = await fetchHomepageSections();
     const daftar = parseAnimeCards(sectionTayang).filter(a => a.slug);
     if (!daftar.length) throw new Error('Widget "Sedang Tayang" kosong/tidak terbaca');
-    const item = { ...daftar[0], tipe: 'episode_baru' };
-    return { caption: buatCaptionTayang(item), urlGambar: item.cover || null };
+    return buatPesanLengkap({ ...daftar[0], tipe: 'episode_baru' });
 }
 
 async function previewBaruUpdate() {
     const { sectionUpdate } = await fetchHomepageSections();
     const daftar = parseAnimeCards(sectionUpdate).filter(a => a.slug);
     if (!daftar.length) throw new Error('Widget "Baru Ditambah & Diperbarui" kosong/tidak terbaca');
-    const item = { ...daftar[0], tipe: 'diperbarui' };
-    return { caption: buatCaptionBaruUpdate(item), urlGambar: item.cover || null };
+    return buatPesanLengkap({ ...daftar[0], tipe: 'diperbarui' });
+}
+
+// Preview SATU update terbaru (dipakai `.animasu test` sejak 17:52 — keputusan
+// Wily: cukup 1 kali, bukan 2 preview). Kartu homepage TIDAK membawa timestamp
+// (terverifikasi: tidak ada <time>/datetime/class date di 10+10 kartu), jadi
+// "terbaru" lintas widget tidak bisa dibandingkan dari kartu — yang dipakai:
+// kartu teratas "Sedang Tayang" (feed rilis episode terbaru); bila Tayang
+// kosong, kartu teratas "Baru Ditambah & Diperbarui".
+async function previewUpdateTerbaru() {
+    const { sectionTayang, sectionUpdate } = await fetchHomepageSections();
+    const tayang = parseAnimeCards(sectionTayang).filter(a => a.slug);
+    if (tayang.length) return buatPesanLengkap({ ...tayang[0], tipe: 'episode_baru' });
+    const upd = parseAnimeCards(sectionUpdate).filter(a => a.slug);
+    if (upd.length) return buatPesanLengkap({ ...upd[0], tipe: 'diperbarui' });
+    throw new Error('Widget Animasu kosong/tidak terbaca');
 }
 
 // ── PARSE SLUG & EPISODE DARI POST ────────────────────────────────────────────
@@ -733,7 +1086,7 @@ async function cariEpisodeBaru() {
 // ── SIMULASI (TEST) ───────────────────────────────────────────────────────────
 
 async function simulasi(slugOverride = null) {
-    let animeSlug, epNum, postId, postDate, postLink;
+    let animeSlug, epNum, postId, postDate, postLink, kartu = null;
 
     if (slugOverride) {
         animeSlug = slugOverride;
@@ -742,45 +1095,63 @@ async function simulasi(slugOverride = null) {
         postDate  = new Date().toISOString();
         postLink  = null;
     } else {
-        const posts = await fetchRecentPosts(1);
-        if (!posts.length) throw new Error('Tidak ada post terbaru dari Animasu');
-        const post = posts[0];
-        animeSlug  = animeSlugDariPost(post);
-        epNum      = nomorEpisodeDariPost(post);
-        postId     = post.id;
-        postDate   = post.date;
-        postLink   = post.link || null;
+        // WP REST API diblokir Cloudflare (403) — sumber diganti ke widget
+        // homepage "Sedang Tayang" (Jina, terbukti lolos): kartu teratas = anime
+        // terbaru yang sedang tayang, padanan post terbaru dari API.
+        const { sectionTayang } = await fetchHomepageSections();
+        const daftar = parseAnimeCards(sectionTayang).filter(a => a.slug);
+        if (!daftar.length) throw new Error('Tidak ada anime Sedang Tayang dari Animasu');
+        const card = daftar[0];
+        animeSlug  = card.slug;
+        epNum      = parseInt((card.episodeLabel || '').match(/\d+/)?.[0] || '0', 10) || 0;
+        postId     = 'sim-' + Date.now();
+        postDate   = new Date().toISOString();
+        postLink   = card.url;
+        kartu      = { judul: card.judul, cover: card.cover, status: card.statusLabel, jenis: card.jenis };
     }
 
     let animeUrl = `${BASE_URL}/anime/${animeSlug}/`;
-    let html;
+    let html = null;
     try {
         html = await fetchHtml(animeUrl);
     } catch (e404) {
         if (postLink) {
-            const realUrl = await fetchAnimeUrlFromEpisodePage(postLink);
-            if (realUrl && realUrl !== animeUrl) {
-                animeUrl = realUrl;
-                html = await fetchHtml(animeUrl);
-            } else throw e404;
-        } else throw e404;
+            try {
+                const realUrl = await fetchAnimeUrlFromEpisodePage(postLink);
+                if (realUrl && realUrl !== animeUrl) {
+                    animeUrl = realUrl;
+                    html = await fetchHtml(animeUrl);
+                }
+            } catch (_) { /* jatuh ke fallback kartu */ }
+        }
     }
-    const detail  = parseDetailPage(html, animeUrl);
-    const data    = { postId, postDate, epNum, animeSlug, ...detail };
-    const caption = buatCaption(data);
-    return { caption, urlGambar: data.cover || null, batchDownload: detail.batchDownload || null };
+    if (html) {
+        const detail = parseDetailPage(html, animeUrl);
+        const data = { postId, postDate, epNum, animeSlug, ...detail };
+        return { caption: buatCaption(data), urlGambar: data.cover || null, batchDownload: detail.batchDownload || null };
+    }
+    // Detail tak bisa diambil (translate.goog tertutup) — JANGAN gagal total
+    // seperti dulu ("Gagal fetch Animasu" di test grup): pakai data kartu +
+    // enrichment Kitsu, rantai yang sama dengan preview. Tidak pernah throw.
+    let item = { slug: animeSlug, judul: kartu?.judul || animeSlug, url: animeUrl, cover: kartu?.cover || null };
+    try { item = await perkayasItemDenganKitsu(item); } catch (_) {}
+    const data = {
+        postId, postDate, epNum, animeSlug,
+        judul: item.judul, genre: item.genre || '', sinopsis: item.sinopsis || '',
+        cover: item.cover || null, url: animeUrl,
+        status: kartu?.status || '', jenis: kartu?.jenis || '',
+    };
+    return { caption: buatCaption(data), urlGambar: data.cover || null, batchDownload: null };
 }
 
 // ── FORMAT CAPTION ────────────────────────────────────────────────────────────
 
-const SEP  = '━━━━━━━━━━━━━━━━━━';
-const SEP2 = '┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄';
 
 function buatBarisInfo(items) {
     const valid = items.filter(([, val]) => val !== null && val !== undefined && val !== '' && val !== '-');
-    return valid.map(([label, val], i) => {
-        const prefix = i === valid.length - 1 ? '╰' : '├';
-        return `${prefix} ${label} : ${val}`;
+    return valid.map(([label, val]) => {
+        const bersih = String(label).replace(/\*/g, '').replace(/\s+/g, ' ').trim();
+        return `• *${bersih}:* ${val}`;
     }).join('\n');
 }
 
@@ -841,36 +1212,36 @@ function buatCaption(data) {
 
     let batchBlok = '';
     if (batchDownload?.resolutions?.length) {
-        batchBlok += `\n${SEP}\n`;
+        batchBlok += `\n`;
         batchBlok += `📦 *BATCH TERSEDIA!*\n`;
-        batchBlok += `${SEP2}\n`;
+        batchBlok += `\n`;
         for (const r of batchDownload.resolutions) {
             const mirrors = r.links.map(l => l.label).join(' · ');
-            batchBlok += `├ \`${r.res}\` ${mirrors}\n`;
+            batchBlok += `• \`${r.res}\` ${mirrors}\n`;
         }
         const firstLink = batchDownload.resolutions[0]?.links[0];
         if (firstLink) {
-            batchBlok += `╰ 🔗 Download: ${firstLink.url}\n`;
+            batchBlok += `• 🔗 Download: ${firstLink.url}\n`;
         }
     }
 
     return (
         `🟢 *SUB INDO SUDAH TAYANG!*\n` +
-        `${SEP}\n` +
+        `\n` +
         `📅 _${headerWaktu}_\n` +
-        `${SEP}\n\n` +
+        `\n` +
         `🎌 *${judul}*\n` +
         `${judulAlt ? `_${judulAlt}_\n` : ''}` +
         `\n📺 *Episode ${epHeader}*\n` +
         `\n📖 *Sinopsis*\n` +
         `${sinopsisBlock}\n\n` +
-        `${SEP}\n` +
+        `\n` +
         `📋 *Info Anime*\n` +
-        `${SEP2}\n` +
+        `\n` +
         `${seksi1}\n` +
-        `${SEP2}\n` +
+        `\n` +
         `${seksi2}\n` +
-        `${SEP}\n` +
+        `\n` +
         `${trailerUrl ? `🎬 *PV*     : ${trailerUrl}\n` : ''}` +
         `▶️ *Tonton*  : ${latestEpUrl || url}\n` +
         `🔗 *Anime*   : ${url}` +
@@ -885,61 +1256,53 @@ function ambilUrlGambar(data) {
 // ── STATUS: DAFTAR ANIME SEDANG TAYANG + SISA EPISODE ────────────────────────
 
 async function getAiringStatus(jumlahPost = 40) {
-    const posts = await fetchRecentPosts(jumlahPost);
-
+    // WP REST API diblokir Cloudflare (403) untuk host bot — sumber diganti ke
+    // 2 widget homepage (Jina, terbukti lolos). Detail per anime tetap diambil
+    // lewat fetchHtml (translate.goog), tapi GAGAL detail TIDAK LAGI
+    // menghilangkan anime dari daftar: data kartu (judul, episode, status,
+    // link) tetap tampil, hanya total/sisa episode yang jadi tak diketahui.
+    const { sectionTayang, sectionUpdate } = await fetchHomepageSections();
     const map = new Map();
-    for (const post of posts) {
-        const slug  = animeSlugDariPost(post);
-        const epNum = nomorEpisodeDariPost(post);
-        if (!slug) continue;
-        if (!map.has(slug) || epNum > map.get(slug).epNum) {
-            map.set(slug, { slug, epNum, postDate: post.date, postLink: post.link || null });
+    for (const a of [...parseAnimeCards(sectionTayang), ...parseAnimeCards(sectionUpdate)]) {
+        if (!a.slug) continue;
+        const epNum = parseInt((a.episodeLabel || '').match(/\d+/)?.[0] || '0', 10) || 0;
+        if (!map.has(a.slug) || epNum > map.get(a.slug).epNum) {
+            map.set(a.slug, { slug: a.slug, epNum, judul: a.judul, url: a.url, statusLabel: a.statusLabel });
         }
     }
 
-    const slugList = [...map.values()];
+    const slugList = [...map.values()].slice(0, jumlahPost);
 
     const BATCH = 6;
     const results = [];
     for (let i = 0; i < slugList.length; i += BATCH) {
         const chunk   = slugList.slice(i, i + BATCH);
-        const settled = await Promise.allSettled(
-            chunk.map(async ({ slug, epNum, postDate, postLink }) => {
-                let animeUrl = `${BASE_URL}/anime/${slug}/`;
-                let html;
+        const enriched = await Promise.all(
+            chunk.map(async ({ slug, epNum, judul, url, statusLabel }) => {
+                const animeUrl = `${BASE_URL}/anime/${slug}/`;
+                let detail = null;
                 try {
-                    html = await fetchHtml(animeUrl);
-                } catch (e404) {
-                    if (postLink) {
-                        const realUrl = await fetchAnimeUrlFromEpisodePage(postLink);
-                        if (realUrl && realUrl !== animeUrl) {
-                            animeUrl = realUrl;
-                            html = await fetchHtml(animeUrl);
-                        } else throw e404;
-                    } else throw e404;
-                }
-                const detail   = parseDetailPage(html, animeUrl);
-                const sisaEp   = (detail.totalSeri && epNum)
-                    ? Math.max(0, detail.totalSeri - epNum)
-                    : null;
+                    const html = await fetchHtml(animeUrl);
+                    detail = parseDetailPage(html, animeUrl);
+                } catch (_) { /* kartu tetap dipakai */ }
+                const totalSeri = detail?.totalSeri || 0;
+                const sisaEp = (totalSeri && epNum) ? Math.max(0, totalSeri - epNum) : null;
                 return {
-                    judul         : detail.judul || slug,
-                    musim         : detail.musim || '-',
-                    status        : detail.status || '-',
-                    epTerbaru     : epNum || detail.latestEpNum || 0,
-                    totalSeri     : detail.totalSeri || 0,
+                    judul         : detail?.judul || judul || slug,
+                    musim         : detail?.musim || '-',
+                    status        : detail?.status || statusLabel || '-',
+                    epTerbaru     : epNum || detail?.latestEpNum || 0,
+                    totalSeri,
                     sisaEp,
                     url           : animeUrl,
-                    latestEpUrl   : detail.latestEpUrl || animeUrl,
-                    genre         : detail.genre || '',
-                    batchDownload : detail.batchDownload || null,
-                    postDate,
+                    latestEpUrl   : detail?.latestEpUrl || animeUrl,
+                    genre         : detail?.genre || '',
+                    batchDownload : detail?.batchDownload || null,
+                    postDate      : null,
                 };
             })
         );
-        for (const s of settled) {
-            if (s.status === 'fulfilled') results.push(s.value);
-        }
+        results.push(...enriched);
         if (i + BATCH < slugList.length) await new Promise(r => setTimeout(r, 500));
     }
 
@@ -955,7 +1318,7 @@ async function getAiringStatus(jumlahPost = 40) {
 
 // ── EXPORT ────────────────────────────────────────────────────────────────────
 
-export { getEnabledGroups, setGroupEnabled, cariEpisodeBaru, buatCaption, ambilUrlGambar, tandaiSudahKirim, tandaiDanLog, getRecentLog, simulasi, getAiringStatus, cariPerubahanSedangTayang, cariPerubahanBaruDiperbarui, buatCaptionTayang, buatCaptionBaruUpdate, previewSedangTayang, previewBaruUpdate };
+export { getEnabledGroups, setGroupEnabled, cariEpisodeBaru, buatCaption, ambilUrlGambar, tandaiSudahKirim, tandaiDanLog, getRecentLog, simulasi, getAiringStatus, cariPerubahanSedangTayang, cariPerubahanBaruDiperbarui, buatCaptionTayang, buatCaptionBaruUpdate, previewSedangTayang, previewBaruUpdate, previewUpdateTerbaru, perkayasItemDenganKitsu, buatPesanLengkap, fetchKitsuLanjutan, fetchDetailLengkap };
 export { handleAnimasu };
 // ── COMMAND HANDLER ───────────────────────────────────────────────────────────
 
@@ -974,23 +1337,17 @@ async function handleAnimasu({ hisoka, m, query, tolak, logCommand, sendConfirmW
         if (!sub || sub === 'help') {
                 const aktif = cfgAM.animasu.groups[m.from]?.enabled === true;
                 await tolak(hisoka, m,
-                        `╭─「 📺 *ANIMASU SUB INDO* 」\n` +
-                        `│\n` +
-                        `│ Status di grup ini: ${aktif ? '✅ *Aktif*' : '❌ *Nonaktif*'}\n` +
-                        `│\n` +
-                        `│ *Perintah:*\n` +
-                        `│ 1. \`${pfx}animasu on\` — _aktifkan_\n` +
-                        `│ 2. \`${pfx}animasu off\` — _nonaktifkan_\n` +
-                        `│ 3. \`${pfx}animasu test\` — _preview notif ke sini_\n` +
-                        `│ 4. \`${pfx}animasu test grup\` — _kirim ke semua grup aktif_\n` +
-                        `│ 5. \`${pfx}animasu status\` — _lihat semua grup_\n` +
-                        `│\n` +
-                        `│ > 💡 Bot memantau *2 widget* di _animasu.love_\n` +
-                        `│ > secara terpisah & *realtime:*\n` +
-                        `│ 🔥 *Sedang Tayang* — episode baru rilis\n` +
-                        `│ 🆕🔄 *Baru Ditambah & Diperbarui* — anime\n` +
-                        `│    baru masuk atau datanya diupdate\n` +
-                        `╰──────────────────────`
+                        `📺 *ANIMASU SUB INDO*\n\n` +
+                        `Status di grup ini: ${aktif ? '✅ *Aktif*' : '❌ *Nonaktif*'}\n\n` +
+                        `*Perintah:*\n` +
+                        `1. \`${pfx}animasu on\` — _aktifkan_\n` +
+                        `2. \`${pfx}animasu off\` — _nonaktifkan_\n` +
+                        `3. \`${pfx}animasu test\` — _preview notif ke sini_\n` +
+                        `4. \`${pfx}animasu test grup\` — _kirim ke semua grup aktif_\n` +
+                        `5. \`${pfx}animasu status\` — _lihat semua grup_\n\n` +
+                        `> 💡 Bot memantau *2 widget* di _animasu.love_ secara terpisah & *realtime:*\n` +
+                        `• 🔥 *Sedang Tayang* — episode baru rilis\n` +
+                        `• 🆕🔄 *Baru Ditambah & Diperbarui* — anime baru masuk atau datanya diupdate`
                 );
                 return;
         }
@@ -1000,17 +1357,13 @@ async function handleAnimasu({ hisoka, m, query, tolak, logCommand, sendConfirmW
                 cfgAM.animasu.groups[m.from] = { enabled: true, diubahPada: Date.now() };
                 fs.writeFileSync(cfgPathAM, JSON.stringify(cfgAM, null, 2));
                 await sendConfirmWithButtons(hisoka, m,
-                        `╭─「 📺 *ANIMASU SUB INDO* 」\n` +
-                        `│\n` +
-                        `│ Status sebelumnya : ${sebelumnyaAM ? '✅ *ON*' : '❌ *OFF*'}\n` +
-                        `│ Status sekarang   : ✅ *ON*\n` +
-                        `│\n` +
+                        `📺 *ANIMASU SUB INDO*\n\n` +
+                        `Status sebelumnya: ${sebelumnyaAM ? '✅ *ON*' : '~❌ OFF~'}\n` +
+                        `Status sekarang: ✅ *ON*\n\n` +
                         (sebelumnyaAM
-                                ? `│ > ℹ️ _Fitur ini sebelumnya sudah aktif,_\n│ > _tidak ada perubahan._\n`
-                                : `│ ✅ *Fitur berhasil diaktifkan!*\n│    _Bot akan kirim notif otomatis_\n│    _saat episode Sub Indo baru tersedia._\n`) +
-                        `│\n` +
-                        `│ Ketik \`${pfx}animasu off\` untuk menonaktifkan.\n` +
-                        `╰──────────────────────`,
+                                ? `ℹ️ _Fitur ini sebelumnya sudah aktif, tidak ada perubahan._\n`
+                                : `✅ *Fitur berhasil diaktifkan!*\n_Bot akan kirim notif otomatis saat episode Sub Indo baru tersedia._\n`) +
+                        `\nKetik \`${pfx}animasu off\` untuk menonaktifkan.`
                         [{ text: '➕ Aktifkan Semua Grup', id: '__addallgrp__animasu' }]
                 );
                 await hisoka.sendMessage(m.from, { react: { text: '✅', key: m.key } });
@@ -1023,17 +1376,13 @@ async function handleAnimasu({ hisoka, m, query, tolak, logCommand, sendConfirmW
                 cfgAM.animasu.groups[m.from] = { enabled: false, diubahPada: Date.now() };
                 fs.writeFileSync(cfgPathAM, JSON.stringify(cfgAM, null, 2));
                 await tolak(hisoka, m,
-                        `╭─「 📺 *ANIMASU SUB INDO* 」\n` +
-                        `│\n` +
-                        `│ Status sebelumnya : ${sebelumnyaAM ? '✅ *ON*' : '❌ *OFF*'}\n` +
-                        `│ Status sekarang   : ❌ *OFF*\n` +
-                        `│\n` +
+                        `📺 *ANIMASU SUB INDO*\n\n` +
+                        `Status sebelumnya: ${sebelumnyaAM ? '~✅ ON~' : '❌ *OFF*'}\n` +
+                        `Status sekarang: ❌ *OFF*\n\n` +
                         (sebelumnyaAM
-                                ? `│ ❌ *Fitur berhasil dinonaktifkan.*\n│    _Bot tidak akan kirim notif lagi_\n│    _di grup ini._\n`
-                                : `│ > ℹ️ _Fitur ini sebelumnya sudah nonaktif,_\n│ > _tidak ada perubahan._\n`) +
-                        `│\n` +
-                        `│ Ketik \`${pfx}animasu on\` untuk mengaktifkan kembali.\n` +
-                        `╰──────────────────────`
+                                ? `❌ *Fitur berhasil dinonaktifkan.*\n_Bot tidak akan kirim notif lagi di grup ini._\n`
+                                : `ℹ️ _Fitur ini sebelumnya sudah nonaktif, tidak ada perubahan._\n`) +
+                        `\nKetik \`${pfx}animasu on\` untuk mengaktifkan kembali.`
                 );
                 await hisoka.sendMessage(m.from, { react: { text: '✅', key: m.key } });
                 logCommand(m, hisoka, 'animasu-off');
@@ -1041,69 +1390,62 @@ async function handleAnimasu({ hisoka, m, query, tolak, logCommand, sendConfirmW
         }
 
         if (sub === 'status') {
+                // DEFINISI (keputusan Wily 17:56 + 19:05): status = DAFTAR GRUP
+                // saja, RAPIH & REALTIME — jumlah gc, on/off, urutan rapih
+                // (aktif dulu, lalu nama), plus per grup: jumlah anggota,
+                // jumlah admin, dan apakah bot admin di grup itu. Data anggota/
+                // admin diambil LIVE dari groupMetadata tiap status dipanggil
+                // (bukan dari simpanan); yang tersimpan di config.json hanya
+                // { enabled, diubahPada } per grup, ditulis JSON rapih.
                 await hisoka.sendMessage(m.from, { react: { text: '⏳', key: m.key } });
-                let loadingMsg = null;
                 try {
-                        loadingMsg = await hisoka.sendMessage(m.from, {
-                                text: `⏳ *Memuat status anime...*\n` +
-                                      `┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄\n` +
-                                      `📡 _Mengambil data realtime dari_ *Animasu*\n` +
-                                      `🔄 _Harap tunggu sebentar..._`,
-                        }, { quoted: m });
-
-                        const daftarAnime = await getAiringStatus(40);
-                        try { await hisoka.sendMessage(m.from, { delete: loadingMsg.key }); } catch (_) {}
-                        loadingMsg = null;
-
-                        if (!daftarAnime.length) {
-                                await tolak(hisoka, m, '📋 Belum ada anime yang terpantau dari Animasu saat ini.');
-                                return;
+                        const grupTerdaftar = cfgAM.animasu.groups || {};
+                        const jidsGrup = Object.keys(grupTerdaftar);
+                        const aktifCount = jidsGrup.filter(x => grupTerdaftar[x]?.enabled === true).length;
+                        const botId = String(hisoka.user?.id || '').split(':')[0].split('@')[0];
+                        const entri = [];
+                        for (const jid of jidsGrup) {
+                                const aktif = grupTerdaftar[jid]?.enabled === true;
+                                let nama = jid, isJid = true, stats = null;
+                                try {
+                                        const meta = await hisoka.groupMetadata(jid);
+                                        if (meta?.subject) { nama = meta.subject; isJid = false; }
+                                        const parts = meta?.participants || [];
+                                        const jmlAdmin = parts.filter(p => p.admin != null).length;
+                                        const saya = parts.find(p => String(p.id || '').split(':')[0].split('@')[0] === botId);
+                                        const botAdmin = !botId ? null : (saya ? (saya.admin != null) : null);
+                                        stats = { anggota: parts.length, admin: jmlAdmin, botAdmin };
+                                } catch (_) { /* metadata gagal -> nama JID, tanpa stats */ }
+                                entri.push({ jid, nama, isJid, aktif, stats });
                         }
-
-                        const waktu = new Date().toLocaleString('id-ID', {
-                                timeZone: 'Asia/Jakarta',
-                                day: '2-digit', month: 'short', year: 'numeric',
-                                hour: '2-digit', minute: '2-digit', hour12: false,
-                        });
-
-                        let txt = `╭─「 📺 *STATUS ANIME ANIMASU* 」\n`;
-                        txt += `│ 🕐 _${waktu} WIB_\n`;
-                        txt += `│ 📊 Total: *${daftarAnime.length} anime* terpantau\n`;
-                        txt += `│ 📶 Sumber: _animasu.love_ *(realtime)*\n`;
-                        txt += `│ > _diurutkan: sisa episode terbanyak di atas_\n`;
-                        txt += `│\n`;
-
-                        for (let i = 0; i < daftarAnime.length; i++) {
-                                const a       = daftarAnime[i];
-                                const no      = String(i + 1).padStart(2, '0');
-                                const epStr   = a.totalSeri ? `Ep *${a.epTerbaru}*/${a.totalSeri}` : `Ep *${a.epTerbaru || '?'}*`;
-                                const sisaStr = a.sisaEp !== null ? `Sisa *${a.sisaEp} ep*` : `Sisa ~?~`;
-                                const musimStr = a.musim && a.musim !== '-' ? ` · _${a.musim}_` : '';
-                                txt += `│ *${no}.* ${a.judul}\n`;
-                                txt += `│     📺 ${epStr} | ${sisaStr}${musimStr}\n`;
-                                if (a.latestEpUrl && a.latestEpUrl !== a.url) {
-                                        txt += `│     ▶️ *Tonton Ep ${a.epTerbaru}:* ${a.latestEpUrl}\n`;
-                                }
-                                if (a.batchDownload) {
-                                        txt += `│     📦 *Batch Tersedia!*\n`;
-                                        for (const r of a.batchDownload.resolutions) {
-                                                const mirrors = r.links.map(l => l.label).join(' · ');
-                                                txt += `│         \`${r.res}\` ${mirrors}\n`;
+                        // Urutan rapih: aktif dulu, lalu nama (JID mentah di
+                        // belakang tiap tier).
+                        entri.sort((a, b) => (b.aktif - a.aktif) || (a.isJid - b.isJid) || String(a.nama).localeCompare(String(b.nama)));
+                        let txt = `📺 *STATUS ANIMASU*\n\n`;
+                        if (!entri.length) {
+                                txt += `👥 Grup terdaftar: _belum ada_\n`;
+                                txt += `> _Ketik_ \`${pfx}animasu on\` _di grup tujuan dulu._\n`;
+                        } else {
+                                txt += `👥 *${entri.length} grup* · ✅ *${aktifCount} aktif* · ❌ *${entri.length - aktifCount} nonaktif*\n\n`;
+                                for (let gi = 0; gi < entri.length; gi++) {
+                                        const e = entri[gi];
+                                        txt += `• ${e.nama} — ${e.aktif ? '✅ Aktif' : '❌ Nonaktif'}\n`;
+                                        if (e.stats) {
+                                                const ba = e.stats.botAdmin === true ? '✅' : (e.stats.botAdmin === false ? '❌' : '❓');
+                                                txt += `  👥 ${e.stats.anggota} anggota · 👑 ${e.stats.admin} admin · 🤖 Bot admin: ${ba}\n`;
+                                        } else {
+                                                txt += `  👥 _data grup tidak tersedia_\n`;
                                         }
-                                        const firstRes = a.batchDownload.resolutions[0];
-                                        if (firstRes?.links[0]) txt += `│         🔗 ${firstRes.links[0].url}\n`;
-                                } else {
-                                        txt += `│     🔗 ${a.url}\n`;
+                                        // Garis simple pemisah antar grup (bukan kotak) — biar rapih,
+                                        // tidak di grup terakhir.
+                                        if (gi < entri.length - 1) txt += `────────────────────────\n`;
                                 }
-                                if (i < daftarAnime.length - 1) txt += `│\n`;
                         }
-                        txt += `╰──────────────────────`;
                         await tolak(hisoka, m, txt);
                         await hisoka.sendMessage(m.from, { react: { text: '✅', key: m.key } });
                 } catch (err) {
-                        if (loadingMsg) { try { await hisoka.sendMessage(m.from, { delete: loadingMsg.key }); } catch (_) {} }
                         await hisoka.sendMessage(m.from, { react: { text: '❌', key: m.key } });
-                        await tolak(hisoka, m, `❌ *Gagal ambil status anime.*\n_${err?.message || err}_`);
+                        await tolak(hisoka, m, `❌ *Gagal ambil status.*\n_${err?.message || err}_`);
                 }
                 return;
         }
@@ -1148,22 +1490,17 @@ async function handleAnimasu({ hisoka, m, query, tolak, logCommand, sendConfirmW
         }
 
         if (sub === 'test') {
+                // SATU preview saja (keputusan Wily 17:52): update terbaru
+                // realtime — kartu teratas "Sedang Tayang"; bila kosong, kartu
+                // teratas "Baru Ditambah & Diperbarui" (lihat previewUpdateTerbaru).
                 await hisoka.sendMessage(m.from, { react: { text: '⏳', key: m.key } });
                 try {
-                        const hasilTayang = await previewSedangTayang();
-                        if (hasilTayang.urlGambar) {
-                                await hisoka.sendMessage(m.from, { image: { url: hasilTayang.urlGambar }, caption: hasilTayang.caption }, { quoted: m });
+                        const hasil = await previewUpdateTerbaru();
+                        if (hasil.urlGambar) {
+                                await hisoka.sendMessage(m.from, { image: { url: hasil.urlGambar }, caption: hasil.caption }, { quoted: m });
                         } else {
-                                await tolak(hisoka, m, hasilTayang.caption);
+                                await tolak(hisoka, m, hasil.caption);
                         }
-
-                        const hasilUpdate = await previewBaruUpdate();
-                        if (hasilUpdate.urlGambar) {
-                                await hisoka.sendMessage(m.from, { image: { url: hasilUpdate.urlGambar }, caption: hasilUpdate.caption });
-                        } else {
-                                await hisoka.sendMessage(m.from, { text: hasilUpdate.caption });
-                        }
-
                         await hisoka.sendMessage(m.from, { react: { text: '✅', key: m.key } });
                         logCommand(m, hisoka, 'animasu-test');
                 } catch (err) {
