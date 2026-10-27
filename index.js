@@ -1547,7 +1547,7 @@ async function main() {
                                                 if (!perubahan.length) return;
 
                                                 for (const item of perubahan) {
-                                                        const hasil = await _am.buatPesanLengkap(item);
+                                                        const hasil = await _am.buatPesanLengkapMonitor(item);
                                                         await kirimKeGrup(daftarGrup, hasil.caption, item.cover || null);
                                                         console.log(`[Animasu][SedangTayang] ✅ (${item.tipe}) "${item.judul}" ${item.episodeLabel} → ${daftarGrup.length} grup`);
                                                         await new Promise(r => setTimeout(r, 1500));
@@ -1567,7 +1567,7 @@ async function main() {
                                                 if (!perubahan.length) return;
 
                                                 for (const item of perubahan) {
-                                                        const hasil = await _am.buatPesanLengkap(item);
+                                                        const hasil = await _am.buatPesanLengkapMonitor(item);
                                                         await kirimKeGrup(daftarGrup, hasil.caption, item.cover || null);
                                                         console.log(`[Animasu][BaruUpdate] ✅ (${item.tipe}) "${item.judul}" ${item.episodeLabel} → ${daftarGrup.length} grup`);
                                                         await new Promise(r => setTimeout(r, 1500));

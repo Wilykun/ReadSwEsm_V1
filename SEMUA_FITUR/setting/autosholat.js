@@ -67,22 +67,61 @@ const AUDIO_ADZAN = {
 };
 
 // ─── EMOJI WAKTU SHOLAT ───────────────────────────────────────────────────────
+// Satu emoji per waktu, sesuai konteks (Maghrib = senja 🌇, bukan matahari
+// terbit 🌅). Emoji dibatasi ke yang bermakna saja (keputusan Elin 27 Okt
+// 18:23 atas "terserahmu": potongan pertama terlalu halus sampai user tidak
+// melihat bedanya — jadi dipotong lebih jauh, tapi 🤲 di baris Selamat
+// DIPERTAHANKAN karena itu emoji yang paling sesuai konteks: tangan berdoa
+// di kalimat "Selamat menunaikan"). Yang dihapus: pasangan ikon judul
+// (kini 1 ikon di depan saja), 🕌 footer (duplikat 🕌 seksi jadwal), emoji di
+// kutip ucapan, 🤲 di baris Allahu Akbar.
 const EMOJI_SHOLAT = {
     Subuh   : '🌙',
     Zuhur   : '☀️',
     Ashar   : '🌤️',
-    Maghrib : '🌅',
+    Maghrib : '🌇',
     Isya    : '🌙',
 };
 
-// ─── UCAPAN SELAMAT SHOLAT PER WAKTU ─────────────────────────────────────────
+// ─── UCAPAN SELAMAT SHOLAT PER WAKTU (RANDOM, 3 VARIAN PER WAKTU) ─────────────
+// Perintah user 27 Okt 18:09: kata-kata ucapan dibuat RANDOM biar bagus, enak,
+// ramah — tapi tetap sesuai konteks (tiap varian menyebut nama sholatnya dan
+// suasana waktunya: pagi/siang/sore/senja/malam). Tanpa emoji di dalam ucapan.
 const UCAPAN_SHOLAT = {
-    Subuh   : 'Bangun & segera sholat Subuh sebelum matahari terbit 🌄',
-    Zuhur   : 'Istirahatlah sejenak, jangan lupa sholat Zuhur 🕌',
-    Ashar   : 'Jangan tunda, segera tunaikan sholat Ashar 🤲',
-    Maghrib : 'Matahari sudah terbenam, waktunya sholat Maghrib 🌇',
-    Isya    : 'Tutup hari dengan sholat Isya, semoga berkah 🌙',
+    Subuh   : [
+        'Bangun & segera sholat Subuh sebelum matahari terbit',
+        'Awali hari dengan sholat Subuh, semoga harimu diberkahi',
+        'Sejuknya pagi jadi lebih bermakna dengan sholat Subuh',
+    ],
+    Zuhur   : [
+        'Istirahatlah sejenak, jangan lupa sholat Zuhur',
+        'Di tengah kesibukan, sempatkan sholat Zuhur',
+        'Siang hari, rehat sebentar untuk sholat Zuhur',
+    ],
+    Ashar   : [
+        'Jangan tunda, segera tunaikan sholat Ashar',
+        'Sore hari, sempatkan sholat Ashar',
+        'Menjelang senja, jangan lupa sholat Ashar',
+    ],
+    Maghrib : [
+        'Matahari sudah terbenam, waktunya sholat Maghrib',
+        'Tutup sore harimu dengan sholat Maghrib',
+        'Senja tiba, jangan lupa sholat Maghrib',
+    ],
+    Isya    : [
+        'Tutup hari dengan sholat Isya, semoga berkah',
+        'Malam hari, jangan lupa sholat Isya sebelum istirahat',
+        'Akhiri harimu dengan sholat Isya',
+    ],
 };
+
+// Pilih satu varian ucapan secara acak tiap caption dibuat (test & scheduler
+// memanggil buatCaption segar tiap kirim, jadi tiap kiriman bisa beda varian).
+function pilihUcapan(nama) {
+    const daftar = UCAPAN_SHOLAT[nama];
+    if (!daftar || !daftar.length) return 'Segera tunaikan sholat';
+    return daftar[Math.floor(Math.random() * daftar.length)];
+}
 
 // ─── CACHE JADWAL HARIAN ──────────────────────────────────────────────────────
 let _cacheJadwal  = null;
@@ -216,7 +255,7 @@ async function cekWaktuSholat() {
 // Format ramah mobile — tiap baris ≤ 32 karakter agar tidak kepotong
 function buatCaption(nama, waktu, jadwal) {
     const emoji  = EMOJI_SHOLAT[nama]  || '🕌';
-    const ucapan = UCAPAN_SHOLAT[nama] || 'Segera tunaikan sholat 🤲';
+    const ucapan = pilihUcapan(nama);
 
     const hari = new Date().toLocaleDateString('id-ID', {
         timeZone: 'Asia/Jakarta', weekday: 'long',
@@ -228,7 +267,14 @@ function buatCaption(nama, waktu, jadwal) {
     // Format toolkit WA sesuai konteks (perintah user 27 Okt 2026: rapih,
     // simple): tebal = nama & jam aktif; miring = tanggal & ucapan;
     // coret = jam yang sudah lewat hari ini (kecuali yang aktif);
-    // point = daftar jadwal; kutip = ucapan; kode = perintah jadwal.
+    // point = daftar jadwal; kutip = ucapan; penutup = selamat menunaikan.
+    // TIDAK ADA nama kota di caption (perintah user 27 Okt 18:00: kata
+    // "Jakarta" tidak bagus, jangan tampilkan). Kalimat penutup dibuat
+    // universal — berlaku untuk semua daerah tanpa menyebut kota.
+    // (Sumber jadwal tetap myquran kota 1301 Jakarta, hanya tidak ditulis.)
+    // Baris hint perintah DIHAPUS 27 Okt 17:53 atas perintah user (tidak bagus;
+    // perintah autosholat juga owner-only, jadi mengajak anggota grup mengetiknya
+    // hanya berujung balasan "Hanya owner").
     const sekarang = jamWIBSekarang();
     const baris = Object.entries(jadwal).map(([n, w]) => {
         const aktif = n === nama;
@@ -239,7 +285,7 @@ function buatCaption(nama, waktu, jadwal) {
     }).join('\n');
 
     return (
-        `${emoji} *Sholat ${nama}* ${emoji}\n` +
+        `${emoji} *Sholat ${nama}*\n` +
         `📅 _${hari}, ${tgl}_\n` +
         `⏰ *${waktu} WIB*\n` +
         `─────────────────\n` +
@@ -247,8 +293,8 @@ function buatCaption(nama, waktu, jadwal) {
         `${baris}\n` +
         `─────────────────\n` +
         `> _${ucapan}_\n` +
-        `Ketik \`.autosholat jadwal\` untuk jadwal lengkap\n` +
-        `_Allahu Akbar..._ 🤲`
+        `_Selamat menunaikan sholat ${nama} 🤲_\n` +
+        `_Allahu Akbar..._`
     );
 }
 
@@ -438,7 +484,7 @@ async function simulasi(namaWaktu) {
         urlThumbnail: thumb,
         urlAudio    : getAudio(nama),
         emoji       : EMOJI_SHOLAT[nama]  || '🕌',
-        ucapan      : UCAPAN_SHOLAT[nama] || 'Segera tunaikan sholat 🤲',
+        ucapan      : pilihUcapan(nama),
         owner0,
         jadwal,
     };
@@ -471,7 +517,7 @@ async function kirimSholatInteraktif(hisoka, jid, gambarBuffer, caption, buttonU
         const msg = generateWAMessageFromContent(jid, {
             interactiveMessage: {
                 body:   { text: caption },
-                footer: { text: '🕌 Auto Sholat — tepat waktu' },
+                footer: { text: 'Auto Sholat — tepat waktu' },
                 header: { title: '', hasMediaAttachment: true, ...headerMedia },
                 nativeFlowMessage: { messageParamsJson: '{}', buttons: btnList },
             },
@@ -487,7 +533,7 @@ async function kirimSholatInteraktif(hisoka, jid, gambarBuffer, caption, buttonU
     }
 }
 
-export { addGroup, removeGroup, isGroupEnabled, getEnabledGroups, getJadwalHariIni, cekWaktuSholat, buatCaption, getGambar, getAudio, ambilAudioAdzan, buatGambarOverlay, buatThumbnail, simulasi, kirimSholatInteraktif, EMOJI_SHOLAT, UCAPAN_SHOLAT };
+export { addGroup, removeGroup, isGroupEnabled, getEnabledGroups, getJadwalHariIni, cekWaktuSholat, buatCaption, getGambar, getAudio, ambilAudioAdzan, buatGambarOverlay, buatThumbnail, simulasi, kirimSholatInteraktif, EMOJI_SHOLAT, UCAPAN_SHOLAT, pilihUcapan };
 export { handleAutosholat };
 // ── COMMAND HANDLER ───────────────────────────────────────────────────────────
 

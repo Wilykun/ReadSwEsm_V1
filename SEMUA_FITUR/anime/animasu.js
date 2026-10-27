@@ -590,7 +590,7 @@ async function fetchKitsuMeta(judul) {
         const genre = (pilih.relationships?.categories?.data || [])
             .map(c => kategori[c.id]).filter(Boolean).slice(0, 6).join(', ');
         const sinopsis = (at.synopsis || '').replace(/\s+/g, ' ').trim();
-        return { id: pilih.id, genre, sinopsis };
+        return { id: pilih.id, genre, sinopsis, status: at.status || null };
     } catch (_) {
         return null;
     }
@@ -633,14 +633,18 @@ async function fetchKitsuLanjutan(judul) {
 async function perkayasItemDenganKitsu(item) {
     try {
         if (!item?.judul) return item;
+        // Status Kitsu (netral bahasa, boleh tampil di caption pendek): current
+        // → Sedang Tayang, finished → Selesai, upcoming → Segera Tayang.
+        // Sinopsis Inggris tetap TIDAK dipakai (perintah Wily 27 Okt 2026).
+        const petaStatus = { current: 'Sedang Tayang', finished: 'Selesai', upcoming: 'Segera Tayang' };
+        const tambahStatus = (it, meta) => ({ ...it, genre: meta.genre, sinopsis: meta.sinopsis, statusKitsu: petaStatus[(meta.status || '').toLowerCase()] || null });
         if (kitsuCache.has(item.slug)) {
-            const meta = kitsuCache.get(item.slug);
-            return { ...item, genre: meta.genre, sinopsis: meta.sinopsis };
+            return tambahStatus(item, kitsuCache.get(item.slug));
         }
         const meta = await fetchKitsuMeta(item.judul);
         if (!meta) return item;
         kitsuCache.set(item.slug, meta);
-        return { ...item, genre: meta.genre, sinopsis: meta.sinopsis };
+        return tambahStatus(item, meta);
     } catch (_) {
         return item;
     }
@@ -807,6 +811,36 @@ async function buatPesanLengkap(item) {
     return { caption, urlGambar: item.cover || null };
 }
 
+// Jalur MONITOR (dipakai scheduler, BUKAN .animasu test): detail wajib
+// diusahakan dulu sebelum jatuh ke caption pendek.
+// Root cause laporan 28 Okt 02:36: blokir Cloudflare (direct 403, TG & Jina
+// menyajikan halaman blokir) membuat fetchDetailLengkap gagal; karena state
+// monitor sudah tersimpan saat deteksi, caption pendek yang terkirim saat itu
+// bersifat final — tidak ada percobaan ulang, makanya "kadang lengkap kadang
+// engga" (judul ber-cache → lengkap; judul baru saat blokir → pendek).
+// Perbaikan: coba detail sampai 2x dengan jeda (default 90 detik) SEBELUM
+// kirim; hanya bila keduanya gagal, jatuh ke fallback Kitsu/kartu seperti
+// biasa. TIDAK PERNAH melempar; tidak mengubah dedup (retry terjadi sebelum
+// kirim, pada item yang sama). Trade-off: notifikasi bisa telat ~2 menit
+// pada mode blokir-cepat (lebih lama bila TG timeout berulang) — demi lengkap.
+async function buatPesanLengkapMonitor(item, { percobaan = 2, jedaMs = 90000 } = {}) {
+    for (let i = 1; i <= percobaan; i++) {
+        try {
+            const detail = await fetchDetailLengkap(item.slug, item.judul);
+            if (detail && (detail.judul || detail.sinopsis || detail.genre)) {
+                const caption = sesuaikanPanjangCaption(
+                    buatCaptionDetailLengkap(item, detail),
+                    detail.sinopsis,
+                    s => buatCaptionDetailLengkap(item, { ...detail, sinopsis: s }),
+                );
+                return { caption, urlGambar: item.cover || null };
+            }
+        } catch (_) {}
+        if (i < percobaan) await new Promise(r => setTimeout(r, jedaMs));
+    }
+    return buatPesanLengkap(item);
+}
+
 // ── CAPTION: SEDANG TAYANG & BARU DITAMBAH/DIPERBARUI ─────────────────────────
 
 function buatCaptionTayang(item) {
@@ -826,6 +860,10 @@ function buatCaptionTayang(item) {
         `🎌 *${item.judul}*\n` +
         `📺 *${item.episodeLabel}*\n` +
         (item.genre ? `🎭 *Genre:* ${item.genre}\n` : '') +
+        // Status dari Kitsu (hanya bila cocok persis): supaya caption pendek
+        // tidak kosong melompong saat detail situs gagal — "mana statusnya"
+        // tetap terjawab. Sinopsis tetap tidak ditampilkan dari Kitsu (EN).
+        (item.statusKitsu ? `📌 *Status:* ${item.statusKitsu}\n` : '') +
         (item.labelLama ? `↪️ _Sebelumnya: ${item.labelLama}_\n` : '') +
         `\n🔗 ${item.url}`
     );
@@ -1338,7 +1376,7 @@ async function getAiringStatus(jumlahPost = 40) {
 
 // ── EXPORT ────────────────────────────────────────────────────────────────────
 
-export { getEnabledGroups, setGroupEnabled, cariEpisodeBaru, buatCaption, ambilUrlGambar, tandaiSudahKirim, tandaiDanLog, getRecentLog, simulasi, getAiringStatus, cariPerubahanSedangTayang, cariPerubahanBaruDiperbarui, buatCaptionTayang, buatCaptionBaruUpdate, previewSedangTayang, previewBaruUpdate, previewUpdateTerbaru, perkayasItemDenganKitsu, buatPesanLengkap, fetchKitsuLanjutan, fetchDetailLengkap, fetchHomepageSections };
+export { getEnabledGroups, setGroupEnabled, cariEpisodeBaru, buatCaption, ambilUrlGambar, tandaiSudahKirim, tandaiDanLog, getRecentLog, simulasi, getAiringStatus, cariPerubahanSedangTayang, cariPerubahanBaruDiperbarui, buatCaptionTayang, buatCaptionBaruUpdate, previewSedangTayang, previewBaruUpdate, previewUpdateTerbaru, perkayasItemDenganKitsu, buatPesanLengkap, buatPesanLengkapMonitor, fetchKitsuLanjutan, fetchDetailLengkap, fetchHomepageSections };
 export { handleAnimasu, handleAnimasuCallbacks };
 // ── COMMAND HANDLER ───────────────────────────────────────────────────────────
 

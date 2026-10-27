@@ -65,6 +65,9 @@ _📅 Jumat, 23 Oktober 2026_
    • Monitor buta: homepage kini diambil translate.goog dulu (sebelumnya Jina menyajikan cache basi sehingga update tak terkirim); fallback direct→Jina bila TG gagal.
    • Sinopsis bahasa Inggris dari Kitsu dihapus total dari caption (Kitsu kini hanya menyumbang genre); sinopsis Indonesia lengkap kembali begitu jalur detail hidup.
    • Rating situs ditampilkan apa adanya, termasuk `N/A`/`?` bila situs belum punya skor (rating Kitsu tidak dipakai).
+   • Monitor notifikasi yang kadang pendek (tanpa Status/Sinopsis/Trailer) diperbaiki: penyebabnya Cloudflare memblokir semua jalur detail dari server bot (direct 403, translate.goog & Jina menyajikan halaman blokir) dan judul baru belum ada di cache — kini scheduler mencoba detail 2x dengan jeda 90 detik sebelum menyerah ke caption pendek (`.animasu test` tetap cepat, tanpa retry).
+   • Caption pendek kini tetap membawa Status dari Kitsu (cocok persis); sinopsis Inggris tetap tidak dipakai.
+   • Cache detail judul baru di-seed sehingga episode berikutnya langsung tampil lengkap (21 entri).
 > _Hasil: gambar, detail, status, test & monitor animasu tampil akurat dari sumber live; rating ikut benar._
 
 5. *.nekopoinotif — Parser & Sinopsis*
@@ -155,6 +158,9 @@ _📅 Jumat, 23 Oktober 2026_
    • Pesan notifikasi & test kini SATU gambar saja (sebelumnya gambar + kartu preview thumbnail yang sama sehingga terlihat 2) + tombol `👥 Hubungi Owner` (cta_url ke `wa.me/<owner config.json>`; tanpa owner → gambar biasa).
    • Format pesan rapih & simple dengan toolkit WhatsApp native sesuai konteks: judul/jam tebal, tanggal/ucapan miring, jam yang sudah lewat dicoret, daftar jadwal berpoint, ucapan dikutip, perintah dalam kode; help memakai daftar bernomor, status & jadwal tanpa garis kotak.
    • Tombol & format baru berlaku untuk `.autosholat test` DAN notifikasi scheduler realtime (helper yang sama); scheduler mengecek tiap 60 detik.
+   • Baris hint perintah dihapus dari caption (tidak bagus + perintah autosholat owner-only, mengajak anggota grup hanya berujung balasan "Hanya owner"); diganti kalimat penutup "Selamat menunaikan sholat <nama>" yang otomatis ikut nama sholatnya, tanpa nama kota di caption (kata "Jakarta" tidak ditampilkan).
+   • Emoji dipangkas sesuai konteks: 🤲 tepat 1x (baris Selamat saja; baris Allahu Akbar polos), kutip ucapan tanpa emoji, judul 1 ikon saja (tanpa pasangan), footer polos; ikon Maghrib dibetulkan jadi 🌇 (senja, bukan terbit).
+   • Ucapan kini RANDOM: 3 varian per waktu (15 total), tiap varian menyebut nama sholatnya + suasana waktunya, dipilih acak tiap kirim.
 > _Hasil: notifikasi sholat rapih, 1 gambar + tombol owner, akurat tiap waktu._
 
 ━━━━━━━━━━━━━━━━━━━━━━
