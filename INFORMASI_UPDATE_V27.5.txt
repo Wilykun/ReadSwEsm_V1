@@ -8,7 +8,7 @@ _📅 Jumat, 23 Oktober 2026_
 🤖 *WILY BOT* — `V27.5`
 ✨ *2 Fitur Baru*
 🐛 *6 Fix Bug*
-🛠️ *0 Fix Error*
+🛠️ *3 Fix Error*
 🚀 *11 Perubahan*
 ⚠️ *0 Hapus Fitur*
 ━━━━━━━━━━━━━━━━━━━━━━
@@ -58,24 +58,33 @@ _📅 Jumat, 23 Oktober 2026_
    • Monitor buta: homepage kini diambil translate.goog dulu (sebelumnya Jina menyajikan cache basi sehingga update tak terkirim); fallback direct→Jina bila TG gagal.
    • Sinopsis bahasa Inggris dari Kitsu dihapus total dari caption (Kitsu kini hanya menyumbang genre); sinopsis Indonesia lengkap kembali begitu jalur detail hidup.
    • Rating situs ditampilkan apa adanya, termasuk `N/A`/`?` bila situs belum punya skor (rating Kitsu tidak dipakai).
-   • `.animasu on` yang membalas "undefined" diperbaiki (koma hilang di handler) + tombol konfirmasi kini punya handler & dispatch (sebelumnya tombol mati).
-> _Hasil: gambar, detail, status, test & monitor animasu tampil akurat dari sumber live; rating & tombol on ikut benar._
+> _Hasil: gambar, detail, status, test & monitor animasu tampil akurat dari sumber live; rating ikut benar._
 
-5. *.nekopoinotif — Error 403 & Thumbnail Hilang*
-   • Transport listing/detail pindah ke Jina (direct diblokir Cloudflare 403; translate ditolak karena situs ori Indonesia); parser listing & detail diperbarui (nk-search-item, paragraf separator).
+5. *.nekopoinotif — Parser & Sinopsis*
+   • Parser listing & detail diperbarui (nk-search-item, paragraf separator).
    • Sinopsis kini tampil penuh (cap 350 karakter dihapus); bila caption >4000 karakter hanya sinopsis yang dipotong.
-   • Thumbnail kini lewat Photon CDN (i0.wp.com, CDN yang sama dipakai animasu) — sebelumnya thumbnail langsung dari nekopoi.care yang diblokir Cloudflare sehingga tidak tampil; bila gambar gagal, notif tetap terkirim sebagai teks.
-> _Hasil: `.nekopoinotif test` & notif nekopoi tampil lengkap (judul, sinopsis, genre, produser, durasi, ukuran, download, streaming) dengan thumbnail._
+> _Hasil: pencarian nekopoi akurat & sinopsis tampil penuh._
 
-6. *.autosholat — Test Error, Audio VN & Ejaan*
-   • Jadwal sholat kini retry 3x (sebelumnya sekali stall >12 detik langsung "Gagal test").
-   • Audio adzan kini divalidasi dulu (MP3 asli, bukan halaman HTML blokir) + retry 3x + sumber cadangan Wikimedia Commons + cache lokal — sebelumnya halaman HTML 194 byte dilempar ke ffmpeg sehingga voice note gagal ("Failed to find two consecutive MPEG audio frames").
+6. *.autosholat — Ejaan Magrib*
    • Ejaan `magrib` (tanpa h) kini dikenali sebagai Maghrib (sebelumnya jatuh ke Zuhur).
-> _Hasil: `.autosholat test` terkirim utuh (gambar + voice note adzan) untuk semua waktu sholat._
+> _Hasil: ejaan `magrib` dikenali sebagai Maghrib._
 
 ━━━━━━━━━━━━━━━━━━━━━━
 🛠️ *FIX ERROR*
 ━━━━━━━━━━━━━━━━━━━━━━
+1. *.animasu — Balasan "undefined" di .animasu on*
+   • Koma hilang di handler antara teks konfirmasi dan array tombol sehingga balasan jadi "undefined" — koma ditambah, tombol konfirmasi kini punya handler & dispatch (sebelumnya tombol mati).
+> _Hasil: `.animasu on` membalas konfirmasi + tombol yang berfungsi._
+
+2. *.nekopoinotif — Error 403 & Thumbnail Hilang*
+   • Transport listing/detail pindah ke Jina (direct diblokir Cloudflare 403; translate ditolak karena situs ori Indonesia).
+   • Thumbnail kini lewat Photon CDN (i0.wp.com, CDN yang sama dipakai animasu) — sebelumnya thumbnail langsung dari nekopoi.care yang diblokir Cloudflare sehingga tidak tampil; bila gambar gagal, notif tetap terkirim sebagai teks.
+> _Hasil: `.nekopoinotif test` & notif nekopoi terkirim lengkap dengan thumbnail._
+
+3. *.autosholat — Test Error (Jadwal & Audio)*
+   • Jadwal sholat kini retry 3x (sebelumnya sekali stall >12 detik langsung "Gagal test").
+   • Audio adzan kini divalidasi dulu (MP3 asli, bukan halaman HTML blokir) + retry 3x + sumber cadangan Wikimedia Commons + cache lokal — sebelumnya halaman HTML 194 byte dilempar ke ffmpeg sehingga voice note gagal ("Failed to find two consecutive MPEG audio frames").
+> _Hasil: `.autosholat test` terkirim utuh (gambar + voice note adzan) untuk semua waktu sholat._
 
 ━━━━━━━━━━━━━━━━━━━━━━
 🚀 *PERUBAHAN*
