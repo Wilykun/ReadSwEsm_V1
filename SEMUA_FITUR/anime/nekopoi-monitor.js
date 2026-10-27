@@ -28,6 +28,7 @@
 
 import { getCategoryPosts, getDetailNekopoi } from './nekopoi.js';
 import axios from 'axios';
+import crypto from 'node:crypto';
 import path from 'path';
 import fs from 'fs';
 
@@ -347,9 +348,16 @@ function buatCaption(data) {
         if (parody && parody !== '-')               bagian.push(`Parody: *${parody}*`);
         sinOpsi = bagian.join('\n') || '';
     }
-    const sinopsisBlok = sinOpsi
-        ? potongTeks(sinOpsi, 350).split('\n').map(b => b.trim() ? `> ${b}` : '').filter(Boolean).join('\n')
+    // Sinopsis tampil PENUH (bukan cap 350 — itu yang bikin "kepotong").
+    // Caption nekopoi dikirim sebagai teks (limit aman 4000); bila total
+    // caption > 4000, yang dipotong hanya sinopsisnya (lihat return di bawah).
+    // PERHATIAN: bila suatu saat thumbnail hidup lagi dan caption dikirim
+    // bersama gambar, limit caption gambar = 1024 — jalur kirim harus memotong
+    // caption atau kirim teks, jangan andalkan budget 4000 ini.
+    const buatBlokSinopsis = (teks) => teks
+        ? teks.split('\n').map(b => b.trim() ? `> ${b}` : '').filter(Boolean).join('\n')
         : null;
+    const sinopsisBlok = sinOpsi ? buatBlokSinopsis(sinOpsi) : null;
 
     // ── Info items (├ ╰ tree, label *bold*, nilai _italic_) ──────────────────
     const infoItems = [
@@ -433,7 +441,20 @@ function buatCaption(data) {
         `🌐 *Source* : nekopoi.care`,
     ];
 
-    return baris.filter(b => b !== null && b !== undefined).join('\n');
+    const captionPenuh = baris.filter(b => b !== null && b !== undefined).join('\n');
+    if (captionPenuh.length <= 4000) return captionPenuh;
+    // Total > 4000: potong HANYA sinopsis agar muat; blok info/download/
+    // streaming/link tidak diutak-atik.
+    const nonSinopsis = captionPenuh.length - (sinopsisBlok ? sinopsisBlok.length : 0);
+    const budget = Math.max(0, 4000 - nonSinopsis - 1);
+    let barisAkhir = baris;
+    if (budget > 0 && sinopsisBlok) {
+        const pendek = buatBlokSinopsis(potongTeks(sinOpsi, budget));
+        barisAkhir = baris.map(b => b === sinopsisBlok ? pendek : b);
+    } else {
+        barisAkhir = baris.filter(b => b !== sinopsisBlok && b !== '📖 *Sinopsis*');
+    }
+    return barisAkhir.filter(b => b !== null && b !== undefined).join('\n');
 }
 
 // ── IMAGE HELPER ──────────────────────────────────────────────────────────────
@@ -453,15 +474,80 @@ function _setStrategy(domain, mode) {
     _domainStrategy[domain] = { mode, since: Date.now() };
 }
 
+// Photon = CDN-nya animasu (i*.wp.com): mem-proxy file dari origin lewat
+// infra Automattic yang tidak diblokir CF. Terbukti 27 Okt 2026 via oracle
+// Jina: Jina membaca gambar Photon (fresh, tanpa warning cache) → Photon
+// berhasil ambil file dari origin nekopoi.care. Bot sendiri sudah terbukti
+// bisa ambil dari Photon (thumbnail .animasu test) — jadi rangkaiannya
+// bot → Photon → origin jalan tanpa proxy berbayar & tanpa browser.
+function buatPhotonUrl(url) {
+    if (typeof url === 'string' && url.startsWith('https://nekopoi.care/')) {
+        return 'https://i0.wp.com/' + url.slice('https://'.length);
+    }
+    return null;
+}
+
 function buatProxyUrl(url) {
     if (!url) return null;
+    // Untuk nekopoi.care: Photon (bukan wsrv yang policy-block, bukan
+    // translate yang diveto user). Bila Photon gagal di jalur kirim, try/catch
+    // di tiap situs kirim jatuh ke caption teks.
+    const photon = buatPhotonUrl(url);
+    if (photon) return photon;
     return `https://wsrv.nl/?url=${encodeURIComponent(url)}&output=jpg&q=85`;
+}
+
+// ── Cache thumbnail lokal ───────────────────────────────────────────────────
+// Diisi dari LUAR bot (via browser Muse — satu-satunya jalur yang lolos CF
+// untuk byte gambar; direct CF 403, semua proxy mati, Jina hanya kembalikan
+// deskripsi teks). downloadImageBuffer mengecek disk DULU sebelum direct,
+// jadi item yang thumbnailnya sudah di-seed terkirim sebagai gambar;
+// yang belum di-seed tetap terkirim sebagai teks (fallback di jalur kirim).
+const THUMB_CACHE_DIR = path.join(process.cwd(), 'data', 'nekopoi', 'thumbs');
+function thumbCachePath(url) {
+    const hash = crypto.createHash('sha256').update(url).digest('hex');
+    const ext = (url.match(/\.(jpe?g|png|webp)(?:[?#]|$)/i) || [])[1] || 'jpg';
+    return path.join(THUMB_CACHE_DIR, `${hash}.${ext.toLowerCase()}`);
 }
 
 async function downloadImageBuffer(url) {
     if (!url) return null;
+    // 1) Cache disk (seed) — tanpa jaringan, tanpa kartu baru.
+    //    Dicek SEBELUM strategi domain, agar seed tetap dipakai walau strategi
+    //    domain sudah 'proxy' akibat CF 403 sebelumnya.
+    try {
+        const p = thumbCachePath(url);
+        if (fs.existsSync(p)) {
+            const buf = fs.readFileSync(p);
+            if (buf && buf.length > 1000) return buf;
+        }
+    } catch (_) { /* lanjut ke Photon */ }
     let domain;
     try { domain = new URL(url).hostname; } catch (_) { return null; }
+
+    // 2) Photon (CDN-nya animasu) untuk URL nekopoi.care — dicek magic byte
+    //    (JPEG/PNG/WebP) agar halaman blokir tidak lolos sebagai "gambar".
+    //    Fail-soft: gagal → lanjut ke direct, lalu null → caption teks.
+    const photonUrl = buatPhotonUrl(url);
+    if (photonUrl) {
+        try {
+            const pr = await axios.get(photonUrl, {
+                headers: { ...HEADERS },
+                responseType: 'arraybuffer',
+                timeout: 15000,
+            });
+            if (pr.data && pr.data.byteLength > 1000) {
+                const b = Buffer.from(pr.data);
+                const isJpeg = b[0] === 0xFF && b[1] === 0xD8;
+                const isPng = b[0] === 0x89 && b[1] === 0x50;
+                const isWebp = b[0] === 0x52 && b[1] === 0x49 && b[8] === 0x57 && b[9] === 0x45;
+                if (isJpeg || isPng || isWebp) {
+                    _setStrategy(domain, 'direct');
+                    return b;
+                }
+            }
+        } catch (_) { /* lanjut ke direct */ }
+    }
 
     if (_getStrategy(domain) === 'proxy') return null;
 
@@ -487,7 +573,7 @@ async function downloadImageBuffer(url) {
 
 // ── EXPORT ────────────────────────────────────────────────────────────────────
 
-export { getEnabledGroups, setGroupEnabled, getActiveCategories, cariKontenBaru, buatCaption, tandaiSudahKirim, tandaiDanLog, getRecentLog, simulasi, downloadImageBuffer, buatProxyUrl };
+export { getEnabledGroups, setGroupEnabled, getActiveCategories, cariKontenBaru, buatCaption, tandaiSudahKirim, tandaiDanLog, getRecentLog, simulasi, downloadImageBuffer, buatProxyUrl, buatPhotonUrl, thumbCachePath };
 export { handleNekopoinotif, handleNekpoiNotifReply, handleNekopoinotifCallbacks };
 // ── COMMAND HANDLER ───────────────────────────────────────────────────────────
 
@@ -762,10 +848,16 @@ async function handleNekopoinotif({ hisoka, m, query, tolak, logCommand, Button,
         try {
             const hasil = await simulasi(katSlug);
             const imgBuf = hasil.urlGambar ? await downloadImageBuffer(hasil.urlGambar) : null;
+            const proxyUrl = hasil.urlGambar ? buatProxyUrl(hasil.urlGambar) : null;
             if (imgBuf) {
                 await hisoka.sendMessage(m.from, { image: imgBuf, mimetype: 'image/jpeg', caption: hasil.caption }, { quoted: m });
-            } else if (hasil.urlGambar) {
-                await hisoka.sendMessage(m.from, { image: { url: buatProxyUrl(hasil.urlGambar) }, caption: hasil.caption }, { quoted: m });
+            } else if (proxyUrl) {
+                try {
+                    await hisoka.sendMessage(m.from, { image: { url: proxyUrl }, caption: hasil.caption }, { quoted: m });
+                } catch (_) {
+                    // Proxy gambar mati → caption teks tetap terkirim, bukan "Gagal".
+                    await tolak(hisoka, m, hasil.caption);
+                }
             } else {
                 await tolak(hisoka, m, hasil.caption);
             }
@@ -797,7 +889,13 @@ async function handleNekopoinotif({ hisoka, m, query, tolak, logCommand, Button,
                     if (imgBuf) {
                         await hisoka.sendMessage(jid, { image: imgBuf, mimetype: 'image/jpeg', caption: hasil.caption });
                     } else if (proxyUrl) {
-                        await hisoka.sendMessage(jid, { image: { url: proxyUrl }, caption: hasil.caption });
+                        try {
+                            await hisoka.sendMessage(jid, { image: { url: proxyUrl }, caption: hasil.caption });
+                        } catch (_) {
+                            // Proxy gambar mati → caption teks tetap terkirim,
+                            // grup ini dihitung berhasil, bukan gagal.
+                            await hisoka.sendMessage(jid, { text: hasil.caption });
+                        }
                     } else {
                         await hisoka.sendMessage(jid, { text: hasil.caption });
                     }
@@ -827,11 +925,16 @@ async function handleNekopoinotif({ hisoka, m, query, tolak, logCommand, Button,
         try {
             const hasil  = await simulasi();
             const imgBuf = hasil.urlGambar ? await downloadImageBuffer(hasil.urlGambar) : null;
+            const proxyUrl = hasil.urlGambar ? buatProxyUrl(hasil.urlGambar) : null;
             if (imgBuf) {
                 await hisoka.sendMessage(m.from, { image: imgBuf, mimetype: 'image/jpeg', caption: hasil.caption }, { quoted: m });
-            } else if (hasil.urlGambar) {
-                const proxyUrl = buatProxyUrl(hasil.urlGambar);
-                await hisoka.sendMessage(m.from, { image: { url: proxyUrl }, caption: hasil.caption }, { quoted: m });
+            } else if (proxyUrl) {
+                try {
+                    await hisoka.sendMessage(m.from, { image: { url: proxyUrl }, caption: hasil.caption }, { quoted: m });
+                } catch (_) {
+                    // Proxy gambar mati → caption teks tetap terkirim, bukan "Gagal".
+                    await tolak(hisoka, m, hasil.caption);
+                }
             } else {
                 await tolak(hisoka, m, hasil.caption);
             }

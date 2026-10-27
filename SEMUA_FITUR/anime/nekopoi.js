@@ -22,8 +22,11 @@
  *  Scrape konten terbaru dari nekopoi.care per kategori:
  *  Hentai, 2D Animation, 3D Hentai
  *
- *  FIX: Tidak lagi memakai r.jina.ai (sering 403 untuk konten dewasa).
- *  Sekarang memakai:
+ *  FIX (27 Okt 2026): direct fetch diblokir Cloudflare dari IP datacenter
+ *  (403, halaman blokir CF, REST + HTML) — fetchHtml kini fallback ke
+ *  r.jina.ai (terbukti 200 dari host ini), dan parser listing diperluas ke
+ *  markup nk-search-item (kategori kini dirender tanpa class entry-title).
+ *  Sebelumnya memakai:
  *  - WordPress REST API untuk listing kategori (lebih cepat & stabil)
  *  - Direct HTML fetch untuk detail post
  * ───────────────────────────────
@@ -77,12 +80,46 @@ function stripHtml(str) {
 
 // ── FETCH LANGSUNG ────────────────────────────────────────────────────────────
 
-async function fetchHtml(url) {
-    const res = await axios.get(url, {
-        headers: HEADERS_HTML,
-        timeout: 30000,
+const JINA_BASE = 'https://r.jina.ai/';
+const JINA_HEADERS = {
+    'Accept-Language': 'id-ID,id;q=0.9,en;q=0.8',
+    'X-Return-Format': 'html',
+};
+
+function isCfBlockPage(html) {
+    return typeof html === 'string' && (
+        html.includes('Attention Required! | Cloudflare') ||
+        html.includes('id="cf-wrapper"')
+    );
+}
+
+async function fetchHtmlViaJina(url) {
+    const r = await axios.get(JINA_BASE + url, {
+        headers: JINA_HEADERS,
+        timeout: 45000,
+        validateStatus: null,
     });
-    return res.data || '';
+    const html = typeof r.data === 'string' ? r.data : '';
+    if (r.status !== 200 || !html) throw new Error(`Jina gagal: ${r.status}`);
+    if (isCfBlockPage(html)) throw new Error('Halaman diblokir Cloudflare (bahkan via Jina)');
+    return html;
+}
+
+async function fetchHtml(url) {
+    try {
+        const res = await axios.get(url, {
+            headers: HEADERS_HTML,
+            timeout: 30000,
+        });
+        const html = res.data || '';
+        if (isCfBlockPage(html)) return fetchHtmlViaJina(url);
+        return html;
+    } catch (_) {
+        // Direct gagal (403 CF / error jaringan) -> Jina. Jina mengembalikan
+        // URL asli (tidak ditulis ulang seperti translate.goog), jadi parser
+        // dan link download tidak perlu normalisasi.
+        return fetchHtmlViaJina(url);
+    }
 }
 
 async function fetchJson(url) {
@@ -156,6 +193,25 @@ function parseCategoryListingHTML(html, defaultKategori) {
         seen.add(url);
 
         const title    = stripHtml(m[2]).trim();
+        const kategori = deteksiKategori(url) || defaultKategori || 'hentai';
+        results.push({ title, url, kategori });
+    }
+
+    // Strategi 2: markup baru nk-search-item (kategori kini dirender sebagai
+    // daftar ala hasil-pencarian, tanpa class entry-title sama sekali).
+    // <li><a href="URL" class="nk-search-item"><div class="nk-search-thumb"
+    // ...></div><div class="nk-search-info"><h2>JUDUL</h2>...</div></a></li>
+    const re2 = /<a[^>]+href="(https?:\/\/nekopoi\.care\/[^"]+)"[^>]*class="[^"]*nk-search-item[^"]*"[^>]*>([\s\S]+?)<\/a>/gi;
+    let m2;
+    while ((m2 = re2.exec(html)) !== null) {
+        const url = m2[1].trim().replace(/\/+$/, '');
+        if (seen.has(url)) continue;
+        if (/\/(category|genre|hentai-list|jav-list|jadwal|privacy-policy|2257|random|tag|author|page)/.test(url)) continue;
+        if (url === BASE || url === BASE + '/') continue;
+        seen.add(url);
+        const h2 = m2[2].match(/<h2[^>]*>([\s\S]+?)<\/h2>/i);
+        const title = stripHtml(h2 ? h2[1] : m2[2]).trim();
+        if (!title) continue;
         const kategori = deteksiKategori(url) || defaultKategori || 'hentai';
         results.push({ title, url, kategori });
     }
@@ -235,6 +291,53 @@ function parseDetailPostHTML(html, url) {
     const episode       = getField('Episode');
     const tayang        = getField('Tayang');
 
+    // ── Fallback markup baru (Blogger, Okt 2026) ─────────────────────────────
+    // Field kini di <p class="separator"><b>Nama : </b>nilai (bukan <strong>).
+    // Tooltip post LAIN memakai <b>Genre</b>: di LUAR <p class="separator"> —
+    // jadi hanya paragraf separator yang dipindai, tooltip tak pernah tertangkap
+    // (terverifikasi di sampel: 6 paragraf separator, tepat 1 berisi Genre).
+    const sepParas = [...html.matchAll(/<p[^>]*class="[^"]*separator[^"]*"[^>]*>([\s\S]+?)<\/p>/gi)].map(mm => mm[1]);
+    function getFieldBaru(fieldName) {
+        const re = new RegExp(`<b[^>]*>\\s*${fieldName}\\s*:?[\\s\\S]*?<\\/b>\\s*:?\\s*`, 'i');
+        for (const para of sepParas) {
+            const mm = para.match(re);
+            if (mm) {
+                const val = stripHtml(para.slice(mm.index + mm[0].length)).replace(/^[:\s]+/, '').trim();
+                if (val) return val;
+            }
+        }
+        return '';
+    }
+
+    // Sinopsis fallback: (1) paragraf <p> substansial terakhir sebelum blok
+    // Genre (isi penuh), (2) meta/og description (terpotong ~170 char).
+    let sinopsisFinal = sinopsis;
+    if (!sinopsisFinal) {
+        const genreIdx = html.search(/<b[^>]*>\s*Genre\s*:\s*<\/b>/i);
+        if (genreIdx > 0) {
+            const paras = [...html.slice(0, genreIdx).matchAll(/<p[^>]*>([\s\S]+?)<\/p>/gi)]
+                .map(mm => stripHtml(mm[1]).replace(/^Sinopsis\s*:\s*/i, '').trim())
+                .filter(t => t.length > 80 && !/^(Genre|Anime|Producers?|Produser|Duration|Durasi|Size|Status|Episode|Tayang|Catatan)\b/i.test(t));
+            if (paras.length) sinopsisFinal = paras[paras.length - 1];
+        }
+    }
+    if (!sinopsisFinal) {
+        const md = html.match(/<meta[^>]+(?:name="description"|property="og:description")[^>]+content="([^"]*)"/i);
+        if (md) sinopsisFinal = md[1].replace(/^Sinopsis\s*:\s*/i, '').trim();
+    }
+
+    const genreFinal     = genre     || getFieldBaru('Genre');
+    const animeFinal     = anime     || getFieldBaru('Anime');
+    const judulJpFinal   = judulJp   || getFieldBaru('Judul Jepang');
+    const producersFinal = producers || getFieldBaru('(?:Producers?|Studio)');
+    const durasiFinal    = durasi    || getFieldBaru('Duration') || getFieldBaru('Durasi');
+    const ukuranFinal    = (ukuran   || getFieldBaru('Size')).replace(/\*\*/g, '').trim();
+    const statusFinal    = status    || getFieldBaru('Status');
+    const episodeFinal   = episode   || getFieldBaru('Episode');
+    const tayangFinal    = tayang    || getFieldBaru('Tayang');
+    const originalFinal  = originalTitle || getFieldBaru('Original Title');
+    const parodyFinal    = parody    || getFieldBaru('Parody');
+
     // ── Download links ────────────────────────────────────────────────────────
     const downloads = parseDownloadLinksHTML(content);
 
@@ -242,10 +345,10 @@ function parseDetailPostHTML(html, url) {
     const kategori = deteksiKategori(url);
 
     return {
-        title, thumbnail, tanggal, sinopsis, genre,
-        originalTitle, parody,
-        anime, judulJp,
-        producers, durasi, ukuran, status, episode, tayang,
+        title, thumbnail, tanggal, sinopsis: sinopsisFinal, genre: genreFinal,
+        originalTitle: originalFinal, parody: parodyFinal,
+        anime: animeFinal, judulJp: judulJpFinal,
+        producers: producersFinal, durasi: durasiFinal, ukuran: ukuranFinal, status: statusFinal, episode: episodeFinal, tayang: tayangFinal,
         kategori, url, downloads, viewCount,
     };
 }

@@ -37,6 +37,7 @@ import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
 import sharp from 'sharp';
+import { prepareWAMessageMedia, generateWAMessageFromContent } from '@whiskeysockets/baileys';
 
 const FILE_CONFIG = path.join(process.cwd(), 'config.json');
 
@@ -146,29 +147,42 @@ async function getJadwalHariIni() {
         return _cacheJadwal;
     }
 
-    try {
-        // Format tanggal YYYY-MM-DD untuk URL
-        const tglFmt = now.toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' }); // 2026-05-23
-        const res = await axios.get(`https://api.myquran.com/v2/sholat/jadwal/1301/${tglFmt}`, {
-            timeout: 12000,
-        });
+    // Format tanggal YYYY-MM-DD untuk URL
+    const tglFmt = now.toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' }); // 2026-05-23
+    // Retry 3x: API sesekali stall >12 dtk (terbukti 1x di log: timeout of
+    // 12000ms exceeded) — satu stall tidak boleh menggagalkan test/scheduler.
+    // Bila 3x gagal, throw jujur (tanpa data karangan; jadwal basi tidak
+    // dipakai karena jam sholat bergeser tiap hari).
+    const MAX_COBA = 3;
+    let terakhir = null;
+    for (let coba = 1; coba <= MAX_COBA; coba++) {
+        try {
+            const res = await axios.get(`https://api.myquran.com/v2/sholat/jadwal/1301/${tglFmt}`, {
+                timeout: 12000,
+            });
 
-        const j = res.data.data.jadwal;
-        const jadwal = {
-            Subuh   : j.subuh,
-            Zuhur   : j.dzuhur,
-            Ashar   : j.ashar,
-            Maghrib : j.maghrib,
-            Isya    : j.isya,
-        };
+            const j = res.data.data.jadwal;
+            const jadwal = {
+                Subuh   : j.subuh,
+                Zuhur   : j.dzuhur,
+                Ashar   : j.ashar,
+                Maghrib : j.maghrib,
+                Isya    : j.isya,
+            };
 
-        _cacheJadwal  = jadwal;
-        _cacheTanggal = tanggal;
-        return jadwal;
-    } catch (error) {
-        console.error('[AutoSholat] Gagal fetch jadwal:', error.message);
-        throw new Error(`Gagal mengambil jadwal sholat: ${error.message}`);
+            _cacheJadwal  = jadwal;
+            _cacheTanggal = tanggal;
+            return jadwal;
+        } catch (error) {
+            terakhir = error;
+            if (coba < MAX_COBA) {
+                console.error(`[AutoSholat] Jadwal percobaan ${coba} gagal (${error.message}), coba lagi...`);
+                await new Promise(r => setTimeout(r, 1000 * coba));
+            }
+        }
     }
+    console.error('[AutoSholat] Gagal fetch jadwal:', terakhir.message);
+    throw new Error(`Gagal mengambil jadwal sholat: ${terakhir.message}`);
 }
 
 // ─── HELPER: jam WIB saat ini format "HH:MM" ─────────────────────────────────
@@ -211,22 +225,29 @@ function buatCaption(nama, waktu, jadwal) {
         timeZone: 'Asia/Jakarta', day: 'numeric', month: 'long', year: 'numeric',
     });
 
+    // Format toolkit WA sesuai konteks (perintah user 27 Okt 2026: rapih,
+    // simple): tebal = nama & jam aktif; miring = tanggal & ucapan;
+    // coret = jam yang sudah lewat hari ini (kecuali yang aktif);
+    // point = daftar jadwal; kutip = ucapan; kode = perintah jadwal.
+    const sekarang = jamWIBSekarang();
     const baris = Object.entries(jadwal).map(([n, w]) => {
         const aktif = n === nama;
         const dot   = aktif ? '▶' : '·';
         const label = aktif ? `*${n}*` : n;
-        return `${dot} ${label.padEnd(7)} ${w} WIB`;
+        const jam   = (!aktif && w < sekarang) ? `~${w}~` : w;
+        return `${dot} ${label.padEnd(7)} ${jam} WIB`;
     }).join('\n');
 
     return (
         `${emoji} *Sholat ${nama}* ${emoji}\n` +
-        `📅 ${hari}, ${tgl}\n` +
+        `📅 _${hari}, ${tgl}_\n` +
         `⏰ *${waktu} WIB*\n` +
         `─────────────────\n` +
         `🕌 *Jadwal Sholat Hari Ini*\n` +
         `${baris}\n` +
         `─────────────────\n` +
-        `_${ucapan}_\n` +
+        `> _${ucapan}_\n` +
+        `Ketik \`.autosholat jadwal\` untuk jadwal lengkap\n` +
         `_Allahu Akbar..._ 🤲`
     );
 }
@@ -243,6 +264,99 @@ function getGambar(nama) {
 
 function getAudio(nama) {
     return AUDIO_ADZAN[nama] || AUDIO_ADZAN['Zuhur'];
+}
+
+// ─── AMBIL AUDIO ADZAN (TAHAN BANTING) ─────────────────────────────────────
+// islamcan.com TIDAK STABIL dari host ini (terbukti 27 Okt 2026): kadang
+// 200 + MP3 asli (670KB), kadang 202 + halaman HTML 194 byte, kadang socket
+// hang up — halaman HTML itu yang membuat ffmpeg gagal ("Failed to find two
+// consecutive MPEG audio frames") dan test membalas "Gagal test".
+// Strategi: (1) fetch + validasi magic MP3 (ID3 / frame sync), bukan sekadar
+// status 200; (2) retry 3x; (3) fallback cache lokal — rekaman adzan tidak
+// pernah berubah, jadi cache TIDAK PERNAH basi (beda dengan jadwal sholat).
+const AUDIO_CACHE_DIR = path.join(process.cwd(), 'data', 'autosholat');
+const AUDIO_HEADERS = {
+    'User-Agent'     : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+    'Referer'        : 'https://www.islamcan.com/',
+    'Accept'         : 'audio/mpeg,audio/*;q=0.9,*/*;q=0.8',
+    'Accept-Language': 'en-US,en;q=0.9',
+};
+
+function isAudioMp3(buf) {
+    if (!buf || buf.length < 10000) return false; // halaman blokir hanya ~200 byte
+    if (buf[0] === 0x49 && buf[1] === 0x44 && buf[2] === 0x33) return true; // "ID3"
+    if (buf[0] === 0xFF && (buf[1] & 0xE0) === 0xE0) return true;          // frame sync MPEG
+    return false;
+}
+
+function audioCachePath(nama) {
+    return path.join(AUDIO_CACHE_DIR, nama === 'Subuh' ? 'azan2.mp3' : 'azan1.mp3');
+}
+
+// Sumber cadangan (terverifikasi 27 Okt 2026: 200 audio/mpeg 1.448.294 byte,
+// durasi 86,5 dtk, konversi ke OGG Opus 541.321 byte OK): rekaman adzan umum
+// dari Wikimedia Commons. Dipakai hanya bila islamcan gagal total — dan
+// hasilnya ikut ditulis ke cache, jadi mesin baru pun pulih sendiri.
+const AUDIO_ADZAN_CADANGAN = 'https://upload.wikimedia.org/wikipedia/commons/7/7d/The_Adhan_-_Muslim_Call_to_Prayer_-_Aaqib_Azeez.mp3';
+
+async function ambilAudioAdzan(nama) {
+    const url   = getAudio(nama);
+    const cache = audioCachePath(nama);
+    const simpanCache = (buf) => {
+        try {
+            fs.mkdirSync(AUDIO_CACHE_DIR, { recursive: true });
+            fs.writeFileSync(cache, buf);
+        } catch (_) { /* cache gagal ditulis: tetap pakai buffer */ }
+    };
+    let terakhir = null;
+    for (let coba = 1; coba <= 3; coba++) {
+        try {
+            const r = await axios.get(url, {
+                responseType: 'arraybuffer',
+                timeout: 20000,
+                headers: AUDIO_HEADERS,
+                validateStatus: null,
+            });
+            const buf = Buffer.from(r.data);
+            if (r.status === 200 && isAudioMp3(buf)) {
+                simpanCache(buf);
+                return buf;
+            }
+            terakhir = new Error(`islamcan mengembalikan status ${r.status} (${r.headers['content-type']}, ${buf.length} byte, bukan MP3)`);
+        } catch (e) {
+            terakhir = e;
+        }
+        if (coba < 3) await new Promise(r => setTimeout(r, 1000 * coba));
+    }
+    // Cadangan: Wikimedia Commons (1x, validasi sama).
+    try {
+        const r = await axios.get(AUDIO_ADZAN_CADANGAN, {
+            responseType: 'arraybuffer',
+            timeout: 30000,
+            headers: { 'User-Agent': AUDIO_HEADERS['User-Agent'] },
+            validateStatus: null,
+        });
+        const buf = Buffer.from(r.data);
+        if (r.status === 200 && isAudioMp3(buf)) {
+            console.error('[AutoSholat] Audio pakai sumber cadangan (Wikimedia Commons).');
+            simpanCache(buf);
+            return buf;
+        }
+        terakhir = new Error(`cadangan mengembalikan status ${r.status} (${buf.length} byte, bukan MP3)`);
+    } catch (e) {
+        terakhir = e;
+    }
+    // Fallback terakhir: cache lokal (adzan tidak berubah → cache selalu valid).
+    try {
+        if (fs.existsSync(cache)) {
+            const buf = fs.readFileSync(cache);
+            if (isAudioMp3(buf)) {
+                console.error('[AutoSholat] Audio pakai cache lokal (semua sumber gagal).');
+                return buf;
+            }
+        }
+    } catch (_) {}
+    throw new Error(`Gagal ambil audio adzan (islamcan 3x + cadangan gagal): ${terakhir?.message || terakhir}`);
 }
 
 // ─── HELPER ───────────────────────────────────────────────────────────────────
@@ -264,7 +378,7 @@ function bacaOwner() {
 
 // ─── BUAT GAMBAR BERSIH (TANPA TEKS) ────────────────────────────────────────
 // Kembalikan buffer JPEG dari foto masjid — bersih tanpa overlay teks.
-// Teks (nama sholat, jam, owner) ditampilkan di luar gambar via externalAdReply.
+// Teks (nama sholat, jam) ditampilkan sebagai body pesan interaktif.
 async function buatGambarOverlay(nama) {
     const filePath = GAMBAR_SHOLAT[nama] || GAMBAR_SHOLAT['Zuhur'];
     if (!fs.existsSync(filePath)) {
@@ -281,8 +395,10 @@ async function buatGambarOverlay(nama) {
     }
 }
 
-// ─── BUAT THUMBNAIL KECIL UNTUK externalAdReply ──────────────────────────────
-// Baileys butuh thumbnail ≤100KB, format JPEG, tanpa alpha channel
+// ─── BUAT THUMBNAIL KECIL (CADANGAN) ────────────────────────────────────────
+// Dulu dipakai externalAdReply; pengiriman kini interaktif tanpa thumbnail.
+// Fungsi dipertahankan (exported) bila ada pemakai lain; simulasi tetap
+// menghitungnya. Baileys butuh thumbnail ≤100KB, format JPEG, tanpa alpha.
 async function buatThumbnail(nama) {
     const filePath = GAMBAR_SHOLAT[nama] || GAMBAR_SHOLAT['Zuhur'];
     if (!fs.existsSync(filePath)) {
@@ -303,8 +419,12 @@ async function buatThumbnail(nama) {
 // ─── SIMULASI / TES KIRIM ────────────────────────────────────────────────────
 async function simulasi(namaWaktu) {
     const jadwal = await getJadwalHariIni();
-    const nama   = namaWaktu
-        ? Object.keys(jadwal).find(k => k.toLowerCase() === namaWaktu.toLowerCase()) || 'Zuhur'
+    // Alias ejaan: "magrib" (tanpa h, umum di Indonesia) → Maghrib. Tanpa ini,
+    // "test magrib" jatuh ke Zuhur (find gagal → default) dan terlihat "ngaco".
+    const _alias = { magrib: 'maghrib' };
+    const _cari  = namaWaktu ? (_alias[namaWaktu.toLowerCase()] || namaWaktu.toLowerCase()) : '';
+    const nama   = _cari
+        ? Object.keys(jadwal).find(k => k.toLowerCase() === _cari) || 'Zuhur'
         : 'Zuhur';
     const waktu  = jadwal[nama];
     const gambar = await buatGambarOverlay(nama);
@@ -324,7 +444,50 @@ async function simulasi(namaWaktu) {
     };
 }
 
-export { addGroup, removeGroup, isGroupEnabled, getEnabledGroups, getJadwalHariIni, cekWaktuSholat, buatCaption, getGambar, getAudio, buatGambarOverlay, buatThumbnail, simulasi, EMOJI_SHOLAT, UCAPAN_SHOLAT };
+// ─── PESAN INTERAKTIF: 1 GAMBAR + TOMBOL ───────────────────────────────────
+// Kenapa diubah (27 Okt 2026): pesan lama = gambar + externalAdReply — WA
+// me-render kartu preview kecil berisi thumbnail YANG SAMA di bawah caption,
+// sehingga gambar terlihat ADA 2. Pesan baru = SATU gambar (header) + tombol
+// cta_url (pola kirimAnigameInteraktif yang sudah jalan di bot ini) — tanpa
+// externalAdReply, tanpa thumbnail duplikat. Di WA, yang membuka link adalah
+// TOMBOLNYA (gambar tetap untuk dilihat) — itu perilaku platform.
+// KOREKSI USER 27 Okt 13:19: tombol = URL OWNER dari config.json
+// (https://wa.me/<owner0>), BUKAN link invite grup. Tanpa owner di config →
+// null → gambar biasa (tetap 1 gambar, tanpa tombol).
+async function kirimSholatInteraktif(hisoka, jid, gambarBuffer, caption, buttonUrl) {
+    if (!buttonUrl) {
+        return hisoka.sendMessage(jid, { image: gambarBuffer, caption });
+    }
+    try {
+        const headerMedia = await prepareWAMessageMedia({ image: gambarBuffer }, { upload: hisoka.waUploadToServer });
+        const btnList = [{
+            name: 'cta_url',
+            buttonParamsJson: JSON.stringify({
+                display_text: '👥 Hubungi Owner',
+                url: buttonUrl,
+                merchant_url: buttonUrl,
+            }),
+        }];
+        const msg = generateWAMessageFromContent(jid, {
+            interactiveMessage: {
+                body:   { text: caption },
+                footer: { text: '🕌 Auto Sholat — tepat waktu' },
+                header: { title: '', hasMediaAttachment: true, ...headerMedia },
+                nativeFlowMessage: { messageParamsJson: '{}', buttons: btnList },
+            },
+        }, {});
+        await hisoka.relayMessage(msg.key.remoteJid, msg.message, {
+            messageId: msg.key.id,
+            additionalNodes: [{ tag: 'biz', attrs: {}, content: [{ tag: 'interactive', attrs: { type: 'native_flow', v: '1' }, content: [{ tag: 'native_flow', attrs: { v: '9', name: 'mixed' } }] }] }],
+        });
+        return msg;
+    } catch (e) {
+        console.error('[AutoSholat] Interactive gagal, fallback gambar biasa:', e?.message);
+        return hisoka.sendMessage(jid, { image: gambarBuffer, caption });
+    }
+}
+
+export { addGroup, removeGroup, isGroupEnabled, getEnabledGroups, getJadwalHariIni, cekWaktuSholat, buatCaption, getGambar, getAudio, ambilAudioAdzan, buatGambarOverlay, buatThumbnail, simulasi, kirimSholatInteraktif, EMOJI_SHOLAT, UCAPAN_SHOLAT };
 export { handleAutosholat };
 // ── COMMAND HANDLER ───────────────────────────────────────────────────────────
 
@@ -341,20 +504,15 @@ async function handleAutosholat({ hisoka, m, query, tolak, logCommand, path, loa
                         ? (aktif ? '✅ *Aktif* di grup ini' : '❌ *Belum terdaftar* di grup ini')
                         : '_Perintah add/remove hanya bisa di grup_';
                 await tolak(hisoka, m,
-                        `╭─「 🕌 *AUTO SHOLAT* 」\n` +
-                        `│\n` +
-                        `│ Status: ${grupLabel}\n` +
-                        `│\n` +
-                        `│ *Perintah:*\n` +
-                        `│ • *${pfx}autosholat add* — daftarkan grup ini\n` +
-                        `│ • *${pfx}autosholat remove* — hapus grup ini\n` +
-                        `│ • *${pfx}autosholat test* — tes kirim sekarang\n` +
-                        `│ • *${pfx}autosholat status* — lihat semua grup\n` +
-                        `│ • *${pfx}autosholat jadwal* — lihat jadwal hari ini\n` +
-                        `│\n` +
-                        `│ 💡 Bot kirim gambar masjid + suara adzan\n` +
-                        `│    ke grup tepat saat waktu sholat tiba.\n` +
-                        `╰──────────────────────`
+                        `🕌 *AUTO SHOLAT*\n` +
+                        `Status: ${grupLabel}\n` +
+                        `*Perintah:*\n` +
+                        `1. *${pfx}autosholat add* — daftarkan grup ini\n` +
+                        `2. *${pfx}autosholat remove* — hapus grup ini\n` +
+                        `3. *${pfx}autosholat test* — tes kirim sekarang\n` +
+                        `4. *${pfx}autosholat status* — lihat semua grup\n` +
+                        `5. *${pfx}autosholat jadwal* — lihat jadwal hari ini\n` +
+                        `> _Bot kirim gambar masjid + suara adzan ke grup tepat saat waktu sholat tiba._`
                 );
                 return;
         }
@@ -388,13 +546,12 @@ async function handleAutosholat({ hisoka, m, query, tolak, logCommand, path, loa
         if (sub === 'status') {
                 const semuaGrup = getEnabledGroups();
                 if (!semuaGrup.length) { await tolak(hisoka, m, '📋 Belum ada grup yang terdaftar Auto Sholat.'); return; }
-                let txt = `╭─「 📋 *STATUS AUTO SHOLAT* 」\n│\n`;
-                semuaGrup.forEach((jid, i) => {
-                        const label  = jid.replace('@g.us', '');
-                        const isLast = i === semuaGrup.length - 1;
-                        txt += `${isLast ? '╰' : '│'} ✅ ${label}\n`;
+                let txt = `📋 *STATUS AUTO SHOLAT*\n`;
+                semuaGrup.forEach((jid) => {
+                        const label = jid.replace('@g.us', '');
+                        txt += `• ✅ ${label}\n`;
                 });
-                txt += `\n_Total: ${semuaGrup.length} grup aktif_`;
+                txt += `_Total: ${semuaGrup.length} grup aktif_`;
                 await tolak(hisoka, m, txt);
                 return;
         }
@@ -406,9 +563,8 @@ async function handleAutosholat({ hisoka, m, query, tolak, logCommand, path, loa
                         const tgl = new Date().toLocaleDateString('id-ID', {
                                 timeZone: 'Asia/Jakarta', weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
                         });
-                        let txt = `╭─「 🕌 *JADWAL SHOLAT JAKARTA* 」\n│\n│ 🗓️ _${tgl}_\n│\n`;
-                        for (const [nama, waktu] of Object.entries(jadwal)) txt += `│ 🕐 *${nama}* : ${waktu} WIB\n`;
-                        txt += `╰──────────────────────`;
+                        let txt = `🕌 *JADWAL SHOLAT JAKARTA*\n🗓️ _${tgl}_\n`;
+                        for (const [nama, waktu] of Object.entries(jadwal)) txt += `• 🕐 *${nama}* : ${waktu} WIB\n`;
                         await tolak(hisoka, m, txt);
                         await hisoka.sendMessage(m.from, { react: { text: '✅', key: m.key } });
                 } catch (err) {
@@ -424,27 +580,12 @@ async function handleAutosholat({ hisoka, m, query, tolak, logCommand, path, loa
                         const namaWaktu = sub.replace('test', '').trim() || null;
                         const hasil     = await simulasi(namaWaktu);
                         const _asCfg    = loadConfig();
-                        const _owner0   = Array.isArray(_asCfg.owners) ? (_asCfg.owners[0] || '') : '';
-                        const _emoji    = (EMOJI_SHOLAT  || {})[hasil.nama] || '🕌';
-                        const _ucapan   = (UCAPAN_SHOLAT || {})[hasil.nama] || 'Segera tunaikan sholat 🤲';
-                        const imgMsg = await hisoka.sendMessage(m.from, {
-                                image  : hasil.urlGambar,
-                                caption: hasil.caption,
-                                contextInfo: {
-                                        externalAdReply: {
-                                                showAdAttribution    : false,
-                                                title                : `${_emoji} Sholat ${hasil.nama} — ${hasil.waktu} WIB`,
-                                                body                 : _ucapan,
-                                                sourceUrl            : `https://wa.me/${_owner0}`,
-                                                mediaType            : 1,
-                                                renderLargerThumbnail: true,
-                                                thumbnail            : hasil.urlThumbnail,
-                                        },
-                                },
-                        }, { quoted: m });
+                        const _asOwner0 = Array.isArray(_asCfg.owners) ? (_asCfg.owners[0] || '') : '';
+                        const _asBtnUrl = _asOwner0 ? `https://wa.me/${_asOwner0}` : null;
+                        const imgMsg    = await kirimSholatInteraktif(hisoka, m.from, hasil.urlGambar, hasil.caption, _asBtnUrl);
                         const { toVoiceNote: _asToVN, generateWaveform: _asGenWF } = (await importLazy(path.resolve('./SEMUA_FITUR/media/audioconvert.js')));
-                        const _asAudRes  = await (await import('axios')).default.get(hasil.urlAudio, { responseType: 'arraybuffer', timeout: 20000 });
-                        const _asVnBuf   = await _asToVN(Buffer.from(_asAudRes.data), 'audio/mpeg');
+                        const _asAudBuf  = await ambilAudioAdzan(hasil.nama);
+                        const _asVnBuf   = await _asToVN(_asAudBuf, 'audio/mpeg');
                         const _asWaveform = await _asGenWF(_asVnBuf, 'audio/ogg; codecs=opus').catch(() => null);
                         await hisoka.sendMessage(m.from, {
                                 audio   : _asVnBuf,

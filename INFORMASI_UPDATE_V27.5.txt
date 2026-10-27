@@ -7,9 +7,9 @@ _📅 Jumat, 23 Oktober 2026_
 ━━━━━━━━━━━━━━━━━━━━━━
 🤖 *WILY BOT* — `V27.5`
 ✨ *2 Fitur Baru*
-🐛 *4 Fix Bug*
+🐛 *6 Fix Bug*
 🛠️ *0 Fix Error*
-🚀 *10 Perubahan*
+🚀 *11 Perubahan*
 ⚠️ *0 Hapus Fitur*
 ━━━━━━━━━━━━━━━━━━━━━━
 ✨ *FITUR BARU*
@@ -55,7 +55,23 @@ _📅 Jumat, 23 Oktober 2026_
    • `.animasu status` & `.animasu test grup` sekarang baca dari homepage (sebelumnya WP API → kosong/gagal).
    • Cache detail lama yang menahan data basi sudah diperbaiki: file dibaca segar tiap fallback, simpan read-then-write.
    • Baris Rating yang kosong di situs sekarang dihilangkan, bukan tampil tanpa nilai.
-> _Hasil: gambar, detail, status & test animasu tampil akurat dari sumber live._
+   • Monitor buta: homepage kini diambil translate.goog dulu (sebelumnya Jina menyajikan cache basi sehingga update tak terkirim); fallback direct→Jina bila TG gagal.
+   • Sinopsis bahasa Inggris dari Kitsu dihapus total dari caption (Kitsu kini hanya menyumbang genre); sinopsis Indonesia lengkap kembali begitu jalur detail hidup.
+   • Rating situs ditampilkan apa adanya, termasuk `N/A`/`?` bila situs belum punya skor (rating Kitsu tidak dipakai).
+   • `.animasu on` yang membalas "undefined" diperbaiki (koma hilang di handler) + tombol konfirmasi kini punya handler & dispatch (sebelumnya tombol mati).
+> _Hasil: gambar, detail, status, test & monitor animasu tampil akurat dari sumber live; rating & tombol on ikut benar._
+
+5. *.nekopoinotif — Error 403 & Thumbnail Hilang*
+   • Transport listing/detail pindah ke Jina (direct diblokir Cloudflare 403; translate ditolak karena situs ori Indonesia); parser listing & detail diperbarui (nk-search-item, paragraf separator).
+   • Sinopsis kini tampil penuh (cap 350 karakter dihapus); bila caption >4000 karakter hanya sinopsis yang dipotong.
+   • Thumbnail kini lewat Photon CDN (i0.wp.com, CDN yang sama dipakai animasu) — sebelumnya thumbnail langsung dari nekopoi.care yang diblokir Cloudflare sehingga tidak tampil; bila gambar gagal, notif tetap terkirim sebagai teks.
+> _Hasil: `.nekopoinotif test` & notif nekopoi tampil lengkap (judul, sinopsis, genre, produser, durasi, ukuran, download, streaming) dengan thumbnail._
+
+6. *.autosholat — Test Error, Audio VN & Ejaan*
+   • Jadwal sholat kini retry 3x (sebelumnya sekali stall >12 detik langsung "Gagal test").
+   • Audio adzan kini divalidasi dulu (MP3 asli, bukan halaman HTML blokir) + retry 3x + sumber cadangan Wikimedia Commons + cache lokal — sebelumnya halaman HTML 194 byte dilempar ke ffmpeg sehingga voice note gagal ("Failed to find two consecutive MPEG audio frames").
+   • Ejaan `magrib` (tanpa h) kini dikenali sebagai Maghrib (sebelumnya jatuh ke Zuhur).
+> _Hasil: `.autosholat test` terkirim utuh (gambar + voice note adzan) untuk semua waktu sholat._
 
 ━━━━━━━━━━━━━━━━━━━━━━
 🛠️ *FIX ERROR*
@@ -109,6 +125,7 @@ _📅 Jumat, 23 Oktober 2026_
    • `.animasu test` = SATU preview update terbaru realtime (kartu teratas widget Sedang Tayang, atau Baru Ditambah & Diperbarui bila kosong).
    • `.animasu status` = daftar grup saja, rapih & realtime: hitungan (total, aktif, nonaktif), urutan aktif dulu lalu nama, garis simple pemisah antar grup; per grup jumlah anggota, jumlah admin, dan status bot admin (✅/❌, ❓ bila tak diketahui) — diambil live dari grup, bukan simpanan. Data tersimpan di `config.json` tetap minimal per grup: `{ enabled, diubahPada }`.
    • Semua pesan .animasu kini tanpa garis kotak/pohon — formatting WhatsApp native (tebal, miring, coret, kode, daftar bernomor/berpoint, kutip) sesuai konteks, URL tetap polos.
+   • Caption detail kini memuat link episode terbaru & trailer (dari seed detail-cache 20 entri).
 > _Hasil: pantau update anime, cek status grup & kirim preview dari chat — realtime, rapih, dan satu pesan tanpa spam._
 
 9. *Menu Utama & Struktur Fitur Grup — Tampilan Rapih*
@@ -124,6 +141,12 @@ _📅 Jumat, 23 Oktober 2026_
    • Sumber realtime dari animasu.love/jadwal (fetch segar tiap panggil); pesan 1 hari maks 1000 karakter, pesan seminggu maks 4000 karakter (bila data membesar, otomatis jadi ringkasan hitungan per hari).
    • Tanpa jam rilis & badge kartu (tidak terverifikasi dari halaman); section "Update Acak" tidak masuk hari manapun.
 > _Hasil: cek jadwal rilis anime harian & semingguan dari chat, realtime, rapih, 1 pesan._
+
+11. *.autosholat — Pesan Rapih, 1 Gambar & Tombol Owner*
+   • Pesan notifikasi & test kini SATU gambar saja (sebelumnya gambar + kartu preview thumbnail yang sama sehingga terlihat 2) + tombol `👥 Hubungi Owner` (cta_url ke `wa.me/<owner config.json>`; tanpa owner → gambar biasa).
+   • Format pesan rapih & simple dengan toolkit WhatsApp native sesuai konteks: judul/jam tebal, tanggal/ucapan miring, jam yang sudah lewat dicoret, daftar jadwal berpoint, ucapan dikutip, perintah dalam kode; help memakai daftar bernomor, status & jadwal tanpa garis kotak.
+   • Tombol & format baru berlaku untuk `.autosholat test` DAN notifikasi scheduler realtime (helper yang sama); scheduler mengecek tiap 60 detik.
+> _Hasil: notifikasi sholat rapih, 1 gambar + tombol owner, akurat tiap waktu._
 
 ━━━━━━━━━━━━━━━━━━━━━━
 ⚠️ *HAPUS FITUR*

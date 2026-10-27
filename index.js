@@ -1940,7 +1940,13 @@ async function main() {
                                                                                 if (imgBuffer) {
                                                                                         await hisoka.sendMessage(jid, { image: imgBuffer, mimetype: 'image/jpeg', caption });
                                                                                 } else if (imgSendUrl) {
-                                                                                        await hisoka.sendMessage(jid, { image: { url: imgSendUrl }, caption });
+                                                                                        try {
+                                                                                                await hisoka.sendMessage(jid, { image: { url: imgSendUrl }, caption });
+                                                                                        } catch (_) {
+                                                                                                // Proxy gambar mati → caption teks tetap terkirim,
+                                                                                                // item tidak hilang diam-diam walau ditandai terkirim.
+                                                                                                await hisoka.sendMessage(jid, { text: caption });
+                                                                                        }
                                                                                 } else {
                                                                                         await hisoka.sendMessage(jid, { text: caption });
                                                                                 }
@@ -2224,8 +2230,8 @@ async function main() {
                                                 let _asWaveform = null;
                                                 try {
                                                         const { toVoiceNote: _asToVN, generateWaveform: _asGenWF } = await importLazy(path.resolve('././SEMUA_FITUR/media/audioconvert.js'));
-                                                        const _asAudRes = await (await import('axios')).default.get(urlAud, { responseType: 'arraybuffer', timeout: 20000 });
-                                                        _asVnBuf    = await _asToVN(Buffer.from(_asAudRes.data), 'audio/mpeg');
+                                                        const _asAudBuf = await _as.ambilAudioAdzan(cocok.nama);
+                                                        _asVnBuf    = await _asToVN(_asAudBuf, 'audio/mpeg');
                                                         _asWaveform = await _asGenWF(_asVnBuf, 'audio/ogg; codecs=opus').catch(() => null);
                                                 } catch (_asConvErr) {
                                                         console.error('[AutoSholat] Gagal konversi audio:', _asConvErr?.message);
@@ -2236,30 +2242,17 @@ async function main() {
                                                 const AS_BATCH = 5;
                                                 for (let i = 0; i < daftarGrup.length; i += AS_BATCH) {
                                                         const chunk = daftarGrup.slice(i, i + AS_BATCH);
-                                                        const _asCfg      = loadConfig();
-                                                        const _asOwner0   = Array.isArray(_asCfg.owners) ? _asCfg.owners[0] : '';
-                                                        const _asEmoji    = _as.EMOJI_SHOLAT[cocok.nama]  || '🕌';
-                                                        const _asUcapan   = _as.UCAPAN_SHOLAT[cocok.nama] || 'Segera tunaikan sholat 🤲';
-                                                        const _asThumb    = await _as.buatThumbnail(cocok.nama);
 
                                                         await Promise.allSettled(chunk.map(async jid => {
                                                                 try {
-                                                                        // Kirim gambar bersih + info sholat di luar gambar (externalAdReply)
-                                                                        const imgMsg = await hisoka.sendMessage(jid, {
-                                                                                image  : urlGbr,
-                                                                                caption: caption,
-                                                                                contextInfo: {
-                                                                                        externalAdReply: {
-                                                                                                showAdAttribution : false,
-                                                                                                title             : `${_asEmoji} Sholat ${cocok.nama} — ${cocok.waktu} WIB`,
-                                                                                                body              : _asUcapan,
-                                                                                                sourceUrl         : `https://wa.me/${_asOwner0}`,
-                                                                                                mediaType         : 1,
-                                                                                                renderLargerThumbnail: true,
-                                                                                                thumbnail         : _asThumb,
-                                                                                        },
-                                                                                },
-                                                                        });
+                                                                        // SATU gambar + tombol owner (URL owner config.json);
+                                                                        // tanpa externalAdReply → tanpa thumbnail duplikat.
+                                                                        // Tanpa owner di config → gambar biasa (tetap 1 gambar).
+                                                                        // Helper SAMA dengan .autosholat test → test = realtime.
+                                                                        const _asCfgS   = loadConfig();
+                                                                        const _asOwnerS = Array.isArray(_asCfgS.owners) ? (_asCfgS.owners[0] || '') : '';
+                                                                        const _asBtnUrl = _asOwnerS ? `https://wa.me/${_asOwnerS}` : null;
+                                                                        const imgMsg = await _as.kirimSholatInteraktif(hisoka, jid, urlGbr, caption, _asBtnUrl);
                                                                         if (_asVnBuf) {
                                                                                 await hisoka.sendMessage(jid, {
                                                                                         audio   : _asVnBuf,

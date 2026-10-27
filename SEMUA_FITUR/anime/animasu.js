@@ -180,7 +180,9 @@ function parseDetailPage(html, animeUrl) {
     const studio = ambilField('Studio');
     const musim  = ambilField('Musim');
 
-    const ratingMatch = html.match(/<strong>Rating\s+([0-9.]+)<\/strong>/i);
+    // Rating bisa berupa angka, "N/A", atau "?" (situs belum punya skor) — ketiganya
+    // nilai literal situs; baris Rating tampil apa adanya, bukan dihilangkan.
+    const ratingMatch = html.match(/<strong>Rating\s+([0-9.]+|N\/A|\?)<\/strong>/i);
     const rating = ratingMatch ? ratingMatch[1] : '';
 
     // Field tambahan blok info lengkap (terbukti ada di halaman detail).
@@ -427,18 +429,20 @@ async function fetchAnimeUrlFromEpisodePage(postLink) {
 
 const URL_HOMEPAGE = `${BASE_URL}/`;
 
-function ambilSlugDariUrlAnime(url) {
+export function ambilSlugDariUrlAnime(url) {
     const m = (url || '').match(/\/anime\/([^/]+)\/?/);
     return m ? m[1] : '';
 }
 
 // Ambil 1 blok kartu anime (bsx) dari potongan HTML tertentu (section homepage)
-function parseAnimeCards(sectionHtml) {
+export function parseAnimeCards(sectionHtml) {
     const re = /<div class="bsx">\s*<a href="([^"]+)"[^>]*title="([^"]*)"[^>]*>[\s\S]*?<div class="typez[^"]*">([^<]*)<\/div>[\s\S]*?<span class="epx">([^<]*)<\/span>\s*<span class="sb[^"]*">([\s\S]*?)<\/span>[\s\S]*?<img[^>]+src="([^"]+)"[^>]*>[\s\S]*?<div class="tt">\s*([\s\S]*?)<\/div>\s*<\/a>/g;
     const out = [];
     let m;
     while ((m = re.exec(sectionHtml)) !== null) {
-        const url = m[1];
+        // URL kartu dari TG (translate.goog) dinormalisasi balik ke
+        // animasu.love; URL Jina/direct tidak berubah (no-op).
+        const url = kembalikanUrlTranslate(m[1]);
         // Status kadang berisi <img> emoji (alt="🔥") bukan teks polos — ambil
         // alt-nya dulu supaya label status tidak hilang saat stripHtml.
         const statusRaw = (m[5] || '').replace(/<img[^>]+alt="([^"]*)"[^>]*>/gi, '$1');
@@ -460,17 +464,30 @@ function parseAnimeCards(sectionHtml) {
 }
 
 // Ambil & pisahkan HTML homepage jadi 2 section: "Sedang Tayang" & "Baru Ditambah & Diperbarui"
+// URUTAN SUMBER (perbaikan 27 Okt 2026 — monitor sempat buta): Jina terbukti
+// menyajikan homepage CACHE BASI — salinannya identik dengan state lama
+// (0 selisih) sementara translate.goog + situs langsung menampilkan 7 entri
+// Sedang Tayang baru. TG didahulukan karena cover kartu adalah Photon
+// (i*.wp.com) yang TIDAK ditulis ulang TG (terverifikasi di HTML TG),
+// sehingga notif bergambar tetap jalan. Bila TG gagal total (429/403/block
+// atau section tak ditemukan), fallback ke jalur lama (direct → Jina).
 async function fetchHomepageSections() {
-    const html = await fetchHtml(URL_HOMEPAGE);
-    const idxTayang    = html.indexOf('Sedang Tayang');
-    const idxTerupdate = html.indexOf('id="terupdate"');
-    if (idxTayang === -1 || idxTerupdate === -1 || idxTerupdate <= idxTayang) {
-        throw new Error('Struktur homepage Animasu berubah — section tidak ditemukan');
-    }
-    return {
-        sectionTayang : html.slice(idxTayang, idxTerupdate),
-        sectionUpdate : html.slice(idxTerupdate),
+    const pisah = (html) => {
+        const idxTayang    = html.indexOf('Sedang Tayang');
+        const idxTerupdate = html.indexOf('id="terupdate"');
+        if (idxTayang === -1 || idxTerupdate === -1 || idxTerupdate <= idxTayang) return null;
+        return {
+            sectionTayang : html.slice(idxTayang, idxTerupdate),
+            sectionUpdate : html.slice(idxTerupdate),
+        };
     };
+    try {
+        const viaTG = pisah(await fetchHtmlViaTranslateGoog(URL_HOMEPAGE));
+        if (viaTG) return viaTG;
+    } catch (_) {}
+    const viaLama = pisah(await fetchHtml(URL_HOMEPAGE));
+    if (viaLama) return viaLama;
+    throw new Error('Struktur homepage Animasu berubah — section tidak ditemukan');
 }
 
 // Cek perubahan pada widget "Sedang Tayang" — trigger saat episode baru
@@ -798,6 +815,9 @@ function buatCaptionTayang(item) {
         year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false,
     });
     const judul = item.tipe === 'baru_tayang' ? '🔥 *ANIME BARU TAYANG!*' : '🔥 *SEDANG TAYANG - EPISODE BARU!*';
+    // TANPA sinopsis Inggris (perintah Wily 27 Okt 2026): sinopsis Indonesia
+    // HANYA dari detail situs (lapisan detail); lapisan Kitsu ini hanya
+    // menyumbang genre (netral bahasa). Sinopsis Inggris tidak pernah dikirim.
     return (
         `${judul}\n` +
         `\n` +
@@ -807,7 +827,6 @@ function buatCaptionTayang(item) {
         `📺 *${item.episodeLabel}*\n` +
         (item.genre ? `🎭 *Genre:* ${item.genre}\n` : '') +
         (item.labelLama ? `↪️ _Sebelumnya: ${item.labelLama}_\n` : '') +
-        (item.sinopsis ? `\n📖 *Sinopsis (EN):*\n${item.sinopsis.split('\n').map(b => `> ${b}`).join('\n')}\n` : '') +
         `\n🔗 ${item.url}`
     );
 }
@@ -818,6 +837,8 @@ function buatCaptionBaruUpdate(item) {
         year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false,
     });
     const judul = item.tipe === 'baru_ditambah' ? '🆕 *ANIME BARU DITAMBAHKAN!*' : '🔄 *ANIME DIPERBARUI!*';
+    // TANPA sinopsis Inggris (perintah Wily 27 Okt 2026) — alasan sama seperti
+    // buatCaptionTayang: lapisan Kitsu hanya menyumbang genre.
     return (
         `${judul}\n` +
         `\n` +
@@ -827,7 +848,6 @@ function buatCaptionBaruUpdate(item) {
         `📺 *${item.episodeLabel}* · ${item.statusLabel}\n` +
         (item.genre ? `🎭 *Genre:* ${item.genre}\n` : '') +
         (item.labelLama ? `↪️ _Sebelumnya: ${item.labelLama}_\n` : '') +
-        (item.sinopsis ? `\n📖 *Sinopsis (EN):*\n${item.sinopsis.split('\n').map(b => `> ${b}`).join('\n')}\n` : '') +
         `\n🔗 ${item.url}`
     );
 }
@@ -1318,8 +1338,8 @@ async function getAiringStatus(jumlahPost = 40) {
 
 // ── EXPORT ────────────────────────────────────────────────────────────────────
 
-export { getEnabledGroups, setGroupEnabled, cariEpisodeBaru, buatCaption, ambilUrlGambar, tandaiSudahKirim, tandaiDanLog, getRecentLog, simulasi, getAiringStatus, cariPerubahanSedangTayang, cariPerubahanBaruDiperbarui, buatCaptionTayang, buatCaptionBaruUpdate, previewSedangTayang, previewBaruUpdate, previewUpdateTerbaru, perkayasItemDenganKitsu, buatPesanLengkap, fetchKitsuLanjutan, fetchDetailLengkap };
-export { handleAnimasu };
+export { getEnabledGroups, setGroupEnabled, cariEpisodeBaru, buatCaption, ambilUrlGambar, tandaiSudahKirim, tandaiDanLog, getRecentLog, simulasi, getAiringStatus, cariPerubahanSedangTayang, cariPerubahanBaruDiperbarui, buatCaptionTayang, buatCaptionBaruUpdate, previewSedangTayang, previewBaruUpdate, previewUpdateTerbaru, perkayasItemDenganKitsu, buatPesanLengkap, fetchKitsuLanjutan, fetchDetailLengkap, fetchHomepageSections };
+export { handleAnimasu, handleAnimasuCallbacks };
 // ── COMMAND HANDLER ───────────────────────────────────────────────────────────
 
 // ── JADWAL RILIS (animasu.love/jadwal) ──
@@ -1470,7 +1490,7 @@ async function handleAnimasu({ hisoka, m, query, tolak, logCommand, sendConfirmW
                         (sebelumnyaAM
                                 ? `ℹ️ _Fitur ini sebelumnya sudah aktif, tidak ada perubahan._\n`
                                 : `✅ *Fitur berhasil diaktifkan!*\n_Bot akan kirim notif otomatis saat episode Sub Indo baru tersedia._\n`) +
-                        `\nKetik \`${pfx}animasu off\` untuk menonaktifkan.`
+                        `\nKetik \`${pfx}animasu off\` untuk menonaktifkan.`,
                         [{ text: '➕ Aktifkan Semua Grup', id: '__addallgrp__animasu' }]
                 );
                 await hisoka.sendMessage(m.from, { react: { text: '✅', key: m.key } });
@@ -1666,6 +1686,40 @@ async function handleAnimasu({ hisoka, m, query, tolak, logCommand, sendConfirmW
 /**
  * ── Plugin ESM (auto-migrasi dari switch-case message.js) ──
  */
+
+// ── BUTTON CALLBACK HANDLER ───────────────────────────────────────────────────
+// Tangani tap list dari konfirmasi .animasu on di grup:
+//   __addallgrp__animasu → aktifkan semua GC (cerminan handler alqanimenotif).
+async function handleAnimasuCallbacks({ hisoka, m, tolak, logCommand, loadConfig, fs, path }) {
+	if (!m.isOwner) return false;
+	const txt = typeof m.text === 'string' ? m.text.trim() : '';
+	if (txt !== '__addallgrp__animasu') return false;
+	await hisoka.sendMessage(m.from, { react: { text: '⏳', key: m.key } });
+	try {
+		const allGroupsRaw = await hisoka.groupFetchAllParticipating();
+		const allJids = Object.keys(allGroupsRaw || {});
+		if (!allJids.length) {
+			await tolak(hisoka, m, '❌ Bot tidak ada di grup manapun.');
+			return true;
+		}
+		const cfg = loadConfig();
+		if (!cfg.animasu) cfg.animasu = { groups: {} };
+		if (!cfg.animasu.groups) cfg.animasu.groups = {};
+		for (const jid of allJids) cfg.animasu.groups[jid] = { enabled: true, diubahPada: Date.now() };
+		fs.writeFileSync(path.join(process.cwd(), 'config.json'), JSON.stringify(cfg, null, 2));
+		await hisoka.sendMessage(m.from, { react: { text: '✅', key: m.key } });
+		await tolak(hisoka, m,
+			`📺 *ANIMASU SUB INDO*\n\n` +
+			`✅ *${allJids.length} grup berhasil diaktifkan!*\n\n` +
+			`_Notif anime animasu.love akan masuk ke semua grup yang ada bot._`);
+		logCommand(m, hisoka, 'animasu-addallgrp');
+	} catch (e) {
+		await hisoka.sendMessage(m.from, { react: { text: '❌', key: m.key } });
+		await tolak(hisoka, m, `❌ Gagal: ${e.message}`);
+	}
+	return true;
+}
+
 export const command = /^(animasu)$/i;
 export const tags = ['anime'];
 export const help = ['animasu'];

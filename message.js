@@ -908,6 +908,12 @@ export default async function ({ message, type: messagesType }, hisoka) {
                         if (await handleAlqanimeNotifCallbacks({ hisoka, m, tolak, logCommand, Button, loadConfig, fs, path })) return;
                 }
 
+                // ── Handle button callback animasu (__addallgrp__animasu) ──
+                {
+                	const { handleAnimasuCallbacks } = await importLazy(path.resolve('./SEMUA_FITUR/anime/animasu.js'));
+                	if (await handleAnimasuCallbacks({ hisoka, m, tolak, logCommand, loadConfig, fs, path })) return;
+                }
+
                 // ── Handle button callback doujindesu (__doujinnotif_*) ──
                 {
                         const { handleDoujinNotifCallbacks } = await importLazy(path.resolve('./SEMUA_FITUR/anime/doujindesu-monitor.js'));
