@@ -6,10 +6,10 @@
 _📅 Jumat, 23 Oktober 2026_
 ━━━━━━━━━━━━━━━━━━━━━━
 🤖 *WILY BOT* — `V27.5`
-✨ *2 Fitur Baru*
+✨ *3 Fitur Baru*
 🐛 *6 Fix Bug*
 🛠️ *3 Fix Error*
-🚀 *11 Perubahan*
+🚀 *10 Perubahan*
 ⚠️ *0 Hapus Fitur*
 ━━━━━━━━━━━━━━━━━━━━━━
 ✨ *FITUR BARU*
@@ -27,6 +27,13 @@ _📅 Jumat, 23 Oktober 2026_
    • Prompt dibungkus blok negatif eksplisit (tanpa teks/logo/watermark/tangan) + gambar di-crop tengah 86% sebelum konversi — hasil bersih dari teks acak & watermark palsu yang kadang digambar model.
    • Reaksi proses ⏳/✅/❌ seperti `.sticker`, timeout generate 120 detik + retry 1x dengan seed baru bila gagal.
 > _Hasil: sticker AI custom dari teks prompt, bersih dan siap pakai._
+
+3. *.animasu jadwal — Jadwal Rilis Per Hari & Seminggu*
+   • Perintah baru `.animasu jadwal` — jadwal rilis seminggu penuh (Senin–Minggu, 74 anime) dalam 1 pesan, hari ini ditandai 👈 *HARI INI* + tanggal, antar hari dipisah garis simple.
+   • `.animasu jadwal <hari>` — jadwal 1 hari (senin–minggu; `jumat` tanpa apostrof diterima; hari tak dikenal langsung dibalas daftar hari tanpa fetch).
+   • Sumber realtime dari animasu.love/jadwal (fetch segar tiap panggil); pesan 1 hari maks 1000 karakter, pesan seminggu maks 4000 karakter (bila data membesar, otomatis jadi ringkasan hitungan per hari).
+   • Tanpa jam rilis & badge kartu (tidak terverifikasi dari halaman); section "Update Acak" tidak masuk hari manapun.
+> _Hasil: cek jadwal rilis anime harian & semingguan dari chat, realtime, rapih, 1 pesan._
 
 ━━━━━━━━━━━━━━━━━━━━━━
 🐛 *BUG FIX*
@@ -144,14 +151,7 @@ _📅 Jumat, 23 Oktober 2026_
    • Isi tidak berubah: menu utama tetap 166 plugin / 306 command (0 hilang), menu jadibot tetap 68 baris / 52 perintah / total 44.
 > _Hasil: menu & struktur folder rapih, enak dilihat, tanpa fitur hilang._
 
-10. *Animasu Jadwal — Jadwal Rilis Per Hari & Seminggu*
-   • Perintah baru `.animasu jadwal` — jadwal rilis seminggu penuh (Senin–Minggu, 74 anime) dalam 1 pesan, hari ini ditandai 👈 *HARI INI* + tanggal, antar hari dipisah garis simple.
-   • `.animasu jadwal <hari>` — jadwal 1 hari (senin–minggu; `jumat` tanpa apostrof diterima; hari tak dikenal langsung dibalas daftar hari tanpa fetch).
-   • Sumber realtime dari animasu.love/jadwal (fetch segar tiap panggil); pesan 1 hari maks 1000 karakter, pesan seminggu maks 4000 karakter (bila data membesar, otomatis jadi ringkasan hitungan per hari).
-   • Tanpa jam rilis & badge kartu (tidak terverifikasi dari halaman); section "Update Acak" tidak masuk hari manapun.
-> _Hasil: cek jadwal rilis anime harian & semingguan dari chat, realtime, rapih, 1 pesan._
-
-11. *.autosholat — Pesan Rapih, 1 Gambar & Tombol Owner*
+10. *.autosholat — Pesan Rapih, 1 Gambar & Tombol Owner*
    • Pesan notifikasi & test kini SATU gambar saja (sebelumnya gambar + kartu preview thumbnail yang sama sehingga terlihat 2) + tombol `👥 Hubungi Owner` (cta_url ke `wa.me/<owner config.json>`; tanpa owner → gambar biasa).
    • Format pesan rapih & simple dengan toolkit WhatsApp native sesuai konteks: judul/jam tebal, tanggal/ucapan miring, jam yang sudah lewat dicoret, daftar jadwal berpoint, ucapan dikutip, perintah dalam kode; help memakai daftar bernomor, status & jadwal tanpa garis kotak.
    • Tombol & format baru berlaku untuk `.autosholat test` DAN notifikasi scheduler realtime (helper yang sama); scheduler mengecek tiap 60 detik.
