@@ -68,6 +68,8 @@ _📅 Jumat, 23 Oktober 2026_
    • Monitor notifikasi yang kadang pendek (tanpa Status/Sinopsis/Trailer) diperbaiki: penyebabnya Cloudflare memblokir semua jalur detail dari server bot (direct 403, translate.goog & Jina menyajikan halaman blokir) dan judul baru belum ada di cache — kini scheduler mencoba detail 2x dengan jeda 90 detik sebelum menyerah ke caption pendek (`.animasu test` tetap cepat, tanpa retry).
    • Caption pendek kini tetap membawa Status dari Kitsu (cocok persis); sinopsis Inggris tetap tidak dipakai.
    • Cache detail judul baru di-seed sehingga episode berikutnya langsung tampil lengkap (21 entri).
+   • Notifikasi ganda (judul yang sama terkirim 7-11x) diperbaiki: penyebabnya state dibangun ulang dari snapshot widget tiap tick — judul yang sesaat hilang dari fetch (429/snapshot basi) terhapus dari state lalu dianggap "baru" lagi saat muncul. State kini akumulatif (label lama dipertahankan bila judul absen) + pruning entri tak terlihat 30 hari.
+   • Jaring pengaman baru: sent-log per kategori (`data/animasu/terkirim.json`, cap 300) dicek scheduler sebelum kirim — pola yang sama seperti `.alqanimenotif` yang akurat.
 > _Hasil: gambar, detail, status, test & monitor animasu tampil akurat dari sumber live; rating ikut benar._
 
 5. *.nekopoinotif — Parser & Sinopsis*

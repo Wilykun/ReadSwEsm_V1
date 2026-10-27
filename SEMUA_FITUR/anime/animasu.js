@@ -490,6 +490,83 @@ async function fetchHomepageSections() {
     throw new Error('Struktur homepage Animasu berubah — section tidak ditemukan');
 }
 
+// ── DEDUP MONITOR: STATE AKUMULATIF + SENT-LOG PER KATEGORI ─────────────────
+// Root cause duplikat 28 Okt 02:36 & 02:48 (judul yang sama terkirim 7-11x):
+// state lama DIBANGUN ULANG dari snapshot widget tiap tick — judul yang sesaat
+// hilang dari fetch (429 TG, snapshot basi Jina/TG, kartu gagal parse) TERHAPUS
+// dari state, lalu saat muncul lagi dianggap "baru" → kirim ulang.
+// Perbaikan 28 Okt (pola .alqanimenotif yang akurat: data per kategori di
+// data/<fitur>/ + log terkirim yang dicek sebelum kirim):
+//  1. State AKUMULATIF (gabungState): label lama dipertahankan bila judul absen
+//     dari fetch saat ini; hanya slug baru / label berubah yang jadi perubahan.
+//     Bentuk nilai state TIDAK berubah (slug → label string) agar kompatibel.
+//  2. Pruning: entri yang tidak terlihat 30 hari dihapus (seenAt terpisah;
+//     entri lama tanpa seenAt dianggap baru terlihat saat migrasi — tidak ada
+//     wipe massal, tidak ada burst "baru" pasca-deploy).
+//  3. Sent-log per kategori (data/animasu/terkirim.json, cap 300/kategori):
+//     dicek scheduler SEBELUM kirim — jaring pengaman bila state.json hilang/
+//     rusak. Kunci = slug|label (tayang) atau slug|episode|status (update).
+const FILE_TERKIRIM = path.join(process.cwd(), 'data', 'animasu', 'terkirim.json');
+const BATAS_PRUNE_MS = 30 * 24 * 3600 * 1000; // 30 hari
+const CAP_TERKIRIM = 300;
+
+// Fungsi murni (bisa disimulasi tanpa jaringan): hitung perubahan + state baru.
+function gabungState(daftar, stateLama, seenLama, { tipeBaru, tipeUbah, labelOf, init }) {
+    const stateBaru = { ...stateLama };
+    const seenBaru = { ...seenLama };
+    const now = Date.now();
+    const perubahan = [];
+    for (const a of daftar) {
+        if (!a.slug) continue;
+        seenBaru[a.slug] = now;
+        const label = labelOf(a);
+        if (init) { stateBaru[a.slug] = label; continue; } // seed baseline, tidak dikirim
+        const lama = stateLama[a.slug];
+        if (lama === undefined) perubahan.push({ ...a, tipe: tipeBaru });
+        else if (lama !== label) perubahan.push({ ...a, tipe: tipeUbah, labelLama: lama });
+        stateBaru[a.slug] = label;
+    }
+    for (const slug of Object.keys(stateBaru)) {
+        if (seenBaru[slug] === undefined) seenBaru[slug] = now; // migrasi: entri lama aman
+        else if (seenBaru[slug] < now - BATAS_PRUNE_MS) { delete stateBaru[slug]; delete seenBaru[slug]; }
+    }
+    return { perubahan, stateBaru, seenBaru };
+}
+
+function bacaTerkirim() {
+    try {
+        if (fs.existsSync(FILE_TERKIRIM)) return JSON.parse(fs.readFileSync(FILE_TERKIRIM, 'utf-8'));
+    } catch (_) {}
+    return { tayang: [], update: [] };
+}
+
+function simpanTerkirim(log) {
+    try { fs.writeFileSync(FILE_TERKIRIM, JSON.stringify(log, null, 2), 'utf-8'); } catch (_) {}
+}
+
+function kunciTerkirimWidget(kategori, item) {
+    return kategori === 'update'
+        ? `${item.slug}|${item.episodeLabel} | ${item.statusLabel}`
+        : `${item.slug}|${item.episodeLabel}`;
+}
+
+function sudahTerkirimWidget(kategori, kunci) {
+    try {
+        return (bacaTerkirim()[kategori] || []).some(e => e.kunci === kunci);
+    } catch (_) { return false; }
+}
+
+function tandaiTerkirimWidget(kategori, kunci, slug, label) {
+    try {
+        const log = bacaTerkirim();
+        if (!Array.isArray(log[kategori])) log[kategori] = [];
+        log[kategori] = log[kategori].filter(e => e.kunci !== kunci);
+        log[kategori].unshift({ kunci, slug, label, waktu: new Date().toISOString() });
+        if (log[kategori].length > CAP_TERKIRIM) log[kategori] = log[kategori].slice(0, CAP_TERKIRIM);
+        simpanTerkirim(log);
+    } catch (_) {}
+}
+
 // Cek perubahan pada widget "Sedang Tayang" — trigger saat episode baru
 // (label episode berubah) atau anime baru pertama kali muncul di widget ini.
 async function cariPerubahanSedangTayang() {
@@ -497,24 +574,14 @@ async function cariPerubahanSedangTayang() {
     const daftar = parseAnimeCards(sectionTayang).filter(a => a.slug);
 
     const data = bacaData();
-    const stateLama = data.tayangState || {};
     const belumPernahInit = !data.tayangState; // baru pertama kali → jangan spam semua sebagai "baru"
-
-    const stateBaru = {};
-    const perubahan = [];
-
-    for (const a of daftar) {
-        stateBaru[a.slug] = a.episodeLabel;
-        if (belumPernahInit) continue; // seed baseline dulu, tidak dikirim
-        const labelLama = stateLama[a.slug];
-        if (labelLama === undefined) {
-            perubahan.push({ ...a, tipe: 'baru_tayang' });
-        } else if (labelLama !== a.episodeLabel) {
-            perubahan.push({ ...a, tipe: 'episode_baru', labelLama });
-        }
-    }
+    const { perubahan, stateBaru, seenBaru } = gabungState(daftar, data.tayangState || {}, data.tayangSeenAt || {}, {
+        tipeBaru: 'baru_tayang', tipeUbah: 'episode_baru',
+        labelOf: a => a.episodeLabel, init: belumPernahInit,
+    });
 
     data.tayangState = stateBaru;
+    data.tayangSeenAt = seenBaru;
     simpanData(data);
     return perubahan;
 }
@@ -526,25 +593,14 @@ async function cariPerubahanBaruDiperbarui() {
     const daftar = parseAnimeCards(sectionUpdate).filter(a => a.slug);
 
     const data = bacaData();
-    const stateLama = data.updateState || {};
     const belumPernahInit = !data.updateState;
-
-    const stateBaru = {};
-    const perubahan = [];
-
-    for (const a of daftar) {
-        const labelGabungan = `${a.episodeLabel} | ${a.statusLabel}`;
-        stateBaru[a.slug] = labelGabungan;
-        if (belumPernahInit) continue;
-        const labelLama = stateLama[a.slug];
-        if (labelLama === undefined) {
-            perubahan.push({ ...a, tipe: 'baru_ditambah' });
-        } else if (labelLama !== labelGabungan) {
-            perubahan.push({ ...a, tipe: 'diperbarui', labelLama });
-        }
-    }
+    const { perubahan, stateBaru, seenBaru } = gabungState(daftar, data.updateState || {}, data.updateSeenAt || {}, {
+        tipeBaru: 'baru_ditambah', tipeUbah: 'diperbarui',
+        labelOf: a => `${a.episodeLabel} | ${a.statusLabel}`, init: belumPernahInit,
+    });
 
     data.updateState = stateBaru;
+    data.updateSeenAt = seenBaru;
     simpanData(data);
     return perubahan;
 }
@@ -1376,7 +1432,7 @@ async function getAiringStatus(jumlahPost = 40) {
 
 // ── EXPORT ────────────────────────────────────────────────────────────────────
 
-export { getEnabledGroups, setGroupEnabled, cariEpisodeBaru, buatCaption, ambilUrlGambar, tandaiSudahKirim, tandaiDanLog, getRecentLog, simulasi, getAiringStatus, cariPerubahanSedangTayang, cariPerubahanBaruDiperbarui, buatCaptionTayang, buatCaptionBaruUpdate, previewSedangTayang, previewBaruUpdate, previewUpdateTerbaru, perkayasItemDenganKitsu, buatPesanLengkap, buatPesanLengkapMonitor, fetchKitsuLanjutan, fetchDetailLengkap, fetchHomepageSections };
+export { getEnabledGroups, setGroupEnabled, cariEpisodeBaru, buatCaption, ambilUrlGambar, tandaiSudahKirim, tandaiDanLog, getRecentLog, simulasi, getAiringStatus, cariPerubahanSedangTayang, cariPerubahanBaruDiperbarui, buatCaptionTayang, buatCaptionBaruUpdate, previewSedangTayang, previewBaruUpdate, previewUpdateTerbaru, perkayasItemDenganKitsu, buatPesanLengkap, buatPesanLengkapMonitor, fetchKitsuLanjutan, fetchDetailLengkap, fetchHomepageSections, gabungState, kunciTerkirimWidget, sudahTerkirimWidget, tandaiTerkirimWidget };
 export { handleAnimasu, handleAnimasuCallbacks };
 // ── COMMAND HANDLER ───────────────────────────────────────────────────────────
 

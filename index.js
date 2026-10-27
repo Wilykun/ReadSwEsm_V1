@@ -1547,8 +1547,14 @@ async function main() {
                                                 if (!perubahan.length) return;
 
                                                 for (const item of perubahan) {
+                                                        const kunci = _am.kunciTerkirimWidget('tayang', item);
+                                                        if (_am.sudahTerkirimWidget('tayang', kunci)) {
+                                                                console.log(`[Animasu][SedangTayang] ⏭️ sudah terkirim, lewati "${item.judul}" ${item.episodeLabel}`);
+                                                                continue;
+                                                        }
                                                         const hasil = await _am.buatPesanLengkapMonitor(item);
                                                         await kirimKeGrup(daftarGrup, hasil.caption, item.cover || null);
+                                                        _am.tandaiTerkirimWidget('tayang', kunci, item.slug, item.episodeLabel);
                                                         console.log(`[Animasu][SedangTayang] ✅ (${item.tipe}) "${item.judul}" ${item.episodeLabel} → ${daftarGrup.length} grup`);
                                                         await new Promise(r => setTimeout(r, 1500));
                                                 }
@@ -1567,8 +1573,14 @@ async function main() {
                                                 if (!perubahan.length) return;
 
                                                 for (const item of perubahan) {
+                                                        const kunci = _am.kunciTerkirimWidget('update', item);
+                                                        if (_am.sudahTerkirimWidget('update', kunci)) {
+                                                                console.log(`[Animasu][BaruUpdate] ⏭️ sudah terkirim, lewati "${item.judul}" ${item.episodeLabel}`);
+                                                                continue;
+                                                        }
                                                         const hasil = await _am.buatPesanLengkapMonitor(item);
                                                         await kirimKeGrup(daftarGrup, hasil.caption, item.cover || null);
+                                                        _am.tandaiTerkirimWidget('update', kunci, item.slug, `${item.episodeLabel} | ${item.statusLabel}`);
                                                         console.log(`[Animasu][BaruUpdate] ✅ (${item.tipe}) "${item.judul}" ${item.episodeLabel} → ${daftarGrup.length} grup`);
                                                         await new Promise(r => setTimeout(r, 1500));
                                                 }
