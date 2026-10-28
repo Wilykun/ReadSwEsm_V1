@@ -1544,8 +1544,10 @@ async function main() {
                                                 if (!daftarGrup.length) return;
 
                                                 const perubahan = await _am.cariPerubahanSedangTayang();
-                                                if (!perubahan.length) return;
 
+                                                // Deteksi baru dulu (yang terbaru menang): kirim bila lengkap,
+                                                // antre bila detail belum dapat. Antrean lama yang labelnya sudah
+                                                // terkirim lewat deteksi baru ikut terhapus (supersede).
                                                 for (const item of perubahan) {
                                                         const kunci = _am.kunciTerkirimWidget('tayang', item);
                                                         if (_am.sudahTerkirimWidget('tayang', kunci)) {
@@ -1553,9 +1555,33 @@ async function main() {
                                                                 continue;
                                                         }
                                                         const hasil = await _am.buatPesanLengkapMonitor(item);
+                                                        if (!hasil.lengkap) {
+                                                                _am.tandaiPending('tayang', item);
+                                                                console.log(`[Animasu][SedangTayang] ⏳ detail belum dapat, antre "${item.judul}" ${item.episodeLabel} (kirim nanti saat lengkap)`);
+                                                                continue;
+                                                        }
                                                         await kirimKeGrup(daftarGrup, hasil.caption, item.cover || null);
                                                         _am.tandaiTerkirimWidget('tayang', kunci, item.slug, item.episodeLabel);
+                                                        _am.hapusPending('tayang', item.slug);
                                                         console.log(`[Animasu][SedangTayang] ✅ (${item.tipe}) "${item.judul}" ${item.episodeLabel} → ${daftarGrup.length} grup`);
+                                                        await new Promise(r => setTimeout(r, 1500));
+                                                }
+
+                                                // Retry antrean (1x per tick, tanpa jeda 90 detik — tick tiap
+                                                // 60 detik sudah cukup sebagai jeda antar percobaan).
+                                                const { antrean, kadaluarsa } = _am.ambilPending('tayang');
+                                                for (const buang of kadaluarsa) {
+                                                        console.log(`[Animasu][SedangTayang] ⌛ antrean kedaluwarsa (>7 hari), hapus "${buang.judul}" ${buang.episodeLabel} (tidak dikirim)`);
+                                                }
+                                                for (const pending of antrean) {
+                                                        const kunci = _am.kunciTerkirimWidget('tayang', pending);
+                                                        if (_am.sudahTerkirimWidget('tayang', kunci)) { _am.hapusPending('tayang', pending.slug); continue; }
+                                                        const hasil = await _am.buatPesanLengkapMonitor(pending, { percobaan: 1, jedaMs: 0 });
+                                                        if (!hasil.lengkap) continue; // tetap antre
+                                                        await kirimKeGrup(daftarGrup, hasil.caption, pending.cover || null);
+                                                        _am.tandaiTerkirimWidget('tayang', kunci, pending.slug, pending.episodeLabel);
+                                                        _am.hapusPending('tayang', pending.slug);
+                                                        console.log(`[Animasu][SedangTayang] ✅ (antrean) "${pending.judul}" ${pending.episodeLabel} → ${daftarGrup.length} grup`);
                                                         await new Promise(r => setTimeout(r, 1500));
                                                 }
                                         } catch (err) {
@@ -1570,7 +1596,6 @@ async function main() {
                                                 if (!daftarGrup.length) return;
 
                                                 const perubahan = await _am.cariPerubahanBaruDiperbarui();
-                                                if (!perubahan.length) return;
 
                                                 for (const item of perubahan) {
                                                         const kunci = _am.kunciTerkirimWidget('update', item);
@@ -1579,9 +1604,31 @@ async function main() {
                                                                 continue;
                                                         }
                                                         const hasil = await _am.buatPesanLengkapMonitor(item);
+                                                        if (!hasil.lengkap) {
+                                                                _am.tandaiPending('update', item);
+                                                                console.log(`[Animasu][BaruUpdate] ⏳ detail belum dapat, antre "${item.judul}" ${item.episodeLabel} (kirim nanti saat lengkap)`);
+                                                                continue;
+                                                        }
                                                         await kirimKeGrup(daftarGrup, hasil.caption, item.cover || null);
                                                         _am.tandaiTerkirimWidget('update', kunci, item.slug, `${item.episodeLabel} | ${item.statusLabel}`);
+                                                        _am.hapusPending('update', item.slug);
                                                         console.log(`[Animasu][BaruUpdate] ✅ (${item.tipe}) "${item.judul}" ${item.episodeLabel} → ${daftarGrup.length} grup`);
+                                                        await new Promise(r => setTimeout(r, 1500));
+                                                }
+
+                                                const { antrean, kadaluarsa } = _am.ambilPending('update');
+                                                for (const buang of kadaluarsa) {
+                                                        console.log(`[Animasu][BaruUpdate] ⌛ antrean kedaluwarsa (>7 hari), hapus "${buang.judul}" ${buang.episodeLabel} (tidak dikirim)`);
+                                                }
+                                                for (const pending of antrean) {
+                                                        const kunci = _am.kunciTerkirimWidget('update', pending);
+                                                        if (_am.sudahTerkirimWidget('update', kunci)) { _am.hapusPending('update', pending.slug); continue; }
+                                                        const hasil = await _am.buatPesanLengkapMonitor(pending, { percobaan: 1, jedaMs: 0 });
+                                                        if (!hasil.lengkap) continue; // tetap antre
+                                                        await kirimKeGrup(daftarGrup, hasil.caption, pending.cover || null);
+                                                        _am.tandaiTerkirimWidget('update', kunci, pending.slug, `${pending.episodeLabel} | ${pending.statusLabel}`);
+                                                        _am.hapusPending('update', pending.slug);
+                                                        console.log(`[Animasu][BaruUpdate] ✅ (antrean) "${pending.judul}" ${pending.episodeLabel} → ${daftarGrup.length} grup`);
                                                         await new Promise(r => setTimeout(r, 1500));
                                                 }
                                         } catch (err) {

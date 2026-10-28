@@ -70,6 +70,8 @@ _📅 Jumat, 23 Oktober 2026_
    • Cache detail judul baru di-seed sehingga episode berikutnya langsung tampil lengkap (21 entri).
    • Notifikasi ganda (judul yang sama terkirim 7-11x) diperbaiki: penyebabnya state dibangun ulang dari snapshot widget tiap tick — judul yang sesaat hilang dari fetch (429/snapshot basi) terhapus dari state lalu dianggap "baru" lagi saat muncul. State kini akumulatif (label lama dipertahankan bila judul absen) + pruning entri tak terlihat 30 hari.
    • Jaring pengaman baru: sent-log per kategori (`data/animasu/terkirim.json`, cap 300) dicek scheduler sebelum kirim — pola yang sama seperti `.alqanimenotif` yang akurat.
+   • Antrean pending (perintah user 28 Okt 06:26): notifikasi monitor TIDAK lagi dikirim pendek — bila detail gagal didapat (live + cache) setelah retry, judul diantre di `data/animasu/pending.json` per kategori dan dicoba lagi tiap tick (1x, tanpa jeda 90 detik); baru dikirim saat caption lengkap. Label terbaru menggantikan antrean lama per slug; antrean kedaluwarsa 7 hari (dihapus, tidak dikirim). `.animasu test` tetap langsung kirim (manual, tanpa antrean).
+   • Cache detail Gensou Suikoden di-seed (entri ke-22, via browser karena server bot diblokir) sehingga episode berikutnya langsung tampil lengkap (minus sinopsis sampai jalur live pulih).
 > _Hasil: gambar, detail, status, test & monitor animasu tampil akurat dari sumber live; rating ikut benar._
 
 5. *.nekopoinotif — Parser & Sinopsis*

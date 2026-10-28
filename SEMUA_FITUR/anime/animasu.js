@@ -853,7 +853,7 @@ async function buatPesanLengkap(item) {
                 detail.sinopsis,
                 s => buatCaptionDetailLengkap(item, { ...detail, sinopsis: s }),
             );
-            return { caption, urlGambar: item.cover || null };
+            return { caption, urlGambar: item.cover || null, lengkap: true };
         }
     } catch (_) {}
     const kaya = await perkayasItemDenganKitsu(item);
@@ -864,7 +864,7 @@ async function buatPesanLengkap(item) {
         kaya.sinopsis,
         s => bangun({ ...kaya, sinopsis: s }),
     );
-    return { caption, urlGambar: item.cover || null };
+    return { caption, urlGambar: item.cover || null, lengkap: false };
 }
 
 // Jalur MONITOR (dipakai scheduler, BUKAN .animasu test): detail wajib
@@ -889,12 +889,78 @@ async function buatPesanLengkapMonitor(item, { percobaan = 2, jedaMs = 90000 } =
                     detail.sinopsis,
                     s => buatCaptionDetailLengkap(item, { ...detail, sinopsis: s }),
                 );
-                return { caption, urlGambar: item.cover || null };
+                return { caption, urlGambar: item.cover || null, lengkap: true };
             }
         } catch (_) {}
         if (i < percobaan) await new Promise(r => setTimeout(r, jedaMs));
     }
     return buatPesanLengkap(item);
+}
+
+// ── ANTREAN PENDING (tunda notif sampai detail lengkap) ───────────────────────
+// Perintah user 28 Okt 06:26: notifikasi monitor JANGAN dikirim pendek — antre
+// sampai detail lengkap didapat (live atau cache), baru kirim utuh.
+// File: data/animasu/pending.json, per kategori (tayang/update), bentuk entri =
+// item monitor utuh + pertamaKali. Aturan:
+//  - Upsert per slug: deteksi label terbaru MENGGANTIKAN entri lama (berita
+//    episode terbaru yang dikirim, bukan episode lama yang tertunda).
+//  - pertamaKali dipertahankan saat upsert (expiry dihitung dari deteksi awal).
+//  - Expiry 7 hari: entri yang detailnya tak kunjung dapat dihapus (log di tick),
+//    tidak dikirim — berita basi tidak tiba-tiba muncul berminggu-minggu kemudian.
+//  - Jalur `.animasu test` TIDAK pakai antrean (manual = langsung kirim).
+const FILE_PENDING = path.join(process.cwd(), 'data', 'animasu', 'pending.json');
+const BATAS_PENDING_MS = 7 * 24 * 3600 * 1000; // 7 hari
+
+function bacaPending() {
+    try {
+        if (fs.existsSync(FILE_PENDING)) return JSON.parse(fs.readFileSync(FILE_PENDING, 'utf-8'));
+    } catch (_) {}
+    return { tayang: [], update: [] };
+}
+
+function simpanPending(log) {
+    try { fs.writeFileSync(FILE_PENDING, JSON.stringify(log, null, 2), 'utf-8'); } catch (_) {}
+}
+
+function tandaiPending(kategori, item) {
+    try {
+        const log = bacaPending();
+        if (!Array.isArray(log[kategori])) log[kategori] = [];
+        const lama = log[kategori].find(e => e.slug === item.slug);
+        const pertamaKali = (lama && lama.pertamaKali) || new Date().toISOString();
+        log[kategori] = log[kategori].filter(e => e.slug !== item.slug);
+        log[kategori].unshift({ ...item, pertamaKali });
+        simpanPending(log);
+    } catch (_) {}
+}
+
+function hapusPending(kategori, slug) {
+    try {
+        const log = bacaPending();
+        if (!Array.isArray(log[kategori])) return;
+        log[kategori] = log[kategori].filter(e => e.slug !== slug);
+        simpanPending(log);
+    } catch (_) {}
+}
+
+// Kembalikan { antrean, kadaluarsa }: entri >7 hari dibuang + disimpan.
+// pertamaKali tak terbaca dianggap baru (dipertahankan, bukan dibuang).
+function ambilPending(kategori) {
+    try {
+        const log = bacaPending();
+        if (!Array.isArray(log[kategori])) log[kategori] = [];
+        const now = Date.now();
+        const antrean = [];
+        const kadaluarsa = [];
+        for (const e of log[kategori]) {
+            const ts = Date.parse(e.pertamaKali);
+            if (!Number.isNaN(ts) && now - ts > BATAS_PENDING_MS) { kadaluarsa.push(e); continue; }
+            if (Number.isNaN(ts)) e.pertamaKali = new Date().toISOString();
+            antrean.push(e);
+        }
+        if (kadaluarsa.length) { log[kategori] = antrean; simpanPending(log); }
+        return { antrean, kadaluarsa };
+    } catch (_) { return { antrean: [], kadaluarsa: [] }; }
 }
 
 // ── CAPTION: SEDANG TAYANG & BARU DITAMBAH/DIPERBARUI ─────────────────────────
@@ -1432,7 +1498,7 @@ async function getAiringStatus(jumlahPost = 40) {
 
 // ── EXPORT ────────────────────────────────────────────────────────────────────
 
-export { getEnabledGroups, setGroupEnabled, cariEpisodeBaru, buatCaption, ambilUrlGambar, tandaiSudahKirim, tandaiDanLog, getRecentLog, simulasi, getAiringStatus, cariPerubahanSedangTayang, cariPerubahanBaruDiperbarui, buatCaptionTayang, buatCaptionBaruUpdate, previewSedangTayang, previewBaruUpdate, previewUpdateTerbaru, perkayasItemDenganKitsu, buatPesanLengkap, buatPesanLengkapMonitor, fetchKitsuLanjutan, fetchDetailLengkap, fetchHomepageSections, gabungState, kunciTerkirimWidget, sudahTerkirimWidget, tandaiTerkirimWidget };
+export { getEnabledGroups, setGroupEnabled, cariEpisodeBaru, buatCaption, ambilUrlGambar, tandaiSudahKirim, tandaiDanLog, getRecentLog, simulasi, getAiringStatus, cariPerubahanSedangTayang, cariPerubahanBaruDiperbarui, buatCaptionTayang, buatCaptionBaruUpdate, previewSedangTayang, previewBaruUpdate, previewUpdateTerbaru, perkayasItemDenganKitsu, buatPesanLengkap, buatPesanLengkapMonitor, fetchKitsuLanjutan, fetchDetailLengkap, fetchHomepageSections, gabungState, kunciTerkirimWidget, sudahTerkirimWidget, tandaiTerkirimWidget, tandaiPending, hapusPending, ambilPending };
 export { handleAnimasu, handleAnimasuCallbacks };
 // ── COMMAND HANDLER ───────────────────────────────────────────────────────────
 
