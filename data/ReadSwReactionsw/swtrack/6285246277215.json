@@ -1,10 +1,55 @@
 {
-  "AC64F1A1D78DBEE3111868712363D967": {
-    "id": "AC64F1A1D78DBEE3111868712363D967",
+  "ACCCFE7FA967262A1403D4EF2F35C27F": {
+    "id": "ACCCFE7FA967262A1403D4EF2F35C27F",
     "sender": "6285246277215@s.whatsapp.net",
     "name": "정한",
     "type": "videoMessage",
-    "arrivedAt": "2026-10-25T06:04:48.506Z",
+    "arrivedAt": "2026-10-27T16:35:40.017Z",
+    "read": true,
+    "reacted": true,
+    "reactionExpected": true,
+    "emoji": "🦈",
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "6285246277215",
+    "resolvedPn": "6285246277215@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "6285246277215@s.whatsapp.net",
+      "fromMe": false,
+      "id": "ACCCFE7FA967262A1403D4EF2F35C27F",
+      "participant": "272245645643794@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-10-28T13:51:35.221Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6285246277215@s.whatsapp.net",
+        "fromMe": false,
+        "id": "ACCCFE7FA967262A1403D4EF2F35C27F",
+        "participant": "272245645643794@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6285246277215@s.whatsapp.net",
+        "fromMe": false,
+        "id": "ACCCFE7FA967262A1403D4EF2F35C27F",
+        "participant": "6285246277215@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-10-27T16:35:45.876Z",
+    "deleted": true,
+    "deletedAt": "2026-10-28T13:51:35.221Z"
+  },
+  "AC1BAC1856E9B463C4CF4AD56C9A13B1": {
+    "id": "AC1BAC1856E9B463C4CF4AD56C9A13B1",
+    "sender": "6285246277215@s.whatsapp.net",
+    "name": "정한",
+    "type": "videoMessage",
+    "arrivedAt": "2026-10-28T13:51:35.624Z",
     "read": true,
     "reacted": true,
     "reactionExpected": true,
@@ -17,17 +62,17 @@
       "remoteJid": "status@broadcast",
       "remoteJidAlt": "6285246277215@s.whatsapp.net",
       "fromMe": false,
-      "id": "AC64F1A1D78DBEE3111868712363D967",
+      "id": "AC1BAC1856E9B463C4CF4AD56C9A13B1",
       "participant": "272245645643794@lid",
       "addressingMode": "lid"
     },
-    "updatedAt": "2026-10-25T06:04:52.808Z",
+    "updatedAt": "2026-10-28T22:19:12.877Z",
     "receiptKeys": [
       {
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6285246277215@s.whatsapp.net",
         "fromMe": false,
-        "id": "AC64F1A1D78DBEE3111868712363D967",
+        "id": "AC1BAC1856E9B463C4CF4AD56C9A13B1",
         "participant": "272245645643794@lid",
         "addressingMode": "lid"
       },
@@ -35,19 +80,21 @@
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6285246277215@s.whatsapp.net",
         "fromMe": false,
-        "id": "AC64F1A1D78DBEE3111868712363D967",
+        "id": "AC1BAC1856E9B463C4CF4AD56C9A13B1",
         "participant": "6285246277215@s.whatsapp.net",
         "addressingMode": "lid"
       }
     ],
-    "processedAt": "2026-10-25T06:04:52.808Z"
+    "processedAt": "2026-10-28T13:51:53.612Z",
+    "deleted": true,
+    "deletedAt": "2026-10-28T22:19:12.877Z"
   },
-  "ACB71FBA78A95CC0FE58496C3C2B0301": {
-    "id": "ACB71FBA78A95CC0FE58496C3C2B0301",
+  "ACB96E1EF7356A3FDFA898902B63F10D": {
+    "id": "ACB96E1EF7356A3FDFA898902B63F10D",
     "sender": "6285246277215@s.whatsapp.net",
     "name": "정한",
     "type": "videoMessage",
-    "arrivedAt": "2026-10-25T12:23:06.696Z",
+    "arrivedAt": "2026-10-28T16:39:50.317Z",
     "read": true,
     "reacted": true,
     "reactionExpected": true,
@@ -60,17 +107,17 @@
       "remoteJid": "status@broadcast",
       "remoteJidAlt": "6285246277215@s.whatsapp.net",
       "fromMe": false,
-      "id": "ACB71FBA78A95CC0FE58496C3C2B0301",
+      "id": "ACB96E1EF7356A3FDFA898902B63F10D",
       "participant": "272245645643794@lid",
       "addressingMode": "lid"
     },
-    "updatedAt": "2026-10-25T12:23:23.492Z",
+    "updatedAt": "2026-10-28T16:40:09.013Z",
     "receiptKeys": [
       {
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6285246277215@s.whatsapp.net",
         "fromMe": false,
-        "id": "ACB71FBA78A95CC0FE58496C3C2B0301",
+        "id": "ACB96E1EF7356A3FDFA898902B63F10D",
         "participant": "272245645643794@lid",
         "addressingMode": "lid"
       },
@@ -78,56 +125,11 @@
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6285246277215@s.whatsapp.net",
         "fromMe": false,
-        "id": "ACB71FBA78A95CC0FE58496C3C2B0301",
+        "id": "ACB96E1EF7356A3FDFA898902B63F10D",
         "participant": "6285246277215@s.whatsapp.net",
         "addressingMode": "lid"
       }
     ],
-    "processedAt": "2026-10-25T12:23:23.492Z"
-  },
-  "AC9D6FDDC0451B36CAC8C2DDC22DCDD9": {
-    "id": "AC9D6FDDC0451B36CAC8C2DDC22DCDD9",
-    "sender": "6285246277215@s.whatsapp.net",
-    "name": "정한",
-    "type": "videoMessage",
-    "arrivedAt": "2026-10-26T03:05:47.582Z",
-    "read": true,
-    "reacted": true,
-    "reactionExpected": true,
-    "emoji": "🐋",
-    "resolve": "PN langsung ✓",
-    "source": "status",
-    "number": "6285246277215",
-    "resolvedPn": "6285246277215@s.whatsapp.net",
-    "messageKey": {
-      "remoteJid": "status@broadcast",
-      "remoteJidAlt": "6285246277215@s.whatsapp.net",
-      "fromMe": false,
-      "id": "AC9D6FDDC0451B36CAC8C2DDC22DCDD9",
-      "participant": "272245645643794@lid",
-      "addressingMode": "lid"
-    },
-    "updatedAt": "2026-10-26T12:17:56.459Z",
-    "receiptKeys": [
-      {
-        "remoteJid": "status@broadcast",
-        "remoteJidAlt": "6285246277215@s.whatsapp.net",
-        "fromMe": false,
-        "id": "AC9D6FDDC0451B36CAC8C2DDC22DCDD9",
-        "participant": "272245645643794@lid",
-        "addressingMode": "lid"
-      },
-      {
-        "remoteJid": "status@broadcast",
-        "remoteJidAlt": "6285246277215@s.whatsapp.net",
-        "fromMe": false,
-        "id": "AC9D6FDDC0451B36CAC8C2DDC22DCDD9",
-        "participant": "6285246277215@s.whatsapp.net",
-        "addressingMode": "lid"
-      }
-    ],
-    "processedAt": "2026-10-26T03:05:53.173Z",
-    "deleted": true,
-    "deletedAt": "2026-10-26T12:17:56.459Z"
+    "processedAt": "2026-10-28T16:40:09.013Z"
   }
 }

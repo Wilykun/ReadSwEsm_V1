@@ -24,6 +24,23 @@
  */
 'use strict';
 
+import { telegram } from '../../src/helper/index.js';
+
+// ── Pesan peringatan context-aware bila token/chatId belum lengkap ───────────
+// Dipakai .tele on dan tombol .readsw tele on. Kembalikan '' bila lengkap.
+export function pesanTeleBelumLengkap(tcfg) {
+	const tokenAda = !!String(tcfg?.token || '').trim();
+	const chatAda = !!String(tcfg?.chatId || '').trim();
+	if (tokenAda && chatAda) return '';
+	if (!tokenAda && !chatAda) {
+		return `\n\n⚠️ Tapi belum lengkap: *Token & Chat ID* belum diset — status tidak akan terkirim ke Telegram sampai dilengkapi.\n> Cara lengkap: \`.tele tutorial\``;
+	}
+	if (!chatAda) {
+		return `\n\n⚠️ *Chat ID* belum diset — token sudah ada, tinggal satu langkah:\n\n*Cara dapat Chat ID:*\n1. Buka https://t.me/userinfobot di Telegram\n2. Klik *Start*\n3. Bot membalas dengan ID kamu (angka) — copy angka itu\n4. Kirim ke bot ini: \`.tele chatid <id>\`\n5. Tes dengan \`.tele test\`\n\n> *PENTING:* chat dulu bot notifikasi kamu (klik *Start* di botnya) agar bot bisa mengirim pesan ke kamu.`;
+	}
+	return `\n\n⚠️ *Token* belum diset — Chat ID sudah ada, tinggal tokennya:\n\n*Cara dapat Token:*\n1. Buka https://t.me/BotFather di Telegram\n2. Kirim /newbot lalu ikuti langkahnya\n3. Copy token yang diberikan\n4. Kirim ke bot ini: \`.tele token <token>\`\n5. Tes dengan \`.tele test\``;
+}
+
 // ── COMMAND HANDLER ───────────────────────────────────────────────────────────
 
 async function handleTele({ hisoka, m, query, tolak, logCommand, isMainBot, loadConfig, saveConfig }) {
@@ -42,7 +59,7 @@ async function handleTele({ hisoka, m, query, tolak, logCommand, isMainBot, load
 				const data = await res.json();
 				if (data.ok) return { valid: true, botName: data.result.first_name, username: data.result.username };
 				return { valid: false, error: data.description };
-			} catch (e) { return { valid: false, error: e.message }; }
+			} catch (e) { return { valid: false, error: e.message, netError: true }; }
 		};
 
 		const validateChatId = async (token, chatId) => {
@@ -51,7 +68,7 @@ async function handleTele({ hisoka, m, query, tolak, logCommand, isMainBot, load
 				const data = await res.json();
 				if (data.ok) return { valid: true, chatType: data.result.type, chatTitle: data.result.first_name || data.result.title };
 				return { valid: false, error: data.description };
-			} catch (e) { return { valid: false, error: e.message }; }
+			} catch (e) { return { valid: false, error: e.message, netError: true }; }
 		};
 
 		const showHelp = async () => {
@@ -70,20 +87,36 @@ async function handleTele({ hisoka, m, query, tolak, logCommand, isMainBot, load
 			} else if (telegramConfig.chatId && !telegramConfig.token) {
 				chatIdStatus = '⚠️ Set token dulu';
 			}
-			let text = `╭═══『 *TELEGRAM NOTIF* 』═══╮\n`;
-			text += `│\n│ *Status:* ${statusText}\n│ *Token:* ${tokenStatus}${botInfo}\n│ *Chat ID:* ${chatIdStatus}${chatInfo}\n│\n`;
-			text += `│ *Penggunaan:*\n│ .telegram on - Aktifkan\n│ .telegram off - Nonaktifkan\n`;
-			text += `│ .telegram token <token>\n│ .telegram chatid <id>\n│ .telegram test - Test kirim\n│ .telegram tutorial - Cara dapat\n│\n`;
-			text += `│ *Info:*\n│ Fitur ini mengirim story WA\n│ ke bot Telegram kamu\n│\n`;
-			text += `│ _Multi-prefix, tanpa titik_\n│ _bot tetap merespon_\n╰═════════════════╯`;
+			let text = `*TELEGRAM NOTIF*\n\n`;
+			text += `*Status:* ${statusText}\n*Token:* ${tokenStatus}${botInfo}\n*Chat ID:* ${chatIdStatus}${chatInfo}\n\n`;
+			text += `*Penggunaan:*\n`;
+			text += `1. \`.tele on\` — aktifkan notifikasi\n`;
+			text += `2. \`.tele off\` — nonaktifkan\n`;
+			text += `3. \`.tele token <token>\` — set token bot\n`;
+			text += `4. \`.tele chatid <id>\` — set chat ID tujuan\n`;
+			text += `5. \`.tele test\` — tes kirim\n`;
+			text += `6. \`.tele tutorial\` — cara dapat token & chat ID\n\n`;
+			text += `> Fitur ini mengirim story WA yang dibaca ke bot Telegram kamu.\n\n`;
+			text += `_Multi-prefix, tanpa titik — bot tetap merespon_`;
 			return text;
 		};
 
 		const showTutorial = () => {
-			let text = `╭═══『 *TUTORIAL TELEGRAM* 』═══╮\n│\n│ *📱 CARA DAPAT BOT TOKEN:*\n│\n`;
-			text += `│ 1. Buka Telegram\n│ 2. Cari @BotFather\n│ 3. Ketik /newbot\n│ 4. Masukkan nama bot\n│ 5. Masukkan username bot\n│    (harus diakhiri 'bot')\n│ 6. Copy token yang diberikan\n│ 7. Gunakan:\n│    .telegram token <token>\n│\n`;
-			text += `│ *🆔 CARA DAPAT CHAT ID:*\n│\n│ 1. Buka Telegram\n│ 2. Cari @userinfobot\n│ 3. Klik Start\n│ 4. Bot akan kirim ID kamu\n│ 5. Copy angka ID tersebut\n│ 6. Gunakan:\n│    .telegram chatid <id>\n│\n`;
-			text += `│ *⚠️ PENTING:*\n│ Setelah dapat token, kamu\n│ HARUS chat bot kamu dulu\n│ (klik Start) agar bot bisa\n│ mengirim pesan ke kamu!\n│\n╰═════════════════════╯`;
+			let text = `*TUTORIAL TELEGRAM*\n\n`;
+			text += `*CARA DAPAT BOT TOKEN:*\n`;
+			text += `1. Buka https://t.me/BotFather di Telegram\n`;
+			text += `2. Kirim /newbot\n`;
+			text += `3. Masukkan nama bot\n`;
+			text += `4. Masukkan username bot (harus diakhiri \`bot\`)\n`;
+			text += `5. Copy token yang diberikan\n`;
+			text += `6. Kirim ke bot ini: \`.tele token <token>\`\n\n`;
+			text += `*CARA DAPAT CHAT ID:*\n`;
+			text += `1. Buka https://t.me/userinfobot di Telegram\n`;
+			text += `2. Klik *Start*\n`;
+			text += `3. Bot membalas dengan ID kamu (angka)\n`;
+			text += `4. Copy angka tersebut\n`;
+			text += `5. Kirim ke bot ini: \`.tele chatid <id>\`\n\n`;
+			text += `> *PENTING:* setelah dapat token, kamu HARUS chat bot notifikasi kamu dulu (klik *Start* di botnya) agar bot bisa mengirim pesan ke kamu!`;
 			return text;
 		};
 
@@ -96,7 +129,7 @@ async function handleTele({ hisoka, m, query, tolak, logCommand, isMainBot, load
 			await tolak(hisoka, m, showTutorial());
 		} else if (args[0] === 'test' || args[0] === 'cek' || args[0] === 'check') {
 			if (!telegramConfig.token || !telegramConfig.chatId) {
-				await tolak(hisoka, m, '❌ Token dan Chat ID harus diset dulu!\n\nGunakan .telegram tutorial untuk panduan.');
+				await tolak(hisoka, m, '❌ Token dan Chat ID harus diset dulu!\n\nGunakan `.tele tutorial` untuk panduan.');
 				return;
 			}
 			try {
@@ -107,27 +140,83 @@ async function handleTele({ hisoka, m, query, tolak, logCommand, isMainBot, load
 					body   : JSON.stringify({ chat_id: telegramConfig.chatId, text: testMsg, parse_mode: 'Markdown' })
 				});
 				const data = await res.json();
-				if (data.ok) await tolak(hisoka, m, '✅ Test berhasil! Cek Telegram kamu.');
-				else          await tolak(hisoka, m, `❌ Gagal: ${data.description}\n\nPastikan kamu sudah Start bot di Telegram.`);
+				if (!data.ok) {
+					await tolak(hisoka, m, `❌ Gagal: ${data.description}\n\nPastikan kamu sudah Start bot di Telegram.`);
+					return;
+				}
+				// Tes jalur media (foto) — jalur yang sama dipakai backup status
+				let mediaOk = false, mediaErr = '';
+				try {
+					const png1x1 = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64');
+					const r2 = await telegram.send(telegramConfig.chatId, png1x1, { type: 'image', caption: '🧪 Tes media .tele — jalur foto OK' });
+					mediaOk = !!r2?.ok;
+					if (!mediaOk) mediaErr = r2?.description || 'ditolak Telegram';
+				} catch (e) { mediaErr = e.message; }
+				await tolak(hisoka, m, `✅ *Test teks:* terkirim\n${mediaOk ? '✅' : '❌'} *Test media (foto):* ${mediaOk ? 'terkirim' : `gagal (${mediaErr})`}\n\nCek Telegram kamu.`);
 			} catch (e) { await tolak(hisoka, m, `❌ Error: ${e.message}`); }
 		} else if (args[0] === 'on' || args[0] === 'true') {
-			if (telegramConfig.enabled) { await tolak(hisoka, m, 'ℹ️ Telegram notifikasi sudah aktif sebelumnya'); }
-			else { config.telegram = { ...telegramConfig, enabled: true }; saveConfig(config); await tolak(hisoka, m, '✅ Telegram notifikasi diaktifkan'); }
+			const _warn = pesanTeleBelumLengkap(telegramConfig);
+			if (telegramConfig.enabled) { await tolak(hisoka, m, 'ℹ️ Telegram notifikasi sudah aktif sebelumnya' + _warn); }
+			else { config.telegram = { ...telegramConfig, enabled: true }; saveConfig(config); await tolak(hisoka, m, '✅ Telegram notifikasi diaktifkan' + _warn); }
 		} else if (args[0] === 'off' || args[0] === 'false') {
 			if (!telegramConfig.enabled) { await tolak(hisoka, m, 'ℹ️ Telegram notifikasi sudah nonaktif sebelumnya'); }
 			else { config.telegram = { ...telegramConfig, enabled: false }; saveConfig(config); await tolak(hisoka, m, '❌ Telegram notifikasi dinonaktifkan'); }
 		} else if (args[0] === 'token' && args[1]) {
 			const token = (m.query || '').replace(/^token\s*/i, '').trim();
-			config.telegram = { ...telegramConfig, token }; saveConfig(config);
-			await tolak(hisoka, m, '✅ Token Telegram berhasil diupdate');
+			const _diganti = !!String(telegramConfig.token || '').trim();
+			const _loading = await tolak(hisoka, m, _diganti ? '🔄 *Mengganti token...*\n_Memeriksa token baru ke Telegram..._' : '⏳ *Memeriksa token...*');
+			const cek = await validateToken(token);
+			let _hasil;
+			if (cek.valid) {
+				config.telegram = { ...telegramConfig, token }; saveConfig(config);
+				const chatAda = !!String(config.telegram.chatId || '').trim();
+				_hasil = `✅ *Token ${_diganti ? 'diganti & ' : ''}valid* — @${cek.username}\n\n*Status:*\n*Token:* ✅ valid (@${cek.username})\n*Chat ID:* ${chatAda ? '✅ sudah diset' : '❌ belum diset'}${chatAda ? '\n\n> Semua lengkap — tes dengan `.tele test`.' : '\n\n> Lanjut: `.tele chatid <id>` — cara: `.tele tutorial`'}`;
+			} else if (cek.netError) {
+				config.telegram = { ...telegramConfig, token }; saveConfig(config);
+				_hasil = `⚠️ Token tersimpan, tapi verifikasi gagal (jaringan).\nCek lagi dengan \`.tele\` nanti.`;
+			} else {
+				_hasil = `❌ *Token tidak valid:* ${cek.error || 'ditolak Telegram'}\n\nToken tidak disimpan. Ambil token baru via https://t.me/BotFather lalu coba lagi.`;
+			}
+			try {
+				if (_loading?.key) await m.reply({ edit: _loading.key, text: _hasil });
+				else await tolak(hisoka, m, _hasil);
+			} catch (_) { await tolak(hisoka, m, _hasil); }
 		} else if ((args[0] === 'chatid' || args[0] === 'chat_id' || args[0] === 'id') && args[1]) {
 			const chatIdValue = (m.query || '').replace(/^(chatid|chat_id|id)\s*/i, '').trim();
-			config.telegram = { ...telegramConfig, chatId: chatIdValue }; saveConfig(config);
-			await tolak(hisoka, m, '✅ Chat ID Telegram berhasil diupdate');
+			const tokenNow = String(telegramConfig.token || '').trim();
+			const _diganti = !!String(telegramConfig.chatId || '').trim();
+			const _loading = await tolak(hisoka, m, _diganti ? '🔄 *Mengganti Chat ID...*\n_Memeriksa ke Telegram..._' : '⏳ *Memeriksa Chat ID...*');
+			let _hasil;
+			if (!tokenNow) {
+				config.telegram = { ...telegramConfig, chatId: chatIdValue }; saveConfig(config);
+				_hasil = `✅ *Chat ID tersimpan:* \`${chatIdValue}\`\n\n*Status:*\n*Token:* ❌ belum diset\n*Chat ID:* ✅ sudah diset (belum terverifikasi — token belum ada)\n\n> Lanjut: set token dulu (\`.tele tutorial\`), lalu \`.tele test\`.`;
+			} else {
+				const cekTok = await validateToken(tokenNow);
+				if (!cekTok.valid && !cekTok.netError) {
+					config.telegram = { ...telegramConfig, chatId: chatIdValue }; saveConfig(config);
+					_hasil = `✅ *Chat ID tersimpan:* \`${chatIdValue}\`\n\n⚠️ *Token* bermasalah (${cekTok.error || 'tidak valid'}) — Chat ID belum bisa diverifikasi.\nPerbaiki token via \`.tele token <token>\`.`;
+				} else {
+					const cekChat = await validateChatId(tokenNow, chatIdValue);
+					if (cekChat.valid) {
+						config.telegram = { ...telegramConfig, chatId: chatIdValue }; saveConfig(config);
+						const namaTok = cekTok.valid ? ` (@${cekTok.username})` : '';
+						_hasil = `✅ *Chat ID ${_diganti ? 'diganti & ' : ''}valid* — ${cekChat.chatTitle}\n\n*Status:*\n*Token:* ✅ ${cekTok.valid ? 'valid' : 'sudah diset (belum terverifikasi)'}${namaTok}\n*Chat ID:* ✅ valid\n\n> Semua lengkap — tes dengan \`.tele test\`.`;
+					} else if (cekChat.netError) {
+						config.telegram = { ...telegramConfig, chatId: chatIdValue }; saveConfig(config);
+						_hasil = `⚠️ Chat ID tersimpan, tapi verifikasi gagal (jaringan).\nCek lagi dengan \`.tele\` nanti.`;
+					} else {
+						_hasil = `❌ *Chat ID tidak valid:* ${cekChat.error || 'ditolak Telegram'}\n\nChat ID tidak disimpan. Pastikan kamu sudah klik *Start* di bot notifikasi kamu, lalu ambil ID dari https://t.me/userinfobot.`;
+					}
+				}
+			}
+			try {
+				if (_loading?.key) await m.reply({ edit: _loading.key, text: _hasil });
+				else await tolak(hisoka, m, _hasil);
+			} catch (_) { await tolak(hisoka, m, _hasil); }
 		} else if (args[0] === 'token' && !args[1]) {
-			await tolak(hisoka, m, '❌ Format: .telegram token <bot_token>');
+			await tolak(hisoka, m, '❌ Format: `.tele token <bot_token>`');
 		} else if ((args[0] === 'chatid' || args[0] === 'chat_id' || args[0] === 'id') && !args[1]) {
-			await tolak(hisoka, m, '❌ Format: .telegram chatid <chat_id>');
+			await tolak(hisoka, m, '❌ Format: `.tele chatid <chat_id>`');
 		} else {
 			await tolak(hisoka, m, await showHelp());
 		}

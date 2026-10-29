@@ -46,10 +46,10 @@ export async function send(chatId, media = '', options = {}) {
                 throw new Error('Telegram token not configured');
         }
         
-        const type = options.type.replace('image', 'photo').replace('audio', 'voice');
+        const type = options.type.replace('image', 'photo');
 
         const DEFAULT_EXTENSIONS = {
-                audio: ['audio/mp3', 'mp3'],
+                audio: ['audio/mpeg', 'mp3'],
                 photo: ['image/jpeg', 'jpg'],
                 sticker: ['image/webp', 'webp'],
                 video: ['video/mp4', 'mp4'],

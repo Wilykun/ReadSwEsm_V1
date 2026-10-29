@@ -7,9 +7,9 @@ _📅 Jumat, 23 Oktober 2026_
 ━━━━━━━━━━━━━━━━━━━━━━
 🤖 *WILY BOT* — `V27.5`
 ✨ *3 Fitur Baru*
-🐛 *6 Fix Bug*
+🐛 *7 Fix Bug*
 🛠️ *3 Fix Error*
-🚀 *10 Perubahan*
+🚀 *11 Perubahan*
 ⚠️ *0 Hapus Fitur*
 ━━━━━━━━━━━━━━━━━━━━━━
 ✨ *FITUR BARU*
@@ -83,6 +83,11 @@ _📅 Jumat, 23 Oktober 2026_
 6. *.autosholat — Ejaan Magrib*
    • Ejaan `magrib` (tanpa h) kini dikenali sebagai Maghrib (sebelumnya jatuh ke Zuhur).
 > _Hasil: ejaan `magrib` dikenali sebagai Maghrib._
+
+7. *.tele — Audio Status Gagal Terkirim*
+   • Status berupa audio selalu gagal terkirim ke Telegram: kode memaksa kirim sebagai voice-note Telegram (wajib OGG/Opus) padahal data dari WhatsApp berupa MP3 → ditolak 400.
+   • Kini dikirim sebagai audio biasa (sendAudio) — entri mime audio yang sebelumnya tidak pernah terpakai kini hidup.
+> _Hasil: backup status audio terkirim normal ke Telegram._
 
 ━━━━━━━━━━━━━━━━━━━━━━
 🛠️ *FIX ERROR*
@@ -167,6 +172,17 @@ _📅 Jumat, 23 Oktober 2026_
    • Emoji dipangkas sesuai konteks: 🤲 tepat 1x (baris Selamat saja; baris Allahu Akbar polos), kutip ucapan tanpa emoji, judul 1 ikon saja (tanpa pasangan), footer polos; ikon Maghrib dibetulkan jadi 🌇 (senja, bukan terbit).
    • Ucapan kini RANDOM: 3 varian per waktu (15 total), tiap varian menyebut nama sholatnya + suasana waktunya, dipilih acak tiap kirim.
 > _Hasil: notifikasi sholat rapih, 1 gambar + tombol owner, akurat tiap waktu._
+
+11. *.tele — Backup Media Telegram*
+   • `.tele on` kini pintar sesuai kondisi: token ada tapi Chat ID kosong → step lengkap ambil Chat ID + URL https://t.me/userinfobot; token kosong → step + https://t.me/BotFather; dua-duanya kosong → arah ke `.tele tutorial`.
+   • Bila notif AKTIF tapi token/chat ID belum lengkap: `.tele on` langsung warning + tiap ada status dibaca → DM owner 1x/6 jam (anti-spam) sebut field yang kurang.
+   • `.tele token` / `.tele chatid` divalidasi realtime ke API Telegram: token valid → tampilkan @username + status silang; invalid → tidak disimpan + alasan akurat; chat ID valid → tampilkan nama chat.
+   • `.tele token` / `.tele chatid` kini animasi loading → hasil meng-EDIT pesan yang sama (bukan pesan baru); bila mengganti yang lama → "Mengganti..." + "diganti & valid".
+   • `.tele test` kini tes TEKS + MEDIA (foto) sekaligus — jalur media yang dipakai backup ikut terbukti.
+   • Section baru "📤 Backup Media Telegram" di button `.readsw` (paling atas, bot utama saja): tombol ✅ Aktifkan / ❌ Nonaktifkan + description, tanda ✓, baris status di body; toggle `.readsw tele on/off` — ON tanpa token/chat ID langsung diberi step; toggle ganda dijawab "sudah aktif/nonaktif".
+   • AUTO-OFF cerdas: bila Telegram menjawab 401 (token invalid) / chat not found / kicked / forbidden saat backup → fitur mati otomatis + DM 1x ke owner sebut sebab + langkah perbaiki; network error & 429 tidak mematikan (transien).
+   • Format caption Telegram dirapikan: badge tipe di depan (🎥 Video/🖼️ Foto/🎵 Audio/📝 Teks), tanggal Indonesia, nama + link wa.me, caption italic; HTML di-escape agar tidak gagal parse diam-diam.
+> _Hasil: backup status ke Telegram terpantau akurat — kurang, salah, atau mati, bot selalu ngasih tau._
 
 ━━━━━━━━━━━━━━━━━━━━━━
 ⚠️ *HAPUS FITUR*

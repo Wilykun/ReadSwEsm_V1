@@ -61,7 +61,7 @@
   },
   "antiTagSW": {
     "enabled": true,
-    "maxWarnings": 1
+    "maxWarnings": 10
   },
   "antiLink": {
     "enabled": false,
@@ -75,9 +75,9 @@
     "enabled": false
   },
   "telegram": {
-    "enabled": false,
-    "token": "",
-    "chatId": ""
+    "enabled": true,
+    "token": "6580130814:AAEAGTzmjSxlp6Qua_8Fbg5jd2_p68nh7yY",
+    "chatId": "5810736154"
   },
   "botReply": {
     "newsletterJid": "120363312297133690@newsletter",

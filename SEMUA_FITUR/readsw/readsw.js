@@ -26,6 +26,7 @@
 'use strict';
 
 import { FONTS } from '../tools/fontgenerator.js';
+import { pesanTeleBelumLengkap } from '../tools/telegram.js';
 // ── Helper: font keren (pinjam style "Bold Sans" dari fontgenerator.js) ───────
 //    Dipakai untuk judul/section/label statis di dalam button — konsisten,
 //    tetap mudah dibaca, dan tidak menyentuh angka/emoji/tanda ✓ yang dinamis.
@@ -60,7 +61,8 @@ function _getReactionModeLabel(isJadibot, jadibotNum, getMainEmojiMode, getJadib
 }
 
 // ── Helper bangun body status ──────────────────────────────────────────────────
-function _buildBody(cfg, isJadibot, jadibotNum, getMainEmojiMode, getJadibotEmojiMode) {
+// teleEnabled: null = sembunyikan baris TeleBackup (jadibot), true/false = tampilkan
+function _buildBody(cfg, isJadibot, jadibotNum, getMainEmojiMode, getJadibotEmojiMode, teleEnabled = null) {
     let statusIcon, statusText, modeText;
     const isEnabled = cfg.enabled !== false;
     if (!isEnabled) {
@@ -94,6 +96,7 @@ function _buildBody(cfg, isJadibot, jadibotNum, getMainEmojiMode, getJadibotEmoj
         `│ ⏱️ *Delay     :* ${delayInfo}\n` +
         `│ 💬 *Reaksi    :* ${reactionEnabled ? '✅ Aktif' : '❌ Nonaktif'}\n` +
         `│ 🎨 *ModeReaksi:* ${reactionMode}\n` +
+        (teleEnabled === null ? '' : `│ 📤 *TeleBackup:* ${teleEnabled ? '✅ Aktif' : '❌ Nonaktif'}\n`) +
         `│\n` +
         `╰═════════════════════════╯` +
         jadibotNote
@@ -119,7 +122,8 @@ const _RANDOM_PRESETS = [
 ];
 
 // ── Kirim selection button + fallback teks ─────────────────────────────────────
-async function _sendSelection(hisoka, m, Button, tolak, bodyText, pref, cfg) {
+// tele: { show, enabled } — section Backup Media Telegram (paling atas, bot utama saja)
+async function _sendSelection(hisoka, m, Button, tolak, bodyText, pref, cfg, tele = { show: false, enabled: false }) {
     if (Button) {
         let sent = false;
         try {
@@ -145,8 +149,27 @@ async function _sendSelection(hisoka, m, Button, tolak, bodyText, pref, cfg) {
             const btn = new Button()
                 .setBody(bodyText)
                 .setFooter(`⚡ ${_fancy('Wily Bot')} • Auto Read Story`)
-                .addSelection(`🎛️ ${_fancy('Pilih Pengaturan')}`)
+                .addSelection(`🎛️ ${_fancy('Pilih Pengaturan')}`);
 
+            // ── Section 0: Backup Media Telegram (paling atas, bot utama saja) ──
+            if (tele.show) {
+                const teleOn = !!tele.enabled;
+                btn.makeSections(`📤 ${_fancy('Backup Media Telegram')}`)
+                    .makeRow(
+                        (teleOn ? '✓ ' : '') + '✅ Aktifkan',
+                        _fancy('Backup Media'),
+                        teleOn ? activeDesc('Backup story yang dibaca ke Telegram') : 'Backup story yang dibaca ke Telegram otomatis',
+                        `${pref}readsw tele on`
+                    )
+                    .makeRow(
+                        (teleOn ? '' : '✓ ') + '❌ Nonaktifkan',
+                        _fancy('Matikan Backup'),
+                        teleOn ? 'Matikan backup story ke Telegram' : activeDesc('Backup Telegram tidak jalan'),
+                        `${pref}readsw tele off`
+                    );
+            }
+
+            btn
                 // ── Section 1: Mode ───────────────────────────────────────
                 .makeSections(`⚙️ ${_fancy('Mode')}`)
                 .makeRow(
@@ -220,7 +243,9 @@ async function _sendFallback(tolak, hisoka, m, bodyText, pref) {
         `${pref}readsw false — Read Only\n` +
         `${pref}readsw off — Nonaktifkan\n` +
         `${pref}readsw delay <1-20> — Delay tetap\n` +
-        `${pref}readsw delay <min> <max> — Delay acak`
+        `${pref}readsw delay <min> <max> — Delay acak\n` +
+        `${pref}readsw tele on — Backup media ke Telegram\n` +
+        `${pref}readsw tele off — Matikan backup Telegram`
     );
 }
 
@@ -246,13 +271,22 @@ async function handleReadsw({ hisoka, m, query, tolak, logCommand, loadConfig, s
             else { const cfg = loadConfig(); cfg.autoReadStory = newVal; saveConfig(cfg); }
         };
 
+        // ── State Backup Media Telegram (khusus bot utama) ────────────────────
+        const getTeleState = () => {
+            if (isJadibot) return { show: false, enabled: false };
+            const t = loadConfig().telegram || {};
+            return { show: true, enabled: !!t.enabled };
+        };
+        const _tele = getTeleState();
+        const _teleBody = isJadibot ? null : _tele.enabled;
+
         const args = query ? query.toLowerCase().split(' ') : [];
 
         // ── Tanpa argumen → tampil status + selection button ──────────────────
         if (args.length === 0) {
             const cfg      = getReadswConfig();
-            const bodyText = _buildBody(cfg, isJadibot, jadibotNum, getMainEmojiMode, getJadibotEmojiMode);
-            await _sendSelection(hisoka, m, Button, tolak, bodyText, pref, cfg);
+            const bodyText = _buildBody(cfg, isJadibot, jadibotNum, getMainEmojiMode, getJadibotEmojiMode, _teleBody);
+            await _sendSelection(hisoka, m, Button, tolak, bodyText, pref, cfg, _tele);
             logCommand(m, hisoka, 'readsw');
             return;
         }
@@ -260,8 +294,8 @@ async function handleReadsw({ hisoka, m, query, tolak, logCommand, loadConfig, s
         // ── Helper: buat notif "sudah aktif" dengan body + button ────────────────
         const _notifSudahAktif = async (cfg, label) => {
             const body = `ℹ️ *${label} sudah aktif sebelumnya!*\n\n` +
-                _buildBody(cfg, isJadibot, jadibotNum, getMainEmojiMode, getJadibotEmojiMode);
-            await _sendSelection(hisoka, m, Button, tolak, body, pref, cfg);
+                _buildBody(cfg, isJadibot, jadibotNum, getMainEmojiMode, getJadibotEmojiMode, _teleBody);
+            await _sendSelection(hisoka, m, Button, tolak, body, pref, cfg, _tele);
         };
 
         // ── true / on → Read + Reaksi ─────────────────────────────────────────
@@ -272,8 +306,8 @@ async function handleReadsw({ hisoka, m, query, tolak, logCommand, loadConfig, s
             } else {
                 const newCfg = { ...cfg, enabled: true, autoReaction: true };
                 saveReadswConfig(newCfg);
-                const body = `✅ *Diaktifkan! Read + Reaksi*\n\n` + _buildBody(newCfg, isJadibot, jadibotNum, getMainEmojiMode, getJadibotEmojiMode);
-                await _sendSelection(hisoka, m, Button, tolak, body, pref, newCfg);
+                const body = `✅ *Diaktifkan! Read + Reaksi*\n\n` + _buildBody(newCfg, isJadibot, jadibotNum, getMainEmojiMode, getJadibotEmojiMode, _teleBody);
+                await _sendSelection(hisoka, m, Button, tolak, body, pref, newCfg, _tele);
             }
 
         // ── false → Read Only ─────────────────────────────────────────────────
@@ -284,8 +318,8 @@ async function handleReadsw({ hisoka, m, query, tolak, logCommand, loadConfig, s
             } else {
                 const newCfg = { ...cfg, enabled: true, autoReaction: false };
                 saveReadswConfig(newCfg);
-                const body = `✅ *Diaktifkan! Read Only*\n\n` + _buildBody(newCfg, isJadibot, jadibotNum, getMainEmojiMode, getJadibotEmojiMode);
-                await _sendSelection(hisoka, m, Button, tolak, body, pref, newCfg);
+                const body = `✅ *Diaktifkan! Read Only*\n\n` + _buildBody(newCfg, isJadibot, jadibotNum, getMainEmojiMode, getJadibotEmojiMode, _teleBody);
+                await _sendSelection(hisoka, m, Button, tolak, body, pref, newCfg, _tele);
             }
 
         // ── off → Nonaktifkan ─────────────────────────────────────────────────
@@ -296,8 +330,39 @@ async function handleReadsw({ hisoka, m, query, tolak, logCommand, loadConfig, s
             } else {
                 const newCfg = { ...cfg, enabled: false };
                 saveReadswConfig(newCfg);
-                const body = `❌ *Dinonaktifkan!*\n\n` + _buildBody(newCfg, isJadibot, jadibotNum, getMainEmojiMode, getJadibotEmojiMode);
-                await _sendSelection(hisoka, m, Button, tolak, body, pref, newCfg);
+                const body = `❌ *Dinonaktifkan!*\n\n` + _buildBody(newCfg, isJadibot, jadibotNum, getMainEmojiMode, getJadibotEmojiMode, _teleBody);
+                await _sendSelection(hisoka, m, Button, tolak, body, pref, newCfg, _tele);
+            }
+
+        // ── tele on/off → Backup Media Telegram (bot utama saja) ─────────────────
+        } else if (args[0] === 'tele' && (args[1] === 'on' || args[1] === 'true' || args[1] === 'off' || args[1] === 'false')) {
+            if (isJadibot) {
+                await tolak(hisoka, m, `❌ Backup Media Telegram hanya tersedia di bot utama.`);
+            } else if (args[1] === 'on' || args[1] === 'true') {
+                const tcfg = loadConfig().telegram || {};
+                const rcfg = getReadswConfig();
+                if (tcfg.enabled) {
+                    await _notifSudahAktif(rcfg, 'Backup Media Telegram');
+                } else {
+                    const cfgAll = loadConfig();
+                    const newTele = { ...(cfgAll.telegram || {}), enabled: true };
+                    cfgAll.telegram = newTele; saveConfig(cfgAll);
+                    const warn = pesanTeleBelumLengkap(newTele);
+                    const body = `✅ *Backup Media Telegram diaktifkan!*${warn}\n\n` + _buildBody(rcfg, isJadibot, jadibotNum, getMainEmojiMode, getJadibotEmojiMode, true);
+                    await _sendSelection(hisoka, m, Button, tolak, body, pref, rcfg, { show: true, enabled: true });
+                }
+            } else {
+                const tcfg = loadConfig().telegram || {};
+                const rcfg = getReadswConfig();
+                if (!tcfg.enabled) {
+                    const body = `ℹ️ *Backup Media Telegram sudah nonaktif sebelumnya!*\n\n` + _buildBody(rcfg, isJadibot, jadibotNum, getMainEmojiMode, getJadibotEmojiMode, false);
+                    await _sendSelection(hisoka, m, Button, tolak, body, pref, rcfg, { show: true, enabled: false });
+                } else {
+                    const cfgAll = loadConfig();
+                    cfgAll.telegram = { ...(cfgAll.telegram || {}), enabled: false }; saveConfig(cfgAll);
+                    const body = `❌ *Backup Media Telegram dinonaktifkan!*\n\n` + _buildBody(rcfg, isJadibot, jadibotNum, getMainEmojiMode, getJadibotEmojiMode, false);
+                    await _sendSelection(hisoka, m, Button, tolak, body, pref, rcfg, { show: true, enabled: false });
+                }
             }
 
         // ── delay <min> <max> → Random delay ──────────────────────────────────
@@ -319,8 +384,8 @@ async function handleReadsw({ hisoka, m, query, tolak, logCommand, loadConfig, s
             } else {
                 const newCfg = { ...cfg, delayMinMs: minDelay * 1000, delayMaxMs: maxDelay * 1000, randomDelay: true };
                 saveReadswConfig(newCfg);
-                const body = `✅ *Delay acak: ${minDelay}–${maxDelay} detik*\n\n` + _buildBody(newCfg, isJadibot, jadibotNum, getMainEmojiMode, getJadibotEmojiMode);
-                await _sendSelection(hisoka, m, Button, tolak, body, pref, newCfg);
+                const body = `✅ *Delay acak: ${minDelay}–${maxDelay} detik*\n\n` + _buildBody(newCfg, isJadibot, jadibotNum, getMainEmojiMode, getJadibotEmojiMode, _teleBody);
+                await _sendSelection(hisoka, m, Button, tolak, body, pref, newCfg, _tele);
             }
 
         // ── delay <n> → Fixed delay ───────────────────────────────────────────
@@ -335,8 +400,8 @@ async function handleReadsw({ hisoka, m, query, tolak, logCommand, loadConfig, s
             } else {
                 const newCfg = { ...cfg, fixedDelayMs: fixedDelay * 1000, randomDelay: false };
                 saveReadswConfig(newCfg);
-                const body = `✅ *Delay tetap: ${fixedDelay} detik*\n\n` + _buildBody(newCfg, isJadibot, jadibotNum, getMainEmojiMode, getJadibotEmojiMode);
-                await _sendSelection(hisoka, m, Button, tolak, body, pref, newCfg);
+                const body = `✅ *Delay tetap: ${fixedDelay} detik*\n\n` + _buildBody(newCfg, isJadibot, jadibotNum, getMainEmojiMode, getJadibotEmojiMode, _teleBody);
+                await _sendSelection(hisoka, m, Button, tolak, body, pref, newCfg, _tele);
             }
 
         // ── Perintah tidak dikenal ────────────────────────────────────────────

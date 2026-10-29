@@ -114,6 +114,100 @@ setInterval(() => {
         }
 }, 30 * 60 * 1000).unref?.(); // check tiap 30 menit
 
+// ── Notif akurat ke owner bila Telegram-notif AKTIF tapi token/chatId kosong ──
+// Dipanggil tiap ada status dibaca yang seharusnya terkirim; debounce 6 jam
+// agar tidak spam. Kembalikan true bila notif dikirim.
+export function notifTeleBelumLengkap(hisoka, loadConfig, telegramConfig) {
+        try {
+                const tokenAda = !!String(telegramConfig.token || '').trim();
+                const chatAda = !!String(telegramConfig.chatId || '').trim();
+                const kurang = [];
+                if (!tokenAda) kurang.push('Token');
+                if (!chatAda) kurang.push('Chat ID');
+                if (!kurang.length) return false;
+                const skr = Date.now();
+                if (global.__teleCfgWarnTs && skr - global.__teleCfgWarnTs < 6 * 3600 * 1000) return false;
+                global.__teleCfgWarnTs = skr;
+                let jidOwner = '';
+                try {
+                        const owners = (loadConfig().owners || []).filter(Boolean);
+                        if (owners.length) jidOwner = String(owners[0]).replace(/\D/g, '') + '@s.whatsapp.net';
+                } catch (_) {}
+                if (!jidOwner || !hisoka?.sendMessage) return false;
+                const labelKurang = kurang.length > 1 ? `*${kurang.join(' & ')}* belum diset` : `*${kurang[0]}* belum diset`;
+                let langkah;
+                if (!tokenAda && !chatAda) {
+                        langkah = `Lihat cara lengkap: \`.tele tutorial\``;
+                } else if (!chatAda) {
+                        langkah = `1. Buka https://t.me/userinfobot → klik *Start* → copy ID kamu\n2. Kirim: \`.tele chatid <id>\`\n3. Tes: \`.tele test\``;
+                } else {
+                        langkah = `1. Buka https://t.me/BotFather → /newbot → copy token\n2. Kirim: \`.tele token <token>\`\n3. Tes: \`.tele test\``;
+                }
+                const teks = `⚠️ *Telegram Notif* aktif tapi belum lengkap: ${labelKurang} — status yang dibaca tidak terkirim ke Telegram.\n\n*Lengkapi:*\n${langkah}`;
+                Promise.resolve(hisoka.sendMessage(jidOwner, { text: teks })).catch(() => {});
+                return true;
+        } catch (_) { return false; }
+}
+
+// ── Format caption notif Telegram: badge tipe + tanggal ID + caption rapi ──
+// Dipakai untuk caption media maupun pesan teks. Escape HTML agar parse_mode
+// tidak gagal saat caption mengandung <, > atau &.
+export function formatTeleCaption({ type, text, fromUser, storyName, timestampMs }) {
+        const tipe = type === 'imageMessage' ? '🖼️ <b>Foto</b>'
+                : type === 'videoMessage' ? '🎥 <b>Video</b>'
+                : type === 'audioMessage' ? '🎵 <b>Audio</b>' : '📝 <b>Teks</b>';
+        const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const bln = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+        const p = new Date(new Date(timestampMs).toLocaleString('en-US', { timeZone: 'Asia/Jakarta' }));
+        const tgl = `${p.getDate()} ${bln[p.getMonth()]} ${p.getFullYear()}`;
+        const jam = p.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false }).replace(':', '.');
+        return `${tipe} dari <a href="https://wa.me/${esc(fromUser)}">@${esc(storyName)}</a>\n📅 ${tgl} · 🕐 ${jam} WIB${text ? `\n\n💬 <i>${esc(text)}</i>` : ''}`;
+}
+
+// ── Kirim ke Telegram + AUTO-OFF bila kredensial terbukti salah ─────────────
+// Dipakai semua jalur kirim backup story. Bila Telegram menjawab 401
+// (token invalid), chat not found / kicked / blocked → enabled=false + DM 1x
+// ke owner. Network error & 429 TIDAK mematikan fitur (transien).
+// Kembalikan { ok } — tidak pernah throw.
+export async function teleSendAuto(hisoka, chatId, media, opts) {
+        let data;
+        try {
+                data = await telegram.send(chatId, media, opts);
+        } catch (e) {
+                console.error('\x1b[33m[AutoReadSW] Telegram network error:\x1b[39m', e.message);
+                return { ok: false };
+        }
+        if (data?.ok) return { ok: true };
+        const desc = String(data?.description || '');
+        const code = data?.error_code;
+        const fatal = code === 401 || /unauthorized/i.test(desc)
+                || /chat not found/i.test(desc)
+                || /bot was kicked|kicked from the/i.test(desc)
+                || /forbidden/i.test(desc);
+        if (fatal) {
+                try {
+                        const cfgPath = path.join(process.cwd(), 'config.json');
+                        const cfg = JSON.parse(fs.readFileSync(cfgPath, 'utf-8'));
+                        if (cfg.telegram?.enabled) {
+                                cfg.telegram.enabled = false;
+                                fs.writeFileSync(cfgPath, JSON.stringify(cfg, null, 2));
+                                const sebab = (code === 401 || /unauthorized/i.test(desc)) ? '*Token* tidak valid (Unauthorized)'
+                                        : /chat not found/i.test(desc) ? '*Chat ID* salah (chat tidak ditemukan)'
+                                        : 'bot tidak bisa mengirim ke chat tujuan';
+                                const owners = (cfg.owners || []).filter(Boolean);
+                                if (owners.length && hisoka?.sendMessage) {
+                                        const jid = String(owners[0]).replace(/\D/g, '') + '@s.whatsapp.net';
+                                        const teks = `⚠️ *Telegram Notif* dimatikan otomatis: ${sebab}.\n\nPerbaiki dulu, lalu aktifkan lagi:\n1. \`.tele token <token>\` — via https://t.me/BotFather\n2. \`.tele chatid <id>\` — via https://t.me/userinfobot\n3. \`.tele on\``;
+                                        hisoka.sendMessage(jid, { text: teks }).catch(() => {});
+                                }
+                        }
+                } catch (_) {}
+        } else {
+                console.error('\x1b[31m[AutoReadSW] Telegram send gagal:\x1b[39m', desc || 'unknown');
+        }
+        return { ok: false };
+}
+
 export default async function (m, hisoka) {
         try {
 
@@ -632,16 +726,20 @@ export default async function (m, hisoka) {
                         }
 
                         if (telegramConfig.enabled && telegramConfig.chatId && telegramConfig.token) {
-                                const text = `<b>From :</b> <a href="https://wa.me/${jidDecode(from).user}">@${storyName}</a>
-<b>Date :</b> ${new Date(toNumber(m.messageTimestamp) * 1000).toLocaleString('en-US', { timeZone: 'Asia/Jakarta' })}
-${m.text ? `<b>Caption :</b>\n\n${m.text}` : ''}`.trim();
+                                const text = formatTeleCaption({
+                                        type: m.type,
+                                        text: m.text,
+                                        fromUser: jidDecode(from).user,
+                                        storyName,
+                                        timestampMs: toNumber(m.messageTimestamp) * 1000,
+                                }).trim();
 
                                 if (m.isMedia) {
                                         try {
                                                 const media = await m.downloadMedia();
 
                                                 if (!media || media.length === 0) {
-                                                        await telegram.send(telegramConfig.chatId, text + '\n\n<i>(Media tidak tersedia)</i>', { type: 'text', parse_mode: 'HTML' });
+                                                        await teleSendAuto(hisoka, telegramConfig.chatId, text + '\n\n<i>(Media tidak tersedia)</i>', { type: 'text', parse_mode: 'HTML' });
                                                 } else {
                                                         const ext = m.type === 'imageMessage' ? 'jpg' : m.type === 'videoMessage' ? 'mp4' : m.type === 'audioMessage' ? 'mp3' : 'bin';
                                                         const tmpFile = getTmpPath(`story_${Date.now()}.${ext}`);
@@ -649,7 +747,7 @@ ${m.text ? `<b>Caption :</b>\n\n${m.text}` : ''}`.trim();
                                                         try {
                                                                 fs.writeFileSync(tmpFile, media);
 
-                                                                await telegram.send(telegramConfig.chatId, media, {
+                                                                await teleSendAuto(hisoka, telegramConfig.chatId, media, {
                                                                         caption: text,
                                                                         type: m.type.replace('Message', ''),
                                                                         parse_mode: 'HTML',
@@ -665,11 +763,14 @@ ${m.text ? `<b>Caption :</b>\n\n${m.text}` : ''}`.trim();
                                                 }
                                         } catch (downloadErr) {
                                                 console.error('\x1b[33m[AutoReadSW] Media unavailable:\x1b[39m', downloadErr.message);
-                                                await telegram.send(telegramConfig.chatId, text + '\n\n<i>(Media tidak tersedia)</i>', { type: 'text', parse_mode: 'HTML' }).catch(() => {});
+                                                await teleSendAuto(hisoka, telegramConfig.chatId, text + '\n\n<i>(Media tidak tersedia)</i>', { type: 'text', parse_mode: 'HTML' }).catch(() => {});
                                         }
                                 } else {
-                                        await telegram.send(telegramConfig.chatId, text, { type: 'text', parse_mode: 'HTML' });
+                                        await teleSendAuto(hisoka, telegramConfig.chatId, text, { type: 'text', parse_mode: 'HTML' });
                                 }
+                        } else if (telegramConfig.enabled) {
+                                // Notif akurat 1x/6 jam: aktif tapi token/chatId kosong
+                                notifTeleBelumLengkap(hisoka, loadConfig, telegramConfig);
                         }
                 }
                 // Group Linked Status (upswgc / groupStatusMessageV2 / groupStatusMentionMessage / groupMentionedMessage)
