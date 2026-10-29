@@ -1539,6 +1539,15 @@ async function main() {
 
                                 // Widget 1: Sedang Tayang
                                 const runAnimasuTayang = async () => {
+                                // Anti-duplikat: lewati tick baru bila tick sebelumnya masih jalan
+                                // (kirim lambat >60 dtk). Aman dilewati: deteksi berbasis state file.
+                                const _cekT0 = Date.now();
+                                if (global.animasuTayangBusy && (_cekT0 - (global.animasuTayangBusyAt || 0) < 600000)) {
+                                        console.log('[Animasu][SedangTayang] tick sebelumnya masih jalan - lewati');
+                                        return;
+                                }
+                                global.animasuTayangBusy = true;
+                                global.animasuTayangBusyAt = _cekT0;
                                         try {
                                                 const daftarGrup = _am.getEnabledGroups();
                                                 if (!daftarGrup.length) return;
@@ -1586,11 +1595,20 @@ async function main() {
                                                 }
                                         } catch (err) {
                                                 console.error('[Animasu][SedangTayang] Error scheduler:', err?.message);
-                                        }
+                                        } finally { global.animasuTayangBusy = false; }
                                 };
 
                                 // Widget 2: Baru Ditambah & Diperbarui
                                 const runAnimasuUpdate = async () => {
+                                // Anti-duplikat: lewati tick baru bila tick sebelumnya masih jalan
+                                // (kirim lambat >60 dtk). Aman dilewati: deteksi berbasis state file.
+                                const _cekT0 = Date.now();
+                                if (global.animasuUpdateBusy && (_cekT0 - (global.animasuUpdateBusyAt || 0) < 600000)) {
+                                        console.log('[Animasu][BaruUpdate] tick sebelumnya masih jalan - lewati');
+                                        return;
+                                }
+                                global.animasuUpdateBusy = true;
+                                global.animasuUpdateBusyAt = _cekT0;
                                         try {
                                                 const daftarGrup = _am.getEnabledGroups();
                                                 if (!daftarGrup.length) return;
@@ -1633,7 +1651,7 @@ async function main() {
                                                 }
                                         } catch (err) {
                                                 console.error('[Animasu][BaruUpdate] Error scheduler:', err?.message);
-                                        }
+                                        } finally { global.animasuUpdateBusy = false; }
                                 };
 
                                 // Mulai 30 detik setelah start (setelah infowibu), 2 widget di-stagger
