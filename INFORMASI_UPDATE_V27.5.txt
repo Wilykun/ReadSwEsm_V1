@@ -9,7 +9,7 @@ _📅 Jumat, 23 Oktober 2026_
 ✨ *3 Fitur Baru*
 🐛 *7 Fix Bug*
 🛠️ *3 Fix Error*
-🚀 *11 Perubahan*
+🚀 *12 Perubahan*
 ⚠️ *0 Hapus Fitur*
 ━━━━━━━━━━━━━━━━━━━━━━
 ✨ *FITUR BARU*
@@ -183,6 +183,14 @@ _📅 Jumat, 23 Oktober 2026_
    • AUTO-OFF cerdas: bila Telegram menjawab 401 (token invalid) / chat not found / kicked / forbidden saat backup → fitur mati otomatis + DM 1x ke owner sebut sebab + langkah perbaiki; network error & 429 tidak mematikan (transien).
    • Format caption Telegram dirapikan: badge tipe di depan (🎥 Video/🖼️ Foto/🎵 Audio/📝 Teks), tanggal Indonesia, nama + link wa.me, caption italic; HTML di-escape agar tidak gagal parse diam-diam.
 > _Hasil: backup status ke Telegram terpantau akurat — kurang, salah, atau mati, bot selalu ngasih tau._
+
+12. *.nekopoinotif — Menu Single-Select*
+   • `.nekopoinotif` tanpa argumen kini tampilkan menu single-select (pola `.readsw`): section 🎌 Genre (3 row toggle + Aktifkan/Matikan Semua, yang aktif di atas + tanda ✓), section 👥 Grup (daftar semua grup yang diikuti bot — aktif ✓ di atas, lalu nonaktif, lalu belum daftar; tap row = toggle grup langsung), section 🛠️ Lainnya (Status, Test).
+   • Sub baru `.nekopoinotif kat <slug|all|none>` — toggle genre (boleh kosong = Matikan Semua); sub baru `.nekopoinotif g <nomor>` — toggle grup by nomor (urutan deterministik, nomor stabil antara render & tap).
+   • Setiap aksi (toggle genre/grup, on/off, status) direspon menu single-select FRESH — tanda ✓ & status langsung update sesuai aksi; semua pesan menu/status/konfirmasi lama milik bot otomatis dihapus (tidak menumpuk ganda); pesan user tidak disentuh (tanpa tombstone "Anda menghapus pesan ini").
+   • Kategori di body menu tampil vertikal (satu baris satu genre); nama "2D Animation" tampil utuh (sebelumnya disingkat "2D Anim").
+   • Sub lama tetap jalan (`on/off/status/test/kategori`); fallback teks bila button tak tersedia.
+> _Hasil: atur notif nekopoi (genre + grup) langsung dari menu tap — akurat, rapih, tanpa spam._
 
 ━━━━━━━━━━━━━━━━━━━━━━
 ⚠️ *HAPUS FITUR*

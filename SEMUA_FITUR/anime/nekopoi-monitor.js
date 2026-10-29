@@ -27,6 +27,7 @@
 'use strict';
 
 import { getCategoryPosts, getDetailNekopoi } from './nekopoi.js';
+import { FONTS } from '../tools/fontgenerator.js';
 import axios from 'axios';
 import crypto from 'node:crypto';
 import path from 'path';
@@ -45,6 +46,18 @@ const INIT_WINDOW_MS = 30 * 60 * 1000;  // 30 menit
 
 const SEP  = '━━━━━━━━━━━━━━━━━━';
 const SEP2 = '┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄';
+
+// ── Fancy font untuk judul section/row single_select (pola .readsw) ──────────
+let _nkFancyFn = null;
+function _nkFancy(text) {
+    try {
+        if (!_nkFancyFn) {
+            const style = FONTS.find(f => f.name === 'Bold Sans');
+            _nkFancyFn = style ? style.fn : (t => t);
+        }
+        return _nkFancyFn(text);
+    } catch (_) { return text; }
+}
 
 const HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
@@ -589,116 +602,125 @@ async function handleNekopoinotif({ hisoka, m, query, tolak, logCommand, Button,
     if (!cfg.nekopoinotif.groups)    cfg.nekopoinotif.groups    = {};
     if (!cfg.nekopoinotif.categories) cfg.nekopoinotif.categories = ['hentai', '2d-animation', '3d-hentai'];
 
-    // ── NO SUBCOMMAND di grup → button status & aktifkan/nonaktifkan ─────────
-    if (!sub || sub === 'help') {
-        if (m.isGroup) {
-            const gcEntry   = cfg.nekopoinotif.groups[m.from];
-            const isReg     = gcEntry !== undefined;
-            const isActive  = gcEntry?.enabled === true;
+    // ── Menu single_select (dipakai ulang tiap habis toggle) ────────────────
+    const _menuNekopoi = async () => {
+    await _autoClean(hisoka, m); // hapus menu lama + pesan user → tidak spam
+    const katAktif   = cfg.nekopoinotif.categories || ['hentai', '2d-animation', '3d-hentai'];
+    const totalAktif = Object.values(cfg.nekopoinotif.groups || {}).filter(v => v?.enabled === true).length;
+    let _grupList = [];
+    try { _grupList = await _daftarGrupUrut(hisoka, cfg); } catch (_) {}
 
-            if (isActive) {
-                // Sudah aktif → tawarkan nonaktifkan + lihat list
-                const _bodyAktif =
-                    `╭─「 🎌 *NEKOPOI NOTIF* 」\n│\n` +
-                    `│ Status grup ini : ✅ *AKTIF*\n│\n` +
-                    `│ Fitur ini sudah aktif di grup ini.\n` +
-                    `│ Notif anime dari nekopoi.care akan\n` +
-                    `│ otomatis masuk ke sini.\n│\n` +
-                    `│ Ketik *${pfx}nekopoinotif off* untuk matikan.\n│\n` +
-                    `╰──────────────────────`;
-                try {
-                    await new Button()
-                        .setBody(_bodyAktif)
-                        .setFooter('🎌 Nekopoi Notif')
-                        .addReply('❌ Nonaktifkan di GC ini', '__nknotif_off__')
-                        .addReply('📋 Lihat GC Aktif',       '__nknotif_list__')
-                        .run(m.from, hisoka, m);
-                } catch (_) { await tolak(hisoka, m, _bodyAktif); }
-            } else if (isReg) {
-                // ID ada tapi belum aktif → tawarkan aktifkan + lihat list
-                const _bodyReg =
-                    `╭─「 🎌 *NEKOPOI NOTIF* 」\n│\n` +
-                    `│ Status grup ini : ❌ *BELUM AKTIF*\n│\n` +
-                    `│ ⚠️ ID grup ini sudah ada di daftar,\n` +
-                    `│    tapi fitur belum diaktifkan.\n│\n` +
-                    `│ Aktifkan notif nekopoi di GC ini?\n│\n` +
-                    `╰──────────────────────`;
-                try {
-                    await new Button()
-                        .setBody(_bodyReg)
-                        .setFooter('🎌 Nekopoi Notif')
-                        .addReply('✅ Ya, Aktifkan',    '__nknotif_on__')
-                        .addReply('❌ Tidak, Batal',    '__nknotif_cancel__')
-                        .addReply('📋 Lihat GC Aktif', '__nknotif_list__')
-                        .run(m.from, hisoka, m);
-                } catch (_) { await tolak(hisoka, m, _bodyReg + `\n\n✅ Ketik *${pfx}nekopoinotif on* untuk aktifkan.`); }
-            } else {
-                // Belum terdaftar sama sekali
-                const _bodyBaru =
-                    `╭─「 🎌 *NEKOPOI NOTIF* 」\n│\n` +
-                    `│ Status grup ini : ➕ *BELUM TERDAFTAR*\n│\n` +
-                    `│ Fitur ini belum aktif di grup ini.\n│\n` +
-                    `│ Aktifkan notif nekopoi di GC ini?\n│\n` +
-                    `╰──────────────────────`;
-                try {
-                    await new Button()
-                        .setBody(_bodyBaru)
-                        .setFooter('🎌 Nekopoi Notif')
-                        .addReply('✅ Ya, Aktifkan',    '__nknotif_on__')
-                        .addReply('❌ Tidak, Batal',    '__nknotif_cancel__')
-                        .addReply('📋 Lihat GC Aktif', '__nknotif_list__')
-                        .run(m.from, hisoka, m);
-                } catch (_) { await tolak(hisoka, m, _bodyBaru + `\n\n✅ Ketik *${pfx}nekopoinotif on* untuk aktifkan.`); }
+    const _katBody = katAktif.length
+        ? katAktif.map(x => `\u2502   ${(_KAT_META[x]?.emoji || '')} ${(_KAT_META[x]?.nama || x)}`).join('\n')
+        : `\u2502   _tidak ada_`;
+    const _bodyMenu =
+        `\u256d\u2500\u300c \u{1f38c} *NEKOPOI NOTIF* \u300d\n\u2502\n` +
+        `\u2502 \u{1f4cc} Kategori :\n${_katBody}\n` +
+        `\u2502 \u{1f465} GC aktif   : *${totalAktif} grup*\n\u2502\n` +
+        `\u2502 Pilih pengaturan di bawah \u{1f447}\n\u2502\n` +
+        `\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500`;
+
+    const _GENRE_ROWS = [
+        { slug: 'hentai',       emoji: '\u{1f38c}', nama: 'Hentai' },
+        { slug: '2d-animation', emoji: '\u{1f3a5}', nama: '2D Animation' },
+        { slug: '3d-hentai',    emoji: '\u{1f9ca}', nama: '3D Hentai' },
+    ];
+    const _namaGenre = (slug) => (_GENRE_ROWS.find(g => g.slug === slug) || {}).nama || slug;
+    const _descKat = (slug) => katAktif.includes(slug)
+        ? `\u26a1 Sedang Aktif \u2014 notif ${_namaGenre(slug)} otomatis masuk`
+        : `Aktifkan notif ${_namaGenre(slug)}`;
+
+    const _fallbackMenu = async () => {
+        await tolak(hisoka, m,
+            _bodyMenu + `\n\n` +
+            `*Penggunaan:*\n` +
+            `${pfx}nekopoinotif kat <hentai|2d-animation|3d-hentai|all|none> \u2014 toggle genre\n` +
+            `${pfx}nekopoinotif g <nomor> \u2014 toggle grup\n` +
+            (m.isGroup ? `${pfx}nekopoinotif on \u2014 aktifkan GC ini\n${pfx}nekopoinotif off \u2014 nonaktifkan GC ini\n` : ``) +
+            `${pfx}nekopoinotif status \u2014 list semua GC\n` +
+            `${pfx}nekopoinotif test \u2014 test kirim\n` +
+            `${pfx}nekopoinotif kategori \u2014 atur kategori via teks`
+        );
+    };
+
+    let sent = false;
+    try {
+        const btn = new Button()
+            .setBody(_bodyMenu)
+            .setFooter(`\u{1f38c} ${_nkFancy('Nekopoi Notif')}`)
+            .addSelection(`\u{1f39b}\ufe0f ${_nkFancy('Pilih Pengaturan')}`);
+
+        // Section 1: Genre (paling atas) — yang aktif di atas, nonaktif di bawah
+        btn.makeSections(`\u{1f38c} ${_nkFancy('Genre')}`);
+        const _genreUrut = [..._GENRE_ROWS].sort((a, b) =>
+            (katAktif.includes(b.slug) ? 1 : 0) - (katAktif.includes(a.slug) ? 1 : 0));
+        for (const g of _genreUrut) {
+            const aktif = katAktif.includes(g.slug);
+            btn.makeRow(
+                (aktif ? '\u2713 ' : '') + (aktif ? '\u2705 ' : '\u274c ') + g.emoji + ' ' + g.nama,
+                _nkFancy(g.nama),
+                _descKat(g.slug),
+                `${pfx}nekopoinotif kat ${g.slug}`
+            );
+        }
+        const _semuaAktif = katAktif.length === 3;
+        const _takAdaAktif = katAktif.length === 0;
+        btn.makeRow(
+            (_semuaAktif ? '\u2713 ' : '') + '\u2705 Aktifkan Semua',
+            _nkFancy('Aktifkan Semua'),
+            _semuaAktif ? '\u26a1 Sedang Aktif \u2014 ketiga genre dimonitor' : 'Aktifkan ketiga genre sekaligus',
+            `${pfx}nekopoinotif kat all`
+        );
+        btn.makeRow(
+            (_takAdaAktif ? '\u2713 ' : '') + '\u274c Matikan Semua',
+            _nkFancy('Matikan Semua'),
+            _takAdaAktif ? '\u26a1 Sedang Nonaktif \u2014 tidak ada notif genre' : 'Matikan semua genre (tidak ada notif sampai diaktifkan lagi)',
+            `${pfx}nekopoinotif kat none`
+        );
+
+        // Section 2: Grup — daftar + toggle langsung (aktif di atas, tidak hilang)
+        if (_grupList.length) {
+            btn.makeSections(`\u{1f465} ${_nkFancy('Grup')}`);
+            for (const gg of _grupList) {
+                const _ikonG = gg.aktif ? '\u2705' : gg.terdaftar ? '\u274c' : '\u2795';
+                btn.makeRow(
+                    (gg.aktif ? '\u2713 ' : '') + _ikonG + ' ' + gg.nama,
+                    _nkFancy(gg.nama),
+                    gg.aktif ? '\u26a1 Sedang Aktif \u2014 tap untuk nonaktifkan'
+                        : gg.terdaftar ? 'Nonaktif \u2014 tap untuk aktifkan'
+                        : 'Belum terdaftar \u2014 tap untuk aktifkan',
+                    `${pfx}nekopoinotif g ${gg.no}`
+                );
             }
-            logCommand(m, hisoka, 'nekopoinotif-menu');
-            return;
         }
 
-        // Private chat → tampilkan help biasa
-        const katAktif = (cfg.nekopoinotif.categories || []).join(', ') || 'semua';
-        await tolak(hisoka, m,
-            `╭─「 🎌 *NEKOPOI NOTIF* 」\n` +
-            `│\n` +
-            `│ Kategori aktif   : _${katAktif}_\n│\n` +
-            `│ *Perintah (jalankan di GC):*\n` +
-            `│ • ${pfx}nekopoinotif — menu aktifkan/nonaktifkan\n` +
-            `│ • ${pfx}nekopoinotif on — aktifkan GC ini\n` +
-            `│ • ${pfx}nekopoinotif off — nonaktifkan GC ini\n` +
-            `│ • ${pfx}nekopoinotif status — list semua GC\n` +
-            `│   ↳ Reply status: *add 1,2* — aktifkan\n` +
-            `│   ↳ Reply status: *del 1,2* — nonaktifkan\n` +
-            `│ • ${pfx}nekopoinotif test — test ke sini\n` +
-            `│ • ${pfx}nekopoinotif test grup — test ke semua GC aktif\n` +
-            `│ • ${pfx}nekopoinotif kategori — lihat/atur kategori\n` +
-            `│\n` +
-            `│ 💡 Bot kirim notif otomatis saat:\n` +
-            `│    🎌 Hentai · 🎥 2D Animation · 🧊 3D Hentai\n` +
-            `│ ⏱️ Realtime · cek tiap 2 menit\n` +
-            `╰──────────────────────`
-        );
+        // Section 3: Lainnya
+        btn.makeSections(`\u{1f6e0}\ufe0f ${_nkFancy('Lainnya')}`);
+        btn.makeRow(`\u{1f4cb} Status`, _nkFancy('Status'), 'Lihat semua grup & statusnya', `${pfx}nekopoinotif status`);
+        btn.makeRow(`\u{1f9ea} Test`, _nkFancy('Test Kirim'), m.isGroup ? 'Kirim 1 notif test ke sini' : 'Kirim 1 notif test ke chat ini', `${pfx}nekopoinotif test`);
+
+        await _runBtn(hisoka, m, btn, _bodyMenu, tolak);
+        sent = true;
+    } catch (_) {}
+    if (!sent) await _fallbackMenu();
+    return;
+    };
+
+    // ── NO SUBCOMMAND → tampilkan menu ────────────────────────────────────
+    if (!sub || sub === 'help') {
+        await _menuNekopoi();
+        logCommand(m, hisoka, 'nekopoinotif-menu');
         return;
     }
+
 
     // ── ON ────────────────────────────────────────────────────────────────────
     if (sub === 'on') {
         if (!m.isGroup) { await tolak(hisoka, m, '❌ Perintah ini hanya untuk grup.'); return; }
-        const sebelumnya = cfg.nekopoinotif.groups[m.from]?.enabled === true;
+        await _autoClean(hisoka, m); // hapus menu lama → tidak spam
         cfg.nekopoinotif.groups[m.from] = { enabled: true, diubahPada: Date.now() };
         fsMod.writeFileSync(cfgPath, JSON.stringify(cfg, null, 2));
-        const katAktifOn = cfg.nekopoinotif.categories || ['hentai', '2d-animation', '3d-hentai'];
-        const _bodyOn =
-            `╭─「 🎌 *NEKOPOI NOTIF* 」\n│\n` +
-            `│ Status sebelumnya : ${sebelumnya ? '✅ ON' : '❌ OFF'}\n` +
-            `│ Status sekarang   : ✅ *ON*\n│\n` +
-            (sebelumnya
-                ? `│ ℹ️ Sudah aktif sebelumnya.\n`
-                : `│ ✅ Berhasil diaktifkan!\n│    Notif otomatis akan masuk ke GC ini.\n`) +
-            `│\n│ Kategori : ${_katInfoLine(katAktifOn)}\n│\n` +
-            `╰──────────────────────`;
-        const _btn = new Button().setBody(_bodyOn).setFooter('🎌 Nekopoi Notif');
-        _tambahBtnOnOff(_btn, true);
-        await _runBtn(hisoka, m, _btn, _bodyOn, tolak);
-        await hisoka.sendMessage(m.from, { react: { text: '✅', key: m.key } });
+        await _menuNekopoi(); // respon menu fresh — status grup ikut update
         logCommand(m, hisoka, 'nekopoinotif-on');
         return;
     }
@@ -706,21 +728,10 @@ async function handleNekopoinotif({ hisoka, m, query, tolak, logCommand, Button,
     // ── OFF ───────────────────────────────────────────────────────────────────
     if (sub === 'off') {
         if (!m.isGroup) { await tolak(hisoka, m, '❌ Perintah ini hanya untuk grup.'); return; }
-        const sebelumnya = cfg.nekopoinotif.groups[m.from]?.enabled === true;
+        await _autoClean(hisoka, m); // hapus menu lama → tidak spam
         cfg.nekopoinotif.groups[m.from] = { enabled: false, diubahPada: Date.now() };
         fsMod.writeFileSync(cfgPath, JSON.stringify(cfg, null, 2));
-        const katAktifOff = cfg.nekopoinotif.categories || ['hentai', '2d-animation', '3d-hentai'];
-        const _bodyOff =
-            `╭─「 🎌 *NEKOPOI NOTIF* 」\n│\n` +
-            `│ Status sebelumnya : ${sebelumnya ? '✅ ON' : '❌ OFF'}\n` +
-            `│ Status sekarang   : ❌ *OFF*\n│\n` +
-            (sebelumnya ? `│ ❌ Berhasil dinonaktifkan.\n` : `│ ℹ️ Sudah nonaktif sebelumnya.\n`) +
-            `│\n│ Kategori : ${_katInfoLine(katAktifOff)}\n│\n` +
-            `╰──────────────────────`;
-        const _btnOff = new Button().setBody(_bodyOff).setFooter('🎌 Nekopoi Notif');
-        _tambahBtnOnOff(_btnOff, false);
-        await _runBtn(hisoka, m, _btnOff, _bodyOff, tolak);
-        await hisoka.sendMessage(m.from, { react: { text: '✅', key: m.key } });
+        await _menuNekopoi(); // respon menu fresh — status grup ikut update
         logCommand(m, hisoka, 'nekopoinotif-off');
         return;
     }
@@ -760,8 +771,79 @@ async function handleNekopoinotif({ hisoka, m, query, tolak, logCommand, Button,
         return;
     }
 
+    // ── Balas teks + track agar ikut auto-hapus ───────────────────────────────
+    const _balasTeks = async (teks) => {
+        const _s = await tolak(hisoka, m, teks);
+        _trackBotMsg(m.from, _s?.key);
+    };
+
+    // ── KAT <slug>|all|none — toggle genre (dipakai row single_select) ─────────
+    if (sub === 'kat' || sub.startsWith('kat ')) {
+        const slug  = sub.replace(/^kat\s*/, '').trim();
+        const valid = ['hentai', '2d-animation', '3d-hentai'];
+        await _autoClean(hisoka, m); // hapus menu lama + pesan tap → tidak spam
+        const _balas = _balasTeks; // pakai helper scope handler
+        // Aktifkan semua → respon menu fresh (tanda ✓ ikut update)
+        if (slug === 'all') {
+            cfg.nekopoinotif.categories = [...valid];
+            fsMod.writeFileSync(cfgPath, JSON.stringify(cfg, null, 2));
+            await _menuNekopoi();
+            logCommand(m, hisoka, 'nekopoinotif-kat');
+            return;
+        }
+        // Matikan semua (sengaja boleh kosong — tidak ada notif sampai diaktifkan lagi)
+        if (slug === 'none') {
+            cfg.nekopoinotif.categories = [];
+            fsMod.writeFileSync(cfgPath, JSON.stringify(cfg, null, 2));
+            await _menuNekopoi();
+            logCommand(m, hisoka, 'nekopoinotif-kat');
+            return;
+        }
+        if (!valid.includes(slug)) {
+            await _balas(`❌ Genre tidak valid.\nPilih: ${valid.join(', ')}, all, none`);
+            return;
+        }
+        let cats = [...(cfg.nekopoinotif.categories || [])];
+        if (cats.includes(slug)) {
+            cats = cats.filter(c => c !== slug); // boleh kosong = sama seperti "Matikan Semua"
+        } else {
+            cats.push(slug);
+        }
+        cfg.nekopoinotif.categories = cats;
+        fsMod.writeFileSync(cfgPath, JSON.stringify(cfg, null, 2));
+        await _menuNekopoi(); // respon SELALU menu fresh — ✓ pindah sesuai aksi
+        logCommand(m, hisoka, 'nekopoinotif-kat');
+        return;
+    }
+
+    // ── G <no> — toggle grup by nomor (dipakai row single_select) ──────────────
+    if (sub === 'g' || sub.startsWith('g ')) {
+        const arg = sub.replace(/^g\s*/, '').trim();
+        const no = parseInt(arg, 10);
+        await _autoClean(hisoka, m);
+        if (isNaN(no) || no < 1) {
+            await _balasTeks(`\u274c Nomor grup tidak valid.`);
+            return;
+        }
+        let list = [];
+        try { list = await _daftarGrupUrut(hisoka, cfg); }
+        catch (_) { await _balasTeks(`\u274c Gagal ambil daftar grup.`); return; }
+        const target = list.find(x => x.no === no);
+        if (!target) {
+            await _balasTeks(`\u274c Nomor tidak ada di daftar.`);
+            return;
+        }
+        const jadiAktif = !target.aktif;
+        cfg.nekopoinotif.groups[target.jid] = { enabled: jadiAktif, diubahPada: Date.now() };
+        fsMod.writeFileSync(cfgPath, JSON.stringify(cfg, null, 2));
+        await _menuNekopoi(); // respon menu fresh — ✓ pindah sesuai aksi
+        logCommand(m, hisoka, 'nekopoinotif-g');
+        return;
+    }
+
     // ── STATUS ────────────────────────────────────────────────────────────────
     if (sub === 'status') {
+        await _autoClean(hisoka, m); // hapus menu lama + pesan tap → tidak spam
         await hisoka.sendMessage(m.from, { react: { text: '⏳', key: m.key } });
         try {
             const allGroupsRaw = await hisoka.groupFetchAllParticipating();
@@ -816,8 +898,8 @@ async function handleNekopoinotif({ hisoka, m, query, tolak, logCommand, Button,
             txt += `│ • *del 2,4* — nonaktifkan GC nomor tsb\n`;
             txt += `│ ⏳ Menu berlaku *5 menit*\n╰──────────────────────`;
 
-            const statusMsg = await hisoka.sendMessage(m.from, { text: txt }, { quoted: m });
-            await hisoka.sendMessage(m.from, { react: { text: '✅', key: m.key } });
+            const statusMsg = await hisoka.sendMessage(m.from, { text: txt });
+            _trackBotMsg(m.from, statusMsg?.key); // status ikut ter-track → tap berikut tidak menumpuk ganda
 
             if (pendingNekpoiNotifChoices) {
                 const choiceKey = `${m.from}::${m.sender || m.key?.participant || ''}`;
@@ -831,6 +913,7 @@ async function handleNekopoinotif({ hisoka, m, query, tolak, logCommand, Button,
                     timeout  : t,
                 });
             }
+            await _menuNekopoi(); // single-select muncul di bawah hasil status
             logCommand(m, hisoka, 'nekopoinotif-status');
         } catch (err) {
             console.error('[NekopoinNotif] status error:', err?.message);
@@ -1015,7 +1098,7 @@ async function handleNekpoiNotifReply({ hisoka, m, pendingNekpoiNotifChoices, ge
 // ── HELPER: BUTTON KATEGORI ───────────────────────────────────────────────────
 const _KAT_META = {
     'hentai'      : { id: '__nknotif_kat_hentai__', emoji: '🎌', nama: 'Hentai'    },
-    '2d-animation': { id: '__nknotif_kat_2d__',     emoji: '🎥', nama: '2D Anim'   },
+    '2d-animation': { id: '__nknotif_kat_2d__',     emoji: '🎥', nama: '2D Animation' },
     '3d-hentai'   : { id: '__nknotif_kat_3d__',     emoji: '🧊', nama: '3D Hentai' },
 };
 // Tambah 3 button toggle kategori + tombol Kembali (dipakai di layar kategori)
@@ -1041,21 +1124,54 @@ function _katInfoLine(katAktif) {
     return `_${aktifStr}_`;
 }
 
-// ── AUTO-CLEAN & SEND HELPER ──────────────────────────────────────────────────
-// Track key pesan button terakhir bot per grup (untuk auto-delete saat tap berikutnya)
-const _prevBtnKey = new Map();
+// ── Daftar grup terurut: aktif → nonaktif → belum daftar, lalu nama ──────────
+// Dipakai section Grup di single-select & sub `g <no>`. Urutan deterministik
+// sehingga nomor stabil antara render menu & tap.
+async function _daftarGrupUrut(hisoka, cfg) {
+    const allGroupsRaw = await hisoka.groupFetchAllParticipating();
+    const allGroups = Object.values(allGroupsRaw || {})
+        .sort((a, b) => (a.subject || '').localeCompare(b.subject || '', 'id'));
+    const registered = cfg?.nekopoinotif?.groups || {};
+    const _urutan = (g) => {
+        const reg = registered[g.id];
+        if (reg?.enabled === true) return 0;
+        if (reg !== undefined) return 1;
+        return 2;
+    };
+    allGroups.sort((a, b) => {
+        const uA = _urutan(a), uB = _urutan(b);
+        if (uA !== uB) return uA - uB;
+        return (a.subject || '').localeCompare(b.subject || '', 'id');
+    });
+    return allGroups.map((g, i) => ({
+        no: i + 1,
+        jid: g.id,
+        nama: (g.subject || 'Tanpa Nama').slice(0, 28),
+        aktif: registered[g.id]?.enabled === true,
+        terdaftar: registered[g.id] !== undefined,
+    }));
+}
 
-// Hapus pesan button bot sebelumnya + pesan tap user → tidak spam di chat
+// ── AUTO-CLEAN & SEND HELPER ──────────────────────────────────────────────────
+// Track SEMUA pesan bot terakhir per chat (menu, status, konfirmasi) —
+// auto-delete semuanya saat aksi berikutnya → tidak ada pesan ganda menumpuk.
+const _prevBtnKey = new Map(); // jid -> Set<key>
+function _trackBotMsg(from, key) {
+    if (!key) return;
+    if (!_prevBtnKey.has(from)) _prevBtnKey.set(from, new Set());
+    _prevBtnKey.get(from).add(key);
+}
+
+// Hapus SEMUA pesan bot sebelumnya yang ter-track → tidak spam di chat.
+// Pesan user (hasil tap) SENGAJA tidak dihapus — biar tidak muncul
+// tombstone "Anda menghapus pesan ini" yang membingungkan.
 async function _autoClean(hisoka, m) {
-    // Hapus pesan bot sebelumnya yang ada button
-    const prev = _prevBtnKey.get(m.from);
-    if (prev) {
-        try { await hisoka.sendMessage(m.from, { delete: prev }); } catch (_) {}
+    const set = _prevBtnKey.get(m.from);
+    if (set?.size) {
+        for (const k of set) {
+            try { await hisoka.sendMessage(m.from, { delete: k }); } catch (_) {}
+        }
         _prevBtnKey.delete(m.from);
-    }
-    // Hapus pesan tap button user (m.key)
-    if (m.key) {
-        try { await hisoka.sendMessage(m.from, { delete: m.key }); } catch (_) {}
     }
 }
 
@@ -1063,7 +1179,7 @@ async function _autoClean(hisoka, m) {
 async function _runBtn(hisoka, m, btn, fallbackBody, tolakFn) {
     try {
         const sent = await btn.run(m.from, hisoka, m);
-        if (sent?.key) _prevBtnKey.set(m.from, sent.key);
+        _trackBotMsg(m.from, sent?.key);
     } catch (_) {
         await tolakFn(hisoka, m, fallbackBody);
     }
