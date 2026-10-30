@@ -777,6 +777,14 @@ async function fetchDetailLengkap(slug, judulUntukLanjutan) {
 // terpisah — keputusan Wily 16:00). Caption gambar WA mentok 1024 karakter,
 // jadi bila total melewati 1000 karakter, sinopsis dipotong di batas kata
 // (lihat sesuaikanPanjangCaption) — bukan potong tetap seperti dulu.
+// Format label episode: "Episode 4" -> "Episode 04" (tanpa suffix /total —
+// data totalEp/totalSeri situs tidak reliable, mis. "4/3" yang aneh).
+function _formatEpisodeLabel(label) {
+    const m = String(label || '').match(/^Episode (\d+)$/);
+    if (!m) return label;
+    return `Episode ${String(parseInt(m[1], 10)).padStart(2, '0')}`;
+}
+
 function buatCaptionDetailLengkap(item, detail) {
     const waktu = new Date().toLocaleString('id-ID', {
         timeZone: 'Asia/Jakarta', weekday: 'long', day: '2-digit', month: 'long',
@@ -789,9 +797,7 @@ function buatCaptionDetailLengkap(item, detail) {
         diperbarui: '🔄 *ANIME DIPERBARUI!*',
     };
     const header = headerMap[item.tipe] || '🔥 *ANIME UPDATE!*';
-    let episodeLabel = item.episodeLabel || '';
-    const epM = episodeLabel.match(/^Episode (\d+)$/);
-    if (epM && detail.totalEp) episodeLabel = `Episode ${epM[1]}/${detail.totalEp}`;
+    const episodeLabel = _formatEpisodeLabel(item.episodeLabel || '');
     const isUpdate = item.tipe === 'baru_ditambah' || item.tipe === 'diperbarui';
     const lanjutanText = detail.lanjutan === false ? 'Belum ada'
         : (typeof detail.lanjutan === 'string' ? detail.lanjutan
@@ -980,7 +986,7 @@ function buatCaptionTayang(item) {
         `📅 _${waktu} WIB_\n` +
         `\n` +
         `🎌 *${item.judul}*\n` +
-        `📺 *${item.episodeLabel}*\n` +
+        `📺 *${_formatEpisodeLabel(item.episodeLabel)}*\n` +
         (item.genre ? `🎭 *Genre:* ${item.genre}\n` : '') +
         // Status dari Kitsu (hanya bila cocok persis): supaya caption pendek
         // tidak kosong melompong saat detail situs gagal — "mana statusnya"
@@ -1005,7 +1011,7 @@ function buatCaptionBaruUpdate(item) {
         `📅 _${waktu} WIB_\n` +
         `\n` +
         `🎌 *${item.judul}*\n` +
-        `📺 *${item.episodeLabel}* · ${item.statusLabel}\n` +
+        `📺 *${_formatEpisodeLabel(item.episodeLabel)}* · ${item.statusLabel}\n` +
         (item.genre ? `🎭 *Genre:* ${item.genre}\n` : '') +
         (item.labelLama ? `↪️ _Sebelumnya: ${item.labelLama}_\n` : '') +
         `\n🔗 ${item.url}`
@@ -1364,15 +1370,14 @@ function buatCaption(data) {
     const sedangTayang = (status || '').toLowerCase().includes('tayang') &&
                          !(status || '').toLowerCase().includes('selesai');
 
-    const epHeader = totalSeri ? `${ep}/${totalSeri}` : String(ep);
+    const epPadded = String(parseInt(ep, 10) || ep).padStart(2, '0');
+    const epHeader = epPadded;
 
     let epInfo = null;
-    if (totalSeri) {
-        epInfo = sedangTayang
-            ? `${ep}/${totalSeri}  _(${totalEp} tersedia)_`
-            : `${ep}/${totalSeri}`;
-    } else if (totalEp) {
-        epInfo = sedangTayang ? `${totalEp} ep tersedia` : `${totalEp} ep`;
+    if (totalEp) {
+        epInfo = sedangTayang ? `${totalEp} episode tersedia` : `${totalEp} episode`;
+    } else if (totalSeri) {
+        epInfo = `Total ${totalSeri} episode`;
     }
 
     const seksi1 = buatBarisInfo([

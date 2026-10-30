@@ -1,14 +1,14 @@
 {
-  "AC7F68986B3D634570AC8D1387C81A12": {
-    "id": "AC7F68986B3D634570AC8D1387C81A12",
+  "AC331081568C2DF570861CF4D229719F": {
+    "id": "AC331081568C2DF570861CF4D229719F",
     "sender": "6281527116245@s.whatsapp.net",
     "name": "Liu Jing (刘静)",
-    "type": "videoMessage",
-    "arrivedAt": "2026-10-28T13:51:35.228Z",
+    "type": "imageMessage",
+    "arrivedAt": "2026-10-29T17:20:22.823Z",
     "read": true,
     "reacted": true,
     "reactionExpected": true,
-    "emoji": "🐠",
+    "emoji": "🐋",
     "resolve": "PN langsung ✓",
     "source": "status",
     "number": "6281527116245",
@@ -17,17 +17,17 @@
       "remoteJid": "status@broadcast",
       "remoteJidAlt": "6281527116245@s.whatsapp.net",
       "fromMe": false,
-      "id": "AC7F68986B3D634570AC8D1387C81A12",
+      "id": "AC331081568C2DF570861CF4D229719F",
       "participant": "273469174468614@lid",
       "addressingMode": "lid"
     },
-    "updatedAt": "2026-10-28T13:51:40.514Z",
+    "updatedAt": "2026-10-29T19:34:04.375Z",
     "receiptKeys": [
       {
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6281527116245@s.whatsapp.net",
         "fromMe": false,
-        "id": "AC7F68986B3D634570AC8D1387C81A12",
+        "id": "AC331081568C2DF570861CF4D229719F",
         "participant": "273469174468614@lid",
         "addressingMode": "lid"
       },
@@ -35,11 +35,58 @@
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6281527116245@s.whatsapp.net",
         "fromMe": false,
-        "id": "AC7F68986B3D634570AC8D1387C81A12",
+        "id": "AC331081568C2DF570861CF4D229719F",
         "participant": "6281527116245@s.whatsapp.net",
         "addressingMode": "lid"
       }
     ],
-    "processedAt": "2026-10-28T13:51:40.514Z"
+    "processedAt": "2026-10-29T17:20:41.209Z",
+    "deleted": true,
+    "deletedAt": "2026-10-29T19:34:04.375Z"
+  },
+  "ACEF1DF1E7C76095D94F08FAB59E309E": {
+    "id": "ACEF1DF1E7C76095D94F08FAB59E309E",
+    "sender": "6281527116245@s.whatsapp.net",
+    "name": "Liu Jing (刘静)",
+    "type": "imageMessage",
+    "arrivedAt": "2026-10-29T17:20:22.826Z",
+    "read": true,
+    "reacted": true,
+    "reactionExpected": true,
+    "emoji": "🐙",
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "6281527116245",
+    "resolvedPn": "6281527116245@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "6281527116245@s.whatsapp.net",
+      "fromMe": false,
+      "id": "ACEF1DF1E7C76095D94F08FAB59E309E",
+      "participant": "273469174468614@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-10-29T19:33:59.955Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6281527116245@s.whatsapp.net",
+        "fromMe": false,
+        "id": "ACEF1DF1E7C76095D94F08FAB59E309E",
+        "participant": "273469174468614@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6281527116245@s.whatsapp.net",
+        "fromMe": false,
+        "id": "ACEF1DF1E7C76095D94F08FAB59E309E",
+        "participant": "6281527116245@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-10-29T17:20:32.145Z",
+    "deleted": true,
+    "deletedAt": "2026-10-29T19:33:59.955Z"
   }
 }

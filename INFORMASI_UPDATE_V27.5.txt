@@ -73,6 +73,7 @@ _📅 Jumat, 23 Oktober 2026_
    • Antrean pending (perintah user 28 Okt 06:26): notifikasi monitor TIDAK lagi dikirim pendek — bila detail gagal didapat (live + cache) setelah retry, judul diantre di `data/animasu/pending.json` per kategori dan dicoba lagi tiap tick (1x, tanpa jeda 90 detik); baru dikirim saat caption lengkap. Label terbaru menggantikan antrean lama per slug; antrean kedaluwarsa 7 hari (dihapus, tidak dikirim). `.animasu test` tetap langsung kirim (manual, tanpa antrean).
    • Cache detail Gensou Suikoden di-seed (entri ke-22, via browser karena server bot diblokir) sehingga episode berikutnya langsung tampil lengkap (minus sinopsis sampai jalur live pulih).
    • Notifikasi ganda lanjutan (29 Okt: 11 judul terkirim 4-5x saat antrean pending terkuras 14:56–15:00) diperbaiki: penyebabnya tick scheduler tumpang tindih — setInterval 60 detik tidak menunggu tick async selesai; saat kirim lambat (fetch detail + upload media ke 2 grup), tick berikutnya lolos cek "sudah terkirim" sebelum tick sebelumnya menandai terkirim. Kini tiap tick monitor (tayang & update) punya busy-flag: tick baru dilewati bila tick sebelumnya masih jalan (aman — deteksi berbasis state file, tidak ada notif hilang), flag basi >10 menit di-reset otomatis, dan flag selalu di-reset via finally. Simulasi 8/8 (tanpa flag tiap judul terkirim 2x; dengan flag tepat 1x).
+   • Label episode kini "Episode 04" (angka 2 digit, tanpa suffix "/total") — sebelumnya tampil "Episode 4/3" yang aneh karena data total episode situs tidak reliable; berlaku di notifikasi detail, notifikasi pendek, & tampilan detail.
 > _Hasil: gambar, detail, status, test & monitor animasu tampil akurat dari sumber live; rating ikut benar._
 
 5. *.nekopoinotif — Parser & Sinopsis*
@@ -171,6 +172,7 @@ _📅 Jumat, 23 Oktober 2026_
    • Baris hint perintah dihapus dari caption (tidak bagus + perintah autosholat owner-only, mengajak anggota grup hanya berujung balasan "Hanya owner"); diganti kalimat penutup "Selamat menunaikan sholat <nama>" yang otomatis ikut nama sholatnya, tanpa nama kota di caption (kata "Jakarta" tidak ditampilkan).
    • Emoji dipangkas sesuai konteks: 🤲 tepat 1x (baris Selamat saja; baris Allahu Akbar polos), kutip ucapan tanpa emoji, judul 1 ikon saja (tanpa pasangan), footer polos; ikon Maghrib dibetulkan jadi 🌇 (senja, bukan terbit).
    • Ucapan kini RANDOM: 3 varian per waktu (15 total), tiap varian menyebut nama sholatnya + suasana waktunya, dipilih acak tiap kirim.
+   • Hari Jumat: Zuhur otomatis tampil sebagai *Sholat Jumat* (judul 🕌, baris jadwal ▶ *Jumat*, penutup "Selamat menunaikan sholat Jumat 🤲") + 3 varian quote menyentuh khusus Jumat (random); hari lain tetap "Zuhur" normal. Gambar & audio adzan tetap pakai file Zuhur.
 > _Hasil: notifikasi sholat rapih, 1 gambar + tombol owner, akurat tiap waktu._
 
 11. *.tele — Backup Media Telegram*

@@ -98,6 +98,13 @@ const UCAPAN_SHOLAT = {
         'Di tengah kesibukan, sempatkan sholat Zuhur',
         'Siang hari, rehat sebentar untuk sholat Zuhur',
     ],
+    // Hari Jumat: Zuhur diganti Sholat Jumat (wajib bagi umat muslim).
+    // Kata-kata menyentuh khusus Jumat, tetap random 3 varian.
+    Jumat   : [
+        'Tinggalkan sejenak urusan dunia, penuhi panggilan sholat Jumat',
+        'Hari Jumat penuh berkah, sempurnakan dengan sholat Jumat',
+        'Jumat adalah hari raya pekanan, sambut dengan sholat Jumat',
+    ],
     Ashar   : [
         'Jangan tunda, segera tunaikan sholat Ashar',
         'Sore hari, sempatkan sholat Ashar',
@@ -254,8 +261,14 @@ async function cekWaktuSholat() {
 // ─── BUAT CAPTION NOTIFIKASI ──────────────────────────────────────────────────
 // Format ramah mobile — tiap baris ≤ 32 karakter agar tidak kepotong
 function buatCaption(nama, waktu, jadwal) {
-    const emoji  = EMOJI_SHOLAT[nama]  || '🕌';
-    const ucapan = pilihUcapan(nama);
+    const hariIni = new Date().toLocaleDateString('id-ID', {
+        timeZone: 'Asia/Jakarta', weekday: 'long',
+    });
+    // Hari Jumat: Zuhur tampil sebagai Sholat Jumat (wajib bagi umat muslim).
+    const adalahJumat = nama === 'Zuhur' && hariIni.toLowerCase() === 'jumat';
+    const namaTampil  = adalahJumat ? 'Jumat' : nama;
+    const emoji  = adalahJumat ? '🕌' : (EMOJI_SHOLAT[nama] || '🕌');
+    const ucapan = pilihUcapan(namaTampil);
 
     const hari = new Date().toLocaleDateString('id-ID', {
         timeZone: 'Asia/Jakarta', weekday: 'long',
@@ -279,13 +292,14 @@ function buatCaption(nama, waktu, jadwal) {
     const baris = Object.entries(jadwal).map(([n, w]) => {
         const aktif = n === nama;
         const dot   = aktif ? '▶' : '·';
-        const label = aktif ? `*${n}*` : n;
+        const nTampil = (n === 'Zuhur' && adalahJumat) ? 'Jumat' : n;
+        const label = aktif ? `*${nTampil}*` : nTampil;
         const jam   = (!aktif && w < sekarang) ? `~${w}~` : w;
         return `${dot} ${label.padEnd(7)} ${jam} WIB`;
     }).join('\n');
 
     return (
-        `${emoji} *Sholat ${nama}*\n` +
+        `${emoji} *Sholat ${namaTampil}*\n` +
         `📅 _${hari}, ${tgl}_\n` +
         `⏰ *${waktu} WIB*\n` +
         `─────────────────\n` +
@@ -293,7 +307,7 @@ function buatCaption(nama, waktu, jadwal) {
         `${baris}\n` +
         `─────────────────\n` +
         `> _${ucapan}_\n` +
-        `_Selamat menunaikan sholat ${nama} 🤲_\n` +
+        `_Selamat menunaikan sholat ${namaTampil} 🤲_\n` +
         `_Allahu Akbar..._`
     );
 }

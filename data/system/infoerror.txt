@@ -8,7 +8,7 @@
 ════════════════════════════════════════════════════════════════════════
   FILE     : infoerror.txt
   Bot      : Wily Bot
-  Update   : 29/10/2026, 21.38.23  (realtime — diperbarui otomatis setiap ada error)
+  Update   : 30/10/2026, 11.40.42  (realtime — diperbarui otomatis setiap ada error)
 ════════════════════════════════════════════════════════════════════════
 
   RINGKASAN
@@ -23,24 +23,24 @@
 ────────────────────────────────────────────────────────────────────────
 
 ┌───────────────────────────────────────────────────────────────────────
-│  #001  —  console.error
+│  #001  —  AutoSholat
 ├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
 │  PESAN ERROR
-│  [31m[HotReload] ✗ Gagal reload 'SEMUA_FITUR/readsw/readsw.js', pakai versi lama.[39m
+│  [AutoSholat] Audio pakai cache lokal (semua sumber gagal).
 │
 │  DETAIL
-│  Sumber      : console.error
+│  Sumber      : AutoSholat
 │  Frekuensi   : 1x (baru terjadi)
-│  Pertama     : 29/10/2026, 21.38.23
-│  Terakhir    : 29/10/2026, 21.38.23
+│  Pertama     : 30/10/2026, 11.40.42
+│  Terakhir    : 30/10/2026, 11.40.42
 │
 │  STACK TRACE (3 baris pertama)
-│  ▶  Error: [31m[HotReload] ✗ Gagal reload 'SEMUA_FITUR/readsw/readsw.js', pakai versi lama.[39m
+│  ▶  Error: [AutoSholat] Audio pakai cache lokal (semua sumber gagal).
 │     at console.error (file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/index.js:434:27)
-│     at Timeout._onTimeout (file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/src/helper/hotReload.js:290:29)
+│     at Module.ambilAudioAdzan (file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/SEMUA_FITUR/setting/autosholat.js?t=1793100204791.693:400:25)
 └───────────────────────────────────────────────────────────────────────
 
 ════════════════════════════════════════════════════════════════════════
   End of Report  —  Total: 1 jenis, 1 kejadian
-  Terakhir diperbarui: 29/10/2026, 21.38.23
+  Terakhir diperbarui: 30/10/2026, 11.40.42
 ════════════════════════════════════════════════════════════════════════
