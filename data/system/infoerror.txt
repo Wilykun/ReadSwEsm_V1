@@ -8,7 +8,7 @@
 ════════════════════════════════════════════════════════════════════════
   FILE     : infoerror.txt
   Bot      : Wily Bot
-  Update   : 30/10/2026, 11.40.42  (realtime — diperbarui otomatis setiap ada error)
+  Update   : 30/10/2026, 16.51.42  (realtime — diperbarui otomatis setiap ada error)
 ════════════════════════════════════════════════════════════════════════
 
   RINGKASAN
@@ -23,24 +23,24 @@
 ────────────────────────────────────────────────────────────────────────
 
 ┌───────────────────────────────────────────────────────────────────────
-│  #001  —  AutoSholat
+│  #001  —  NekopoinNotif
 ├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
 │  PESAN ERROR
-│  [AutoSholat] Audio pakai cache lokal (semua sumber gagal).
+│  [NekopoinNotif] ❌ Gagal fetch kategori hentai: Jina gagal: 429
 │
 │  DETAIL
-│  Sumber      : AutoSholat
+│  Sumber      : NekopoinNotif
 │  Frekuensi   : 1x (baru terjadi)
-│  Pertama     : 30/10/2026, 11.40.42
-│  Terakhir    : 30/10/2026, 11.40.42
+│  Pertama     : 30/10/2026, 16.51.42
+│  Terakhir    : 30/10/2026, 16.51.42
 │
 │  STACK TRACE (3 baris pertama)
-│  ▶  Error: [AutoSholat] Audio pakai cache lokal (semua sumber gagal).
+│  ▶  Error: [NekopoinNotif] ❌ Gagal fetch kategori hentai: Jina gagal: 429
 │     at console.error (file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/index.js:434:27)
-│     at Module.ambilAudioAdzan (file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/SEMUA_FITUR/setting/autosholat.js?t=1793100204791.693:400:25)
+│     at file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/SEMUA_FITUR/anime/nekopoi-monitor.js?t=1793289413281.416:198:25
 └───────────────────────────────────────────────────────────────────────
 
 ════════════════════════════════════════════════════════════════════════
   End of Report  —  Total: 1 jenis, 1 kejadian
-  Terakhir diperbarui: 30/10/2026, 11.40.42
+  Terakhir diperbarui: 30/10/2026, 16.51.42
 ════════════════════════════════════════════════════════════════════════

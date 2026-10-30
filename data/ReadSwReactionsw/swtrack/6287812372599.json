@@ -213,5 +213,48 @@
       }
     ],
     "processedAt": "2026-10-30T04:02:19.033Z"
+  },
+  "A52BBA93EF8D706A9574C0168E6F3398": {
+    "id": "A52BBA93EF8D706A9574C0168E6F3398",
+    "sender": "6287812372599@s.whatsapp.net",
+    "name": "ZiiBa_Kadotani Anzu",
+    "type": "imageMessage",
+    "arrivedAt": "2026-10-30T09:13:43.931Z",
+    "read": true,
+    "reacted": true,
+    "reactionExpected": true,
+    "emoji": "🐬",
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "6287812372599",
+    "resolvedPn": "6287812372599@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "6287812372599@s.whatsapp.net",
+      "fromMe": false,
+      "id": "A52BBA93EF8D706A9574C0168E6F3398",
+      "participant": "101949638746286@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-10-30T09:13:52.558Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6287812372599@s.whatsapp.net",
+        "fromMe": false,
+        "id": "A52BBA93EF8D706A9574C0168E6F3398",
+        "participant": "101949638746286@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6287812372599@s.whatsapp.net",
+        "fromMe": false,
+        "id": "A52BBA93EF8D706A9574C0168E6F3398",
+        "participant": "6287812372599@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-10-30T09:13:52.557Z"
   }
 }

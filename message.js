@@ -132,6 +132,7 @@ const pendingAlqDlChoices = new Map();
 const pendingAlqUpdateChoices = new Map();
 const pendingAlqNotifChoices   = new Map();
 const pendingNekpoiNotifChoices    = new Map();
+const pendingListgcChoices = new Map();
 const pendingHentaicopNotifChoices = new Map();
 const pendingAntilinkChoices = new Map();
 const pendingCosplayChoices = new Map();
@@ -926,6 +927,12 @@ export default async function ({ message, type: messagesType }, hisoka) {
                         if (await handleNekpoiNotifReply({ hisoka, m, pendingNekpoiNotifChoices, getQuotedStanzaId, tolak, logCommand, loadConfig, fs, path })) return;
                 }
 
+                // ── Handle reply ke .listgc (ganti icon grup) ──
+                {
+                        const { handleListgcReply } = await importLazy(path.resolve('./SEMUA_FITUR/group/listgc.js'));
+                        if (await handleListgcReply({ hisoka, m, pendingListgcChoices, getQuotedStanzaId, getQuotedMediaBuffer, tolak, logCommand })) return;
+                }
+
                 // ── Handle button callback nekopoinotif (__nknotif_*) ──
                 {
                         const { handleNekopoinotifCallbacks } = await importLazy(path.resolve('./SEMUA_FITUR/anime/nekopoi-monitor.js'));
@@ -1223,6 +1230,7 @@ export default async function ({ message, type: messagesType }, hisoka) {
                         pendingJadibotChoices,
                         pendingKomikChoices,
                         pendingNekpoiNotifChoices,
+                        pendingListgcChoices,
                         pendingPlayChoices,
                         pendingShutdownConfirm,
                         pendingWaifuChoices,
@@ -1291,3 +1299,17 @@ export default async function ({ message, type: messagesType }, hisoka) {
                 } catch (_) {}
         }
 }
+
+// [HotReload trigger 2026-10-30 18:24] refresh tabel plugin (buatgc.js baru)
+// [HotReload trigger 2026-10-30 18:35] refresh tabel plugin (listgc.js baru)
+// [HotReload trigger 2026-10-30 18:45] refresh tabel plugin (sistem icon dinamis buatgc+listgc)
+// [HotReload trigger 2026-10-30 18:55] refresh tabel plugin (fix updateProfilePicture + icon URL)
+// [HotReload trigger 2026-10-30 20:25] refresh tabel plugin (edit-in-place + formatting toolkit buatgc/listgc)
+// [HotReload trigger 2026-10-30 20:36] refresh tabel plugin (fix kutip > + urut anggota terbanyak)
+// [HotReload trigger 2026-10-30 20:42] refresh tabel plugin (legenda icon 1 > Nama + contoh)
+// [HotReload trigger 2026-10-30 20:45] refresh tabel plugin (logging error listgc-icon)
+// [HotReload trigger 2026-10-30 21:45] refresh tabel plugin (hapus daftar + pesan baru pas pilih)
+// [HotReload trigger 2026-10-30 23:59] refresh tabel plugin (kode icon di cara pakai buatgc)
+// [HotReload trigger 2026-10-31 00:10] refresh tabel plugin (tutorial icon di cara pakai)
+// [HotReload trigger 2026-10-31 00:16] refresh tabel plugin (buatgc random-only + 20 URL anime)
+// [HotReload trigger 2026-10-31 00:20] refresh tabel plugin (listgc tanpa kode, icon acak)
