@@ -2,6 +2,46 @@
   "events": [
     {
       "type": "connected",
+      "connectedAt": "2026-10-31T03:52:09.494Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-10-31T03:50:21.118Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-10-30T23:51:40.262Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-10-30T23:50:22.967Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-10-30T21:52:26.999Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-10-30T21:50:20.913Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-10-30T20:27:51.294Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-10-30T19:53:51.680Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-10-30T19:50:20.765Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-10-30T18:12:34.425Z"
+    },
+    {
+      "type": "connected",
       "connectedAt": "2026-10-30T17:19:57.300Z"
     },
     {
@@ -159,48 +199,8 @@
     {
       "type": "connected",
       "connectedAt": "2026-10-29T12:20:16.364Z"
-    },
-    {
-      "type": "connected",
-      "connectedAt": "2026-10-29T11:21:49.459Z"
-    },
-    {
-      "type": "connected",
-      "connectedAt": "2026-10-29T10:53:08.000Z"
-    },
-    {
-      "type": "connected",
-      "connectedAt": "2026-10-29T09:52:08.597Z"
-    },
-    {
-      "type": "connected",
-      "connectedAt": "2026-10-29T09:50:23.321Z"
-    },
-    {
-      "type": "connected",
-      "connectedAt": "2026-10-29T09:06:39.734Z"
-    },
-    {
-      "type": "connected",
-      "connectedAt": "2026-10-29T08:35:08.004Z"
-    },
-    {
-      "type": "connected",
-      "connectedAt": "2026-10-29T07:53:16.694Z"
-    },
-    {
-      "type": "connected",
-      "connectedAt": "2026-10-29T07:50:19.245Z"
-    },
-    {
-      "type": "connected",
-      "connectedAt": "2026-10-29T06:03:47.540Z"
-    },
-    {
-      "type": "connected",
-      "connectedAt": "2026-10-29T05:21:44.069Z"
     }
   ],
-  "lastUpdated": "2026-10-30T17:19:57.313Z",
+  "lastUpdated": "2026-10-31T03:52:09.498Z",
   "sessionStart": "2026-10-12T07:51:44.826Z"
 }
