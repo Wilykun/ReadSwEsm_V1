@@ -108,40 +108,39 @@ async function handlePlay(hisoka, m, query, ctx) {
     const durStr    = video.duration.timestamp;
     const viewsFmt  = video.views ? video.views.toLocaleString('id-ID') : '?';
 
-    let playBody = `╭═══〔 *🎵 PLAY MUSIC* 〕═══╮\n`;
-    playBody += `│\n`;
-    playBody += `│ 📌 *${video.title}*\n`;
-    playBody += `│ ⏱️ Durasi  : ${durStr}\n`;
-    playBody += `│ 👁️ Views   : ${viewsFmt}\n`;
-    if (video.author?.name) playBody += `│ 👤 Channel : ${video.author.name}\n`;
-    playBody += `│ 🔗 Link    : ${videoLink}\n`;
-    playBody += `│\n`;
-    playBody += `│ Pilih format di bawah 👇\n`;
-    playBody += `╰═══════════════════════╯`;
+    let playBody = `🎵 *PLAY MUSIC*\n\n`;
+    playBody += `📌 *${video.title}*\n`;
+    playBody += `⏱️ Durasi: \`${durStr}\`\n`;
+    playBody += `👁️ Views: \`${viewsFmt}\`\n`;
+    if (video.author?.name) playBody += `👤 Channel: _${video.author.name}_\n`;
+    playBody += `🔗 Link: ${videoLink}\n\n`;
+    playBody += `_Tap tombol di bawah untuk download 👇_`;
 
     let buttonSent = false;
+    let playMsgKey = null;
     try {
-        await new Button()
+        const btnMsg = await new Button()
             .setImage(thumbUrl)
             .setBody(playBody)
             .setFooter('⏳ Pilihan hangus dalam 2 menit')
-            .addReply('🎵 Audio MP3', '1')
-            .addReply('🎬 Video MP4 (360p)', '2')
+            .addReply('📥 Download Video + VN', '1')
             .run(m.from, hisoka, m);
+        playMsgKey = btnMsg?.key || null;
         buttonSent = true;
     } catch {
-        await hisoka.sendMessage(m.from, {
+        const sentMsg = await hisoka.sendMessage(m.from, {
             image: { url: thumbUrl },
-            caption: playBody + `\n\n🎵 *1* - Audio MP3\n🎬 *2* - Video MP4\n\n_Balas dengan angka pilihanmu_`
+            caption: playBody + `\n\n📥 *1* - Download Video + VN\n\n_Balas dengan angka pilihanmu_`
         }, { quoted: m });
+        playMsgKey = sentMsg?.key || null;
     }
 
     await hisoka.sendMessage(m.from, { react: { text: '🎵', key: m.key } });
     await m.reply({
         edit: loadingMsg.key,
         text: buttonSent
-            ? `🎵 Ketemu! Tap tombol *Audio MP3* atau *Video MP4* untuk download.`
-            : `🎵 Ketemu! Balas dengan *1* untuk Audio MP3 atau *2* untuk Video MP4.`
+            ? `🎵 Ketemu! Tap tombol *Download* untuk kirim video + voice note.`
+            : `🎵 Ketemu! Balas dengan *1* untuk download video + voice note.`
     });
 
     const timeoutId = setTimeout(() => {
@@ -155,6 +154,7 @@ async function handlePlay(hisoka, m, query, ctx) {
         title: video.title,
         duration: durStr,
         seconds: video.seconds,
+        botKey: playMsgKey,
         timeout: timeoutId
     });
 

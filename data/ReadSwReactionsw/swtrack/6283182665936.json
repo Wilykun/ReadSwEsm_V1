@@ -1,47 +1,4 @@
 {
-  "AC43EA7B11B1BCCD6122276DD0784AAB": {
-    "id": "AC43EA7B11B1BCCD6122276DD0784AAB",
-    "sender": "6283182665936@s.whatsapp.net",
-    "name": "aku LUI",
-    "type": "videoMessage",
-    "arrivedAt": "2026-10-30T12:44:04.747Z",
-    "read": true,
-    "reacted": true,
-    "reactionExpected": true,
-    "emoji": "🐙",
-    "resolve": "PN langsung ✓",
-    "source": "status",
-    "number": "6283182665936",
-    "resolvedPn": "6283182665936@s.whatsapp.net",
-    "messageKey": {
-      "remoteJid": "status@broadcast",
-      "remoteJidAlt": "6283182665936@s.whatsapp.net",
-      "fromMe": false,
-      "id": "AC43EA7B11B1BCCD6122276DD0784AAB",
-      "participant": "165536713416760@lid",
-      "addressingMode": "lid"
-    },
-    "updatedAt": "2026-10-30T12:44:24.114Z",
-    "receiptKeys": [
-      {
-        "remoteJid": "status@broadcast",
-        "remoteJidAlt": "6283182665936@s.whatsapp.net",
-        "fromMe": false,
-        "id": "AC43EA7B11B1BCCD6122276DD0784AAB",
-        "participant": "165536713416760@lid",
-        "addressingMode": "lid"
-      },
-      {
-        "remoteJid": "status@broadcast",
-        "remoteJidAlt": "6283182665936@s.whatsapp.net",
-        "fromMe": false,
-        "id": "AC43EA7B11B1BCCD6122276DD0784AAB",
-        "participant": "6283182665936@s.whatsapp.net",
-        "addressingMode": "lid"
-      }
-    ],
-    "processedAt": "2026-10-30T12:44:24.113Z"
-  },
   "AC62A8125D8C700F1B845C5B1A7B4430": {
     "id": "AC62A8125D8C700F1B845C5B1A7B4430",
     "sender": "6283182665936@s.whatsapp.net",
@@ -172,5 +129,140 @@
       }
     ],
     "processedAt": "2026-10-31T09:50:46.576Z"
+  },
+  "ACE1D26F164DF362E20B2834EB7AF234": {
+    "id": "ACE1D26F164DF362E20B2834EB7AF234",
+    "sender": "6283182665936@s.whatsapp.net",
+    "name": "aku LUI",
+    "type": "extendedTextMessage",
+    "arrivedAt": "2026-10-31T14:59:47.598Z",
+    "read": true,
+    "reacted": true,
+    "reactionExpected": true,
+    "emoji": "🦈",
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "6283182665936",
+    "resolvedPn": "6283182665936@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "6283182665936@s.whatsapp.net",
+      "fromMe": false,
+      "id": "ACE1D26F164DF362E20B2834EB7AF234",
+      "participant": "165536713416760@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-10-31T15:19:15.058Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6283182665936@s.whatsapp.net",
+        "fromMe": false,
+        "id": "ACE1D26F164DF362E20B2834EB7AF234",
+        "participant": "165536713416760@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6283182665936@s.whatsapp.net",
+        "fromMe": false,
+        "id": "ACE1D26F164DF362E20B2834EB7AF234",
+        "participant": "6283182665936@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-10-31T14:59:58.752Z",
+    "deleted": true,
+    "deletedAt": "2026-10-31T15:19:15.056Z"
+  },
+  "AC99F835E91A618F058A1AE2E75FD593": {
+    "id": "AC99F835E91A618F058A1AE2E75FD593",
+    "sender": "6283182665936@s.whatsapp.net",
+    "name": "aku LUI",
+    "type": "extendedTextMessage",
+    "arrivedAt": "2026-10-31T14:59:53.154Z",
+    "read": true,
+    "reacted": true,
+    "reactionExpected": true,
+    "emoji": "🐋",
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "6283182665936",
+    "resolvedPn": "6283182665936@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "6283182665936@s.whatsapp.net",
+      "fromMe": false,
+      "id": "AC99F835E91A618F058A1AE2E75FD593",
+      "participant": "165536713416760@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-10-31T15:19:13.621Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6283182665936@s.whatsapp.net",
+        "fromMe": false,
+        "id": "AC99F835E91A618F058A1AE2E75FD593",
+        "participant": "165536713416760@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6283182665936@s.whatsapp.net",
+        "fromMe": false,
+        "id": "AC99F835E91A618F058A1AE2E75FD593",
+        "participant": "6283182665936@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-10-31T14:59:55.522Z",
+    "deleted": true,
+    "deletedAt": "2026-10-31T15:19:13.621Z"
+  },
+  "ACA701BAF2C97CEB4813BDB7EB780580": {
+    "id": "ACA701BAF2C97CEB4813BDB7EB780580",
+    "sender": "6283182665936@s.whatsapp.net",
+    "name": "aku LUI",
+    "type": "extendedTextMessage",
+    "arrivedAt": "2026-10-31T15:00:14.935Z",
+    "read": true,
+    "reacted": true,
+    "reactionExpected": true,
+    "emoji": "🐟",
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "6283182665936",
+    "resolvedPn": "6283182665936@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "6283182665936@s.whatsapp.net",
+      "fromMe": false,
+      "id": "ACA701BAF2C97CEB4813BDB7EB780580",
+      "participant": "165536713416760@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-10-31T15:19:15.790Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6283182665936@s.whatsapp.net",
+        "fromMe": false,
+        "id": "ACA701BAF2C97CEB4813BDB7EB780580",
+        "participant": "165536713416760@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6283182665936@s.whatsapp.net",
+        "fromMe": false,
+        "id": "ACA701BAF2C97CEB4813BDB7EB780580",
+        "participant": "6283182665936@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-10-31T15:00:23.830Z",
+    "deleted": true,
+    "deletedAt": "2026-10-31T15:19:15.790Z"
   }
 }

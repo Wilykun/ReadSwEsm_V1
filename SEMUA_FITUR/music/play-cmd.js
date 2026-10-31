@@ -34,10 +34,48 @@
 
 import path from 'path';
 import fs from 'fs';
-import { exec } from 'child_process';
+import { exec, spawn } from 'child_process';
 
 /**
- * Handle pending play choice (user balas 1=MP3 atau 2=MP4).
+ * Download via yt-dlp (spawn) dengan callback progress % realtime.
+ * onProgress(pct|null, fase): pct = 0-100 saat download, null saat fase tanpa % (merge).
+ */
+function ytdlpDownload(bin, args, timeoutMs, parseYtdlpError, onProgress) {
+        return new Promise((resolve, reject) => {
+                const proc = spawn(bin, args, { timeout: timeoutMs });
+                let stderr = '';
+                let lastPct = -1, lastEdit = 0, inMerger = false;
+                const pushChunk = (txt) => {
+                        const s = String(txt);
+                        // Fase merge ffmpeg: tidak ada %, tampilkan status merge
+                        if (/\[Merger\]/.test(s) && !inMerger) {
+                                inMerger = true;
+                                try { onProgress(null, 'merge'); } catch (_) {}
+                        }
+                        const mm = s.match(/\[download\]\s+(\d+(?:\.\d+)?)%/);
+                        if (!mm) return;
+                        inMerger = false;
+                        const pct = parseFloat(mm[1]);
+                        const now = Date.now();
+                        if (pct - lastPct >= 3 && now - lastEdit > 2000) {
+                                lastPct = pct; lastEdit = now;
+                                try { onProgress(pct, 'download'); } catch (_) {}
+                        }
+                };
+                proc.stdout.on('data', pushChunk);
+                proc.stderr.on('data', (d) => { stderr += d.toString(); pushChunk(d.toString()); });
+                proc.on('close', (code) => {
+                        if (code === 0) resolve();
+                        else reject(new Error(parseYtdlpError(stderr, `yt-dlp exit ${code}`)));
+                });
+                proc.on('error', (e) => reject(new Error(parseYtdlpError('', e.message))));
+        });
+}
+
+/**
+ * Handle pending play choice (user tap 1 tombol download).
+ * 1 tombol → hapus pesan tombol → kirim 2 file: video MP4 (thumbnail + caption
+ * lengkap) + audio sebagai voice note (waveform sesuai suara).
  * Dipanggil dari message.js sebelum switch-case.
  * @returns {boolean} true jika pesan sudah diproses (return langsung)
  */
@@ -50,13 +88,13 @@ async function handlePlayChoice({
         if (!pendingPlayChoices.has(m.sender)) return false;
 
         const choice = (m.text || '').trim();
-        if (choice !== '1' && choice !== '2') return false;
+        if (choice !== '1') return false;
 
         const pending = pendingPlayChoices.get(m.sender);
 
         if (!pending.downloading) pending.downloading = new Set();
         if (pending.downloading.has(choice)) {
-                await m.reply(`⏳ Sedang mengunduh *${choice === '1' ? 'Audio MP3' : 'Video MP4'}*... harap tunggu.`);
+                await m.reply(`⏳ Sedang mengunduh *Video + Voice Note*... harap tunggu.`);
                 return true;
         }
 
@@ -67,74 +105,129 @@ async function handlePlayChoice({
                 pending.timeout = null;
         }
 
-        // Jalankan async tanpa await supaya format lain bisa langsung diproses
+        // Jalankan async tanpa await supaya pesan lain bisa langsung diproses
         (async () => {
+                const tmpId = Date.now();
+                const tmpVideo = path.join(process.cwd(), 'tmp', `play_${tmpId}v.mp4`);
+                const tmpTemplateV = path.join(process.cwd(), 'tmp', `play_${tmpId}v.%(ext)s`);
+                const tmpMp3 = path.join(process.cwd(), 'tmp', `play_${tmpId}a.mp3`);
+                const tmpTemplateA = path.join(process.cwd(), 'tmp', `play_${tmpId}a.%(ext)s`);
+                const tmpThumbYt = path.join(process.cwd(), 'tmp', `play_${tmpId}v.jpg`);
+                const tmpThumbFf = path.join(process.cwd(), 'tmp', `play_${tmpId}t.jpg`);
+                const YT_BASE = ['--no-check-certificate', '--extractor-args', 'youtube:player_client=android', '--js-runtimes', 'node', '--no-playlist'];
+                let loadingMsg = null;
+                const updLoading = (teks) => { if (loadingMsg) m.reply({ edit: loadingMsg.key, text: teks }).catch(() => {}); };
+                // Heartbeat: bila tidak ada progress >8 dtk, tampilkan animasi titik agar tak terlihat stuck
+                let _hbTimer = null, _hbDots = 0;
+                const _hbStop = () => { if (_hbTimer) { clearInterval(_hbTimer); _hbTimer = null; } };
+                const _hbStart = (label) => {
+                        _hbStop(); _hbDots = 0;
+                        _hbTimer = setInterval(() => {
+                                _hbDots = (_hbDots + 1) % 4;
+                                updLoading(`${label}${'.'.repeat(_hbDots)}`);
+                        }, 2000);
+                };
                 try {
+                        // ── Hapus pesan tombol sebelumnya (rapih) ──
+                        if (pending.botKey) {
+                                try { await hisoka.sendMessage(m.from, { delete: pending.botKey }); } catch (_) {}
+                        }
                         await hisoka.sendMessage(m.from, { react: { text: '⏳', key: m.key } });
-                        const loadingMsg = await tolak(hisoka, m, `⏳ Mengunduh ${choice === '1' ? 'audio MP3' : 'video MP4'}...`);
+                        loadingMsg = await tolak(hisoka, m, `⏳ *_Mengunduh..._*`);
+
+                        if (pending.seconds > 300) {
+                                await hisoka.sendMessage(m.from, { react: { text: '❌', key: m.key } });
+                                await m.reply({ edit: loadingMsg.key, text: `❌ Durasi terlalu panjang untuk video!\n~${pending.duration}~ > \`5:00\` maksimal.\n\n_Coba lagu yang lebih pendek._` });
+                                return;
+                        }
 
                         const ytdlpBin = await ensureYtdlp(hisoka, m);
-                        const tmpId = Date.now();
 
-                        if (choice === '1') {
-                                const tmpFile     = path.join(process.cwd(), 'tmp', `play_${tmpId}.mp3`);
-                                const tmpTemplate = path.join(process.cwd(), 'tmp', `play_${tmpId}.%(ext)s`);
+                        // ── 1. Download VIDEO MP4 (360p) + thumbnail resmi YT + progress % ──
+                        _hbStart(`⏳ *_Mengunduh video..._*\n📌 *${pending.title}*`);
+                        await ytdlpDownload(ytdlpBin, [...YT_BASE,
+                                '-f', 'bestvideo[height<=360]+bestaudio/best[height<=360]',
+                                '--merge-output-format', 'mp4',
+                                '--postprocessor-args', 'ffmpeg:-c:v libx264 -c:a aac -movflags +faststart -preset fast -crf 28',
+                                '--write-thumbnail', '--convert-thumbnails', 'jpg',
+                                '-o', tmpTemplateV, pending.url,
+                        ], 240000, parseYtdlpError, (pct, fase) => {
+                                _hbStop();
+                                if (fase === 'merge') _hbStart(`🔄 *_Menggabungkan video + audio..._*\n📌 *${pending.title}*`);
+                                else updLoading(`⏳ *_Mengunduh video..._* \`${Math.floor(pct)}%\`\n📌 *${pending.title}*`);
+                        });
+                        _hbStop();
 
-                                await new Promise((resolve, reject) => {
-                                        const cmd = `"${ytdlpBin}" --no-check-certificate --extractor-args "youtube:player_client=android" --js-runtimes node --no-playlist -x --audio-format mp3 --audio-quality 5 -o "${tmpTemplate}" "${pending.url}"`;
-                                        exec(cmd, { timeout: 120000 }, (err, stdout, stderr) => {
-                                                if (err) return reject(new Error(parseYtdlpError(stderr, err.message)));
-                                                resolve();
+                        // ── 2. Download AUDIO → convert ke voice note ──
+                        _hbStart(`⏳ *_Mengunduh audio..._*\n📌 *${pending.title}*`);
+                        await ytdlpDownload(ytdlpBin, [...YT_BASE,
+                                '-x', '--audio-format', 'mp3', '--audio-quality', '5',
+                                '-o', tmpTemplateA, pending.url,
+                        ], 120000, parseYtdlpError, (pct, fase) => {
+                                _hbStop();
+                                updLoading(`⏳ *_Mengunduh audio..._* \`${Math.floor(pct)}%\`\n📌 *${pending.title}*`);
+                        });
+                        _hbStop();
+
+                        updLoading(`🎵 *_Mengonversi ke voice note..._*`);
+                        const { toVoiceNote, generateWaveform } = await import('../media/audioconvert.js');
+                        const vnBuf = await toVoiceNote(fs.readFileSync(tmpMp3), 'audio/mpeg');
+                        const waveform = await generateWaveform(vnBuf, 'audio/ogg; codecs=opus').catch(() => null);
+
+                        // ── 3. Thumbnail: prioritas thumbnail resmi YouTube, fallback frame ffmpeg ──
+                        updLoading(`🖼️ *_Menyiapkan thumbnail..._*`);
+                        let thumbB64 = null;
+                        const ambilThumb = (p) => {
+                                try {
+                                        const b = fs.readFileSync(p);
+                                        if (b.length > 1000 && b.length < 500000) return b.toString('base64');
+                                } catch (_) {}
+                                return null;
+                        };
+                        thumbB64 = ambilThumb(tmpThumbYt);
+                        if (!thumbB64) {
+                                try {
+                                        await new Promise((res, rej) => {
+                                                exec(`ffmpeg -y -hide_banner -loglevel error -ss 1 -i "${tmpVideo}" -vframes 1 -s 320x180 "${tmpThumbFf}"`, { timeout: 30000 }, (e) => e ? rej(e) : res());
                                         });
-                                });
-
-                                const audioBuffer = fs.readFileSync(tmpFile);
-                                await hisoka.sendMessage(m.from, {
-                                        audio: audioBuffer,
-                                        mimetype: 'audio/mpeg',
-                                        fileName: `${pending.title.replace(/[^\w\s]/gi, '')}.mp3`,
-                                        ptt: false,
-                                }, { quoted: m });
-
-                                await hisoka.sendMessage(m.from, { react: { text: '✅', key: m.key } });
-                                await m.reply({ edit: loadingMsg.key, text: `✅ *Audio MP3 berhasil dikirim!*\n📌 ${pending.title}` });
-                                try { fs.unlinkSync(tmpFile); } catch (_) {}
-
-                        } else {
-                                if (pending.seconds > 300) {
-                                        await hisoka.sendMessage(m.from, { react: { text: '❌', key: m.key } });
-                                        await m.reply({ edit: loadingMsg.key, text: `❌ Durasi terlalu panjang untuk video! (${pending.duration})\nMaksimal 5 menit untuk MP4.\n\nGunakan pilihan *1* untuk Audio MP3.` });
-                                        return;
-                                }
-
-                                const tmpFile     = path.join(process.cwd(), 'tmp', `play_${tmpId}.mp4`);
-                                const tmpTemplate = path.join(process.cwd(), 'tmp', `play_${tmpId}.%(ext)s`);
-
-                                await new Promise((resolve, reject) => {
-                                        const cmd = `"${ytdlpBin}" --no-check-certificate --extractor-args "youtube:player_client=android" --js-runtimes node --no-playlist -f "bestvideo[height<=360]+bestaudio/best[height<=360]" --merge-output-format mp4 --postprocessor-args "ffmpeg:-c:v libx264 -c:a aac -movflags +faststart -preset fast -crf 28" -o "${tmpTemplate}" "${pending.url}"`;
-                                        exec(cmd, { timeout: 240000 }, (err, stdout, stderr) => {
-                                                if (err) return reject(new Error(parseYtdlpError(stderr, err.message)));
-                                                resolve();
-                                        });
-                                });
-
-                                const videoBuffer = fs.readFileSync(tmpFile);
-                                await hisoka.sendMessage(m.from, {
-                                        video: videoBuffer,
-                                        mimetype: 'video/mp4',
-                                        caption: `🎬 *${pending.title}*`,
-                                }, { quoted: m });
-
-                                await hisoka.sendMessage(m.from, { react: { text: '✅', key: m.key } });
-                                await m.reply({ edit: loadingMsg.key, text: `✅ *Video MP4 berhasil dikirim!*\n📌 ${pending.title}` });
-                                try { fs.unlinkSync(tmpFile); } catch (_) {}
+                                        thumbB64 = ambilThumb(tmpThumbFf);
+                                } catch (_) {}
                         }
+
+                        // ── 4. Kirim VIDEO + caption lengkap ──
+                        updLoading(`📤 *_Mengirim video + voice note..._*`);
+                        const videoBuffer = fs.readFileSync(tmpVideo);
+                        const caption = `🎬 *${pending.title}*\n⏱️ Durasi: \`${pending.duration}\`\n✅ Status: _berhasil diunduh_`;
+                        await hisoka.sendMessage(m.from, {
+                                video: videoBuffer,
+                                mimetype: 'video/mp4',
+                                caption,
+                                ...(thumbB64 ? { jpegThumbnail: thumbB64 } : {}),
+                        }, { quoted: m });
+
+                        // ── 5. Kirim AUDIO sebagai voice note + waveform ──
+                        await hisoka.sendMessage(m.from, {
+                                audio: vnBuf,
+                                mimetype: 'audio/ogg; codecs=opus',
+                                ptt: true,
+                                ...(waveform ? { waveform } : {}),
+                        }, { quoted: m });
+
+                        await hisoka.sendMessage(m.from, { react: { text: '✅', key: m.key } });
+                        await m.reply({ edit: loadingMsg.key, text: `✅ *Berhasil dikirim!*\n📌 *${pending.title}*\n\n1. 🎬 Video MP4 (360p)\n2. 🎤 Voice Note` });
 
                         logCommand(m, hisoka, 'play');
                 } catch (error) {
+                        _hbStop();
                         await hisoka.sendMessage(m.from, { react: { text: '❌', key: m.key } });
-                        await tolak(hisoka, m, `❌ Gagal mengunduh: ${error.message?.substring(0, 200)}`);
+                        if (loadingMsg) await m.reply({ edit: loadingMsg.key, text: `❌ Gagal mengunduh:\n\`${String(error.message || error).substring(0, 200)}\`` }).catch(() => {});
+                        else await tolak(hisoka, m, `❌ Gagal mengunduh: ${error.message?.substring(0, 200)}`);
                 } finally {
+                        _hbStop();
+                        try { fs.unlinkSync(tmpVideo); } catch (_) {}
+                        try { fs.unlinkSync(tmpMp3); } catch (_) {}
+                        try { fs.unlinkSync(tmpThumbYt); } catch (_) {}
+                        try { fs.unlinkSync(tmpThumbFf); } catch (_) {}
                         if (pendingPlayChoices.has(m.sender)) {
                                 const p = pendingPlayChoices.get(m.sender);
                                 if (p.downloading) p.downloading.delete(choice);
