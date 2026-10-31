@@ -129,6 +129,7 @@ _📅 Jumat, 23 Oktober 2026_
 4. *.play / .ytmp3 / .ytmp4 — Gagal Download ("Sign in to confirm you're not a bot")*
    • Penyebab ganda: (1) proxy server intercept TLS → yt-dlp gagal verifikasi SSL; (2) YouTube memblokir player client web tanpa login.
    • Fix: semua perintah yt-dlp (6 titik) kini pakai `--no-check-certificate` + `--extractor-args "youtube:player_client=android"` — audio & video kembali terdownload normal.
+   • Fix lanjutan (31 Okt): error `Preprocessing: Conversion failed!` — penyebabnya `--convert-thumbnails jpg` (postprocessor yt-dlp) gagal dan menggagalkan SELURUH download. Thumbnail kini diambil terpisah via `i.ytimg.com` (tak bisa gagalkan video).
    • Catatan: `play-cmd.js` di-import statis oleh message.js sehingga fix baru live setelah restart bot (hot-reload tidak menembus cache ESM statis).
 > _Hasil: `.play`, `.ytmp3`, `.ytmp4` kembali mengunduh audio/video YouTube dengan normal._
 
@@ -222,11 +223,12 @@ _📅 Jumat, 23 Oktober 2026_
 
 13. *.play — 1 Tombol, Video + Voice Note*
    • `.play` kini cukup *1 tombol* `📥 Download Video + VN` — sekali tap langsung kirim *2 file*: 🎬 video MP4 (360p) + 🎤 audio sebagai *voice note* asli WhatsApp (bukan file MP3).
-   • Voice note memakai *waveform* 64 titik sesuai suara (seperti VN WhatsApp asli); video memakai *thumbnail resmi YouTube* (fallback frame ffmpeg bila gagal).
+   • Voice note memakai *waveform* 64 titik sesuai suara (seperti VN WhatsApp asli).
    • Hasil pencarian tanpa garis kotak: formatting WhatsApp native (judul tebal, durasi/views kode, channel miring, link) sesuai konteks.
    • Loading *persen asli* dari yt-dlp (update tiap 3%) + deteksi fase *merge* ffmpeg + heartbeat animasi agar tak terlihat stuck; pesan tombol otomatis *dihapus* begitu user tap — chat bersih.
    • Caption video lengkap: judul, durasi, status berhasil; pesan sukses berupa daftar bernomor (video + voice note).
-> _Hasil: download lagu/video YouTube sekali tap — video berthumbnail + VN bergelombang, rapi tanpa spam._
+   • Catatan 31 Okt: thumbnail custom *dinonaktifkan sementara* — investigasi video corrupt saat upload (diduga `jpegThumbnail` base64 merusak proto); thumbnail dikembalikan setelah terkonfirmasi.
+> _Hasil: download lagu/video YouTube sekali tap — video + VN bergelombang, rapi tanpa spam._
 
 ━━━━━━━━━━━━━━━━━━━━━━
 ⚠️ *HAPUS FITUR*

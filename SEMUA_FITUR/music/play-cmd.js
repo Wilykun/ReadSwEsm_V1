@@ -112,7 +112,6 @@ async function handlePlayChoice({
                 const tmpTemplateV = path.join(process.cwd(), 'tmp', `play_${tmpId}v.%(ext)s`);
                 const tmpMp3 = path.join(process.cwd(), 'tmp', `play_${tmpId}a.mp3`);
                 const tmpTemplateA = path.join(process.cwd(), 'tmp', `play_${tmpId}a.%(ext)s`);
-                const tmpThumbYt = path.join(process.cwd(), 'tmp', `play_${tmpId}v.jpg`);
                 const tmpThumbFf = path.join(process.cwd(), 'tmp', `play_${tmpId}t.jpg`);
                 const YT_BASE = ['--no-check-certificate', '--extractor-args', 'youtube:player_client=android', '--js-runtimes', 'node', '--no-playlist'];
                 let loadingMsg = null;
@@ -143,13 +142,13 @@ async function handlePlayChoice({
 
                         const ytdlpBin = await ensureYtdlp(hisoka, m);
 
-                        // ── 1. Download VIDEO MP4 (360p) + thumbnail resmi YT + progress % ──
+                        // ── 1. Download VIDEO MP4 (360p) + progress % ──
+                        // (tanpa --write-thumbnail: thumbnail diurus terpisah agar tak bisa menggagalkan download)
                         _hbStart(`⏳ *_Mengunduh video..._*\n📌 *${pending.title}*`);
                         await ytdlpDownload(ytdlpBin, [...YT_BASE,
                                 '-f', 'bestvideo[height<=360]+bestaudio/best[height<=360]',
                                 '--merge-output-format', 'mp4',
                                 '--postprocessor-args', 'ffmpeg:-c:v libx264 -c:a aac -movflags +faststart -preset fast -crf 28',
-                                '--write-thumbnail', '--convert-thumbnails', 'jpg',
                                 '-o', tmpTemplateV, pending.url,
                         ], 240000, parseYtdlpError, (pct, fase) => {
                                 _hbStop();
@@ -174,7 +173,8 @@ async function handlePlayChoice({
                         const vnBuf = await toVoiceNote(fs.readFileSync(tmpMp3), 'audio/mpeg');
                         const waveform = await generateWaveform(vnBuf, 'audio/ogg; codecs=opus').catch(() => null);
 
-                        // ── 3. Thumbnail: prioritas thumbnail resmi YouTube, fallback frame ffmpeg ──
+                        // ── 3. Thumbnail: download langsung dari i.ytimg.com (terpisah, tak bisa gagalkan video) ──
+                        // Prioritas: hqdefault.jpg resmi YT → frame ffmpeg → tanpa thumbnail
                         updLoading(`🖼️ *_Menyiapkan thumbnail..._*`);
                         let thumbB64 = null;
                         const ambilThumb = (p) => {
@@ -184,7 +184,16 @@ async function handlePlayChoice({
                                 } catch (_) {}
                                 return null;
                         };
-                        thumbB64 = ambilThumb(tmpThumbYt);
+                        try {
+                                const vidId = (pending.url.match(/(?:v=|youtu\.be\/|shorts\/)([A-Za-z0-9_-]{11})/) || [])[1];
+                                if (vidId) {
+                                        const resp = await fetch(`https://i.ytimg.com/vi/${vidId}/hqdefault.jpg`);
+                                        if (resp.ok) {
+                                                const buf = Buffer.from(await resp.arrayBuffer());
+                                                if (buf.length > 1000 && buf.length < 500000) thumbB64 = buf.toString('base64');
+                                        }
+                                }
+                        } catch (_) {}
                         if (!thumbB64) {
                                 try {
                                         await new Promise((res, rej) => {
@@ -195,6 +204,7 @@ async function handlePlayChoice({
                         }
 
                         // ── 4. Kirim VIDEO + caption lengkap ──
+                        // (tanpa jpegThumbnail custom utk sekarang: investigasi thumbnail corrupt upload)
                         updLoading(`📤 *_Mengirim video + voice note..._*`);
                         const videoBuffer = fs.readFileSync(tmpVideo);
                         const caption = `🎬 *${pending.title}*\n⏱️ Durasi: \`${pending.duration}\`\n✅ Status: _berhasil diunduh_`;
@@ -202,7 +212,6 @@ async function handlePlayChoice({
                                 video: videoBuffer,
                                 mimetype: 'video/mp4',
                                 caption,
-                                ...(thumbB64 ? { jpegThumbnail: thumbB64 } : {}),
                         }, { quoted: m });
 
                         // ── 5. Kirim AUDIO sebagai voice note + waveform ──
@@ -226,7 +235,6 @@ async function handlePlayChoice({
                         _hbStop();
                         try { fs.unlinkSync(tmpVideo); } catch (_) {}
                         try { fs.unlinkSync(tmpMp3); } catch (_) {}
-                        try { fs.unlinkSync(tmpThumbYt); } catch (_) {}
                         try { fs.unlinkSync(tmpThumbFf); } catch (_) {}
                         if (pendingPlayChoices.has(m.sender)) {
                                 const p = pendingPlayChoices.get(m.sender);
