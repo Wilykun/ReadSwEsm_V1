@@ -54,7 +54,7 @@ function makeCekautoHelpers({
                 { key: 'animasu',        nama: 'Animasu Notif',    cmd: '.animasu on/off',         type: 'group',  toggleable: false             },
                 { key: 'malnews',        nama: 'MAL News',         cmd: '.malnews on/off',         type: 'group',  toggleable: false             },
                 { key: 'tvonenews',      nama: 'TV One News',      cmd: '.tvone on/off',           type: 'group',  toggleable: false             },
-                { key: 'autoSholat',     nama: 'Auto Sholat',      cmd: '.autosholat add/remove',  type: 'group',  toggleable: false, checkFn: (cfg) => Array.isArray(cfg.autoSholat?.groups) && cfg.autoSholat.groups.length > 0 },
+                { key: 'autoSholat',     nama: 'Auto Sholat',      cmd: '.autosholat add/remove',  type: 'group',  toggleable: false, checkFn: (cfg) => { const g = cfg.autoSholat?.groups; return Array.isArray(g) ? g.length > 0 : (g && typeof g === 'object' ? Object.values(g).some(v => v?.enabled === true) : false); } },
         ];
 
         const CEKAUTO_GROUP_FITUR_LIST = [
@@ -104,7 +104,7 @@ function makeCekautoHelpers({
                 {
                         key: 'autoSholat', nama: 'Auto Sholat', cmd: '.autosholat add/remove', toggleable: true,
                         desc: 'Kirim notif waktu sholat + gambar masjid + suara adzan ke grup otomatis.',
-                        checkFn: (cfg, jid) => Array.isArray(cfg.autoSholat?.groups) && cfg.autoSholat.groups.includes(jid)
+                        checkFn: (cfg, jid) => { const g = cfg.autoSholat?.groups; return Array.isArray(g) ? g.includes(jid) : (g?.[jid]?.enabled === true); }
                 },
         ];
 

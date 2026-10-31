@@ -81,7 +81,7 @@ async function handlePlayChoice({
                                 const tmpTemplate = path.join(process.cwd(), 'tmp', `play_${tmpId}.%(ext)s`);
 
                                 await new Promise((resolve, reject) => {
-                                        const cmd = `"${ytdlpBin}" --js-runtimes node --no-playlist -x --audio-format mp3 --audio-quality 5 -o "${tmpTemplate}" "${pending.url}"`;
+                                        const cmd = `"${ytdlpBin}" --no-check-certificate --extractor-args "youtube:player_client=android" --js-runtimes node --no-playlist -x --audio-format mp3 --audio-quality 5 -o "${tmpTemplate}" "${pending.url}"`;
                                         exec(cmd, { timeout: 120000 }, (err, stdout, stderr) => {
                                                 if (err) return reject(new Error(parseYtdlpError(stderr, err.message)));
                                                 resolve();
@@ -111,7 +111,7 @@ async function handlePlayChoice({
                                 const tmpTemplate = path.join(process.cwd(), 'tmp', `play_${tmpId}.%(ext)s`);
 
                                 await new Promise((resolve, reject) => {
-                                        const cmd = `"${ytdlpBin}" --js-runtimes node --no-playlist -f "bestvideo[height<=360]+bestaudio/best[height<=360]" --merge-output-format mp4 --postprocessor-args "ffmpeg:-c:v libx264 -c:a aac -movflags +faststart -preset fast -crf 28" -o "${tmpTemplate}" "${pending.url}"`;
+                                        const cmd = `"${ytdlpBin}" --no-check-certificate --extractor-args "youtube:player_client=android" --js-runtimes node --no-playlist -f "bestvideo[height<=360]+bestaudio/best[height<=360]" --merge-output-format mp4 --postprocessor-args "ffmpeg:-c:v libx264 -c:a aac -movflags +faststart -preset fast -crf 28" -o "${tmpTemplate}" "${pending.url}"`;
                                         exec(cmd, { timeout: 240000 }, (err, stdout, stderr) => {
                                                 if (err) return reject(new Error(parseYtdlpError(stderr, err.message)));
                                                 resolve();

@@ -151,36 +151,62 @@ function simpanConfig(cfg) {
 }
 
 // ─── GRUP MANAGEMENT ──────────────────────────────────────────────────────────
+// Format config: cfg.autoSholat.groups = { "<jid>": { enabled: true/false, diubahPada: ts } }
+// (disamakan dengan animasu/nekopoinotif — bisa on/off lewat bot MAUPUN edit manual config.json)
+function normGroups(cfg) {
+    if (!cfg.autoSholat) cfg.autoSholat = { groups: {} };
+    const g = cfg.autoSholat.groups;
+    if (Array.isArray(g)) {
+        // migrasi format lama (array JID) → objek per-grup
+        const now = Date.now();
+        const obj = {};
+        for (const jid of g) obj[jid] = { enabled: true, diubahPada: now };
+        cfg.autoSholat.groups = obj;
+    } else if (!g || typeof g !== 'object') {
+        cfg.autoSholat.groups = {};
+    }
+    return cfg.autoSholat.groups;
+}
+
 function addGroup(jid) {
     const cfg = bacaConfig();
-    if (!cfg.autoSholat)                    cfg.autoSholat         = { groups: [] };
-    if (!Array.isArray(cfg.autoSholat.groups)) cfg.autoSholat.groups = [];
-    if (cfg.autoSholat.groups.includes(jid)) return false; // sudah terdaftar
-    cfg.autoSholat.groups.push(jid);
+    const groups = normGroups(cfg);
+    if (groups[jid]?.enabled === true) return false; // sudah aktif
+    groups[jid] = { enabled: true, diubahPada: Date.now() };
     simpanConfig(cfg);
     return true;
 }
 
 function removeGroup(jid) {
     const cfg = bacaConfig();
-    if (!Array.isArray(cfg.autoSholat?.groups)) return false;
-    const before = cfg.autoSholat.groups.length;
-    cfg.autoSholat.groups = cfg.autoSholat.groups.filter(g => g !== jid);
-    if (cfg.autoSholat.groups.length < before) {
-        simpanConfig(cfg);
-        return true;
-    }
-    return false;
+    const groups = normGroups(cfg);
+    if (groups[jid]?.enabled !== true) return false; // sudah nonaktif / belum terdaftar
+    groups[jid] = { enabled: false, diubahPada: Date.now() };
+    simpanConfig(cfg);
+    return true;
 }
 
 function isGroupEnabled(jid) {
     const cfg = bacaConfig();
-    return Array.isArray(cfg.autoSholat?.groups) && cfg.autoSholat.groups.includes(jid);
+    const groups = cfg.autoSholat?.groups;
+    if (Array.isArray(groups)) return groups.includes(jid); // format lama
+    return groups?.[jid]?.enabled === true;
 }
 
 function getEnabledGroups() {
     const cfg = bacaConfig();
-    return Array.isArray(cfg.autoSholat?.groups) ? cfg.autoSholat.groups : [];
+    const groups = cfg.autoSholat?.groups;
+    if (Array.isArray(groups)) return groups; // format lama
+    if (!groups || typeof groups !== 'object') return [];
+    return Object.keys(groups).filter(jid => groups[jid]?.enabled === true);
+}
+
+function getAllGroups() {
+    const cfg = bacaConfig();
+    const groups = cfg.autoSholat?.groups;
+    if (Array.isArray(groups)) return groups.map(jid => ({ jid, enabled: true })); // format lama
+    if (!groups || typeof groups !== 'object') return [];
+    return Object.keys(groups).map(jid => ({ jid, enabled: groups[jid]?.enabled === true }));
 }
 
 // ─── AMBIL JADWAL SHOLAT DARI API ─────────────────────────────────────────────
@@ -547,7 +573,7 @@ async function kirimSholatInteraktif(hisoka, jid, gambarBuffer, caption, buttonU
     }
 }
 
-export { addGroup, removeGroup, isGroupEnabled, getEnabledGroups, getJadwalHariIni, cekWaktuSholat, buatCaption, getGambar, getAudio, ambilAudioAdzan, buatGambarOverlay, buatThumbnail, simulasi, kirimSholatInteraktif, EMOJI_SHOLAT, UCAPAN_SHOLAT, pilihUcapan };
+export { addGroup, removeGroup, isGroupEnabled, getEnabledGroups, getAllGroups, getJadwalHariIni, cekWaktuSholat, buatCaption, getGambar, getAudio, ambilAudioAdzan, buatGambarOverlay, buatThumbnail, simulasi, kirimSholatInteraktif, EMOJI_SHOLAT, UCAPAN_SHOLAT, pilihUcapan };
 export { handleAutosholat };
 // ── COMMAND HANDLER ───────────────────────────────────────────────────────────
 
@@ -604,14 +630,15 @@ async function handleAutosholat({ hisoka, m, query, tolak, logCommand, path, loa
         }
 
         if (sub === 'status') {
-                const semuaGrup = getEnabledGroups();
+                const semuaGrup = getAllGroups();
                 if (!semuaGrup.length) { await tolak(hisoka, m, '📋 Belum ada grup yang terdaftar Auto Sholat.'); return; }
                 let txt = `📋 *STATUS AUTO SHOLAT*\n`;
-                semuaGrup.forEach((jid) => {
-                        const label = jid.replace('@g.us', '');
-                        txt += `• ✅ ${label}\n`;
+                semuaGrup.forEach((g) => {
+                        const label = g.jid.replace('@g.us', '');
+                        txt += `• ${g.enabled ? '✅' : '❌'} ${label}\n`;
                 });
-                txt += `_Total: ${semuaGrup.length} grup aktif_`;
+                const jmlAktif = semuaGrup.filter(g => g.enabled).length;
+                txt += `_Total: ${jmlAktif} aktif / ${semuaGrup.length} terdaftar_`;
                 await tolak(hisoka, m, txt);
                 return;
         }

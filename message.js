@@ -1313,3 +1313,13 @@ export default async function ({ message, type: messagesType }, hisoka) {
 // [HotReload trigger 2026-10-31 00:10] refresh tabel plugin (tutorial icon di cara pakai)
 // [HotReload trigger 2026-10-31 00:16] refresh tabel plugin (buatgc random-only + 20 URL anime)
 // [HotReload trigger 2026-10-31 00:20] refresh tabel plugin (listgc tanpa kode, icon acak)
+
+// hot-reload trigger: listgc tglBuat 31Okt11:30
+
+// hot-reload trigger: listgc layout rapih 31Okt11:40
+
+// hot-reload trigger: listgc multiline stat 31Okt11:45
+
+// hot-reload trigger: autosholat true/false 31Okt20:30
+
+// hot-reload trigger: play ytdlp fix 31Okt21:20

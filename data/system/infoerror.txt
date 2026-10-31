@@ -8,7 +8,7 @@
 ════════════════════════════════════════════════════════════════════════
   FILE     : infoerror.txt
   Bot      : Wily Bot
-  Update   : 31/10/2026, 04.40.37  (realtime — diperbarui otomatis setiap ada error)
+  Update   : 31/10/2026, 13.28.04  (realtime — diperbarui otomatis setiap ada error)
 ════════════════════════════════════════════════════════════════════════
 
   RINGKASAN
@@ -23,24 +23,24 @@
 ────────────────────────────────────────────────────────────────────────
 
 ┌───────────────────────────────────────────────────────────────────────
-│  #001  —  AutoSholat
+│  #001  —  NekopoinNotif
 ├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
 │  PESAN ERROR
-│  [AutoSholat] Audio pakai cache lokal (semua sumber gagal).
+│  [NekopoinNotif] ❌ Gagal fetch kategori 2d-animation: connect ECONNREFUSED fd8b:4f84:7d32:99::1:3128; connect ECONNREFUSED 198.19.0.1:3128
 │
 │  DETAIL
-│  Sumber      : AutoSholat
+│  Sumber      : NekopoinNotif
 │  Frekuensi   : 1x (baru terjadi)
-│  Pertama     : 31/10/2026, 04.40.37
-│  Terakhir    : 31/10/2026, 04.40.37
+│  Pertama     : 31/10/2026, 13.28.04
+│  Terakhir    : 31/10/2026, 13.28.04
 │
 │  STACK TRACE (3 baris pertama)
-│  ▶  Error: [AutoSholat] Audio pakai cache lokal (semua sumber gagal).
+│  ▶  Error: [NekopoinNotif] ❌ Gagal fetch kategori 2d-animation: connect ECONNREFUSED fd8b:4f84:7d32:99::1:3128; connect ECONNREFUSED 198.19.0.1:3128
 │     at console.error (file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/index.js:434:27)
-│     at Module.ambilAudioAdzan (file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/SEMUA_FITUR/setting/autosholat.js?t=1793337495086.237:414:25)
+│     at file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/SEMUA_FITUR/anime/nekopoi-monitor.js?t=1793289413281.416:198:25
 └───────────────────────────────────────────────────────────────────────
 
 ════════════════════════════════════════════════════════════════════════
   End of Report  —  Total: 1 jenis, 1 kejadian
-  Terakhir diperbarui: 31/10/2026, 04.40.37
+  Terakhir diperbarui: 31/10/2026, 13.28.04
 ════════════════════════════════════════════════════════════════════════

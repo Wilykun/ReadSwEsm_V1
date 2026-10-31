@@ -8,7 +8,7 @@ _📅 Jumat, 23 Oktober 2026_
 🤖 *WILY BOT* — `V27.5`
 ✨ *5 Fitur Baru*
 🐛 *7 Fix Bug*
-🛠️ *3 Fix Error*
+🛠️ *4 Fix Error*
 🚀 *12 Perubahan*
 ⚠️ *0 Hapus Fitur*
 ━━━━━━━━━━━━━━━━━━━━━━
@@ -126,6 +126,12 @@ _📅 Jumat, 23 Oktober 2026_
    • Audio adzan kini divalidasi dulu (MP3 asli, bukan halaman HTML blokir) + retry 3x + sumber cadangan Wikimedia Commons + cache lokal — sebelumnya halaman HTML 194 byte dilempar ke ffmpeg sehingga voice note gagal ("Failed to find two consecutive MPEG audio frames").
 > _Hasil: `.autosholat test` terkirim utuh (gambar + voice note adzan) untuk semua waktu sholat._
 
+4. *.play / .ytmp3 / .ytmp4 — Gagal Download ("Sign in to confirm you're not a bot")*
+   • Penyebab ganda: (1) proxy server intercept TLS → yt-dlp gagal verifikasi SSL; (2) YouTube memblokir player client web tanpa login.
+   • Fix: semua perintah yt-dlp (6 titik) kini pakai `--no-check-certificate` + `--extractor-args "youtube:player_client=android"` — audio & video kembali terdownload normal.
+   • Catatan: `play-cmd.js` di-import statis oleh message.js sehingga fix baru live setelah restart bot (hot-reload tidak menembus cache ESM statis).
+> _Hasil: `.play`, `.ytmp3`, `.ytmp4` kembali mengunduh audio/video YouTube dengan normal._
+
 ━━━━━━━━━━━━━━━━━━━━━━
 🚀 *PERUBAHAN*
 ━━━━━━━━━━━━━━━━━━━━━━
@@ -192,6 +198,7 @@ _📅 Jumat, 23 Oktober 2026_
    • Emoji dipangkas sesuai konteks: 🤲 tepat 1x (baris Selamat saja; baris Allahu Akbar polos), kutip ucapan tanpa emoji, judul 1 ikon saja (tanpa pasangan), footer polos; ikon Maghrib dibetulkan jadi 🌇 (senja, bukan terbit).
    • Ucapan kini RANDOM: 3 varian per waktu (15 total), tiap varian menyebut nama sholatnya + suasana waktunya, dipilih acak tiap kirim.
    • Hari Jumat: Zuhur otomatis tampil sebagai *Sholat Jumat* (judul 🕌, baris jadwal ▶ *Jumat*, penutup "Selamat menunaikan sholat Jumat 🤲") + 3 varian quote menyentuh khusus Jumat (random); hari lain tetap "Zuhur" normal. Gambar & audio adzan tetap pakai file Zuhur.
+   • *True/false per grup 31 Okt:* config `autoSholat.groups` kini format `{ "<jid>": { enabled: true/false, diubahPada } }` (disamakan dengan animasu/nekopoinotif) — bisa on/off lewat `.autosholat add`/`remove` MAUPUN edit manual file config.json (baca fresh tiap cek, tanpa restart); `.autosholat status` tampil ✅/❌ per grup + hitungan aktif; `remove` tidak hapus baris (jadi `enabled: false`, tetap bisa di-flip manual).
 > _Hasil: notifikasi sholat rapih, 1 gambar + tombol owner, akurat tiap waktu._
 
 11. *.tele — Backup Media Telegram*
