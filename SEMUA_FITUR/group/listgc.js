@@ -92,6 +92,21 @@ async function ambilIconBuffer(entry) {
 
 const norm = s => String(s || '').split(':')[0].split('@')[0];
 
+// ── Format tanggal pembuatan grup (creation = Unix detik, tampil WIB) ──
+const BULAN_ID = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+function formatTglBuat(creation) {
+    const ts = Number(creation);
+    if (!ts || !Number.isFinite(ts)) return '❓';
+    const d = new Date(ts * 1000);
+    const wib = new Date(d.getTime() + (d.getTimezoneOffset() + 7 * 60) * 60000);
+    const tgl = String(wib.getDate()).padStart(2, '0');
+    const bln = BULAN_ID[wib.getMonth()];
+    const thn = wib.getFullYear();
+    const jam = String(wib.getHours()).padStart(2, '0');
+    const mnt = String(wib.getMinutes()).padStart(2, '0');
+    return `${tgl} ${bln} ${thn}, ${jam}:${mnt}`;
+}
+
 function peranBot(parts, botId) {
     const saya = (parts || []).find(p => norm(p.id) === botId || norm(p.phoneNumber) === botId);
     if (!saya) return { label: '❓ Tidak diketahui', tier: 3 };
@@ -118,15 +133,19 @@ async function handleListgc({ hisoka, m, tolak, logCommand, pendingListgcChoices
     for (const jid of jids) {
         let nama = groups[jid]?.subject || jid;
         let anggota = 0;
+        let jmlAdmin = 0;
+        let tglBuat = '❓';
         let peran = { label: '❓ Tidak diketahui', tier: 3 };
         try {
             const meta = await hisoka.groupMetadata(jid);
             if (meta?.subject) nama = meta.subject;
             const parts = meta?.participants || [];
             anggota = parts.length;
+            jmlAdmin = parts.filter(p => p.admin === 'admin' || p.admin === 'superadmin').length;
             peran = peranBot(parts, botId);
+            if (meta?.creation) tglBuat = formatTglBuat(meta.creation);
         } catch (_) { /* metadata gagal → tampil dengan ❓ */ }
-        entri.push({ jid, nama, anggota, peran });
+        entri.push({ jid, nama, anggota, jmlAdmin, peran, tglBuat });
     }
     entri.sort((a, b) => (b.anggota - a.anggota) || (a.peran.tier - b.peran.tier) || a.nama.localeCompare(b.nama, 'id'));
 
@@ -152,14 +171,17 @@ async function handleListgc({ hisoka, m, tolak, logCommand, pendingListgcChoices
 }
 
 // ── Bangun teks daftar (dipakai pesan awal) ──
+// ── Layout rapih 31 Okt: garis simpel antar entri, emoji seperlunya ──
+// ── (hanya emoji peran 👑⭐👤❓ yang kontekstual; 👥📅💡 dibuang) ──
 function bangunTeksList(entri, banner = '') {
+    const GARIS = '────────────────';
     let txt = '';
     if (banner) txt += banner + '\n\n';
-    txt += `👥 *DAFTAR GRUP BOT* — ${entri.length} grup\n\n`;
+    txt += `*DAFTAR GRUP BOT* — ${entri.length} grup\n${GARIS}\n`;
     entri.forEach((e, i) => {
-        txt += `${i + 1}. *${e.nama}*\n> ${e.peran.label} · ${e.anggota} anggota\n`;
+        txt += `${i + 1}. *${e.nama}*\n> ${e.peran.label} ·\n> ${e.jmlAdmin} admin\n> ${e.anggota} anggota ·\n> dibuat ${e.tglBuat}\n${GARIS}\n`;
     });
-    txt += `\n💡 *Ganti icon:* reply pesan ini dengan nomor grup\n• \`2\` → icon grup no. 2 diganti *acak otomatis*\n• kirim/quote gambar + reply \`2\` → pakai gambarmu\n_berlaku 5 menit_`;
+    txt += `\n_Reply pesan ini dengan nomor grup → icon acak otomatis_\n_Kirim/quote gambar + reply nomor → pakai gambarmu · 5 menit_`;
     return txt;
 }
 

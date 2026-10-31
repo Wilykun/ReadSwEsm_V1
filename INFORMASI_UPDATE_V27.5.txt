@@ -39,15 +39,17 @@ _📅 Jumat, 23 Oktober 2026_
    • Ketik `.buatgc Nama Grup | 62812xxxx, 0813xxxx` → bot bikin grup baru, otomatis jadi admin, anggota langsung dimasukin. Alias: `.creategc`, `.newgc`. Khusus owner.
    • Format nomor fleksibel: `+62812…`, `62812…`, `0812…`, `812…` (spasi/strip/titik otomatis dibersihkan) → dinormalisasi ke `628…`; duplikat dibuang, nomor tidak valid dilaporkan (grup tetap dibuat dengan nomor valid).
    • Icon grup 3 jalur: kirim/quote gambar, atau `.buatgc Nama | nomor | 2` (KODE icon — lihat `.listgc`) / nama file, atau otomatis random.
-   • *Sistem icon dinamis & pintar:* file lokal di `media/buatgc/` (kode 1–3) + URL mentah GitHub di `icons.json` (kode 4–23, 20 gambar anime) — tambah gambar/URL baru → otomatis dapat kode berikutnya. URL diunduh dulu (timeout 25 dtk, validasi ukuran) baru dipasang. `.buatgc` selalu pakai icon acak; `.listgc` tetap bisa pilih kode manual.
+   • *Sistem icon dinamis:* 110 URL mentah GitHub di `icons.json` (Anime 1–110, tanpa duplikat, semua terverifikasi HTTP 200) — tambah URL baru → otomatis dipakai acak. File lokal webp DIHAPUS 31 Okt (sistem full-URL).
    • Hasil: nama grup, jumlah anggota, nomor dilewati, sumber icon, + link invite `chat.whatsapp.com`.
-   • *Rapih 31 Okt:* kode icon DIHAPUS dari `.buatgc` & `.listgc` — icon selalu *otomatis acak* (default random, tanpa pilih manual); koleksi diperbanyak jadi 23 gambar anime (3 lokal + 20 URL GitHub).
+   • *Rapih 31 Okt:* kode icon DIHAPUS dari `.buatgc` & `.listgc` — icon selalu *otomatis acak* (default random, tanpa pilih manual); koleksi diperbanyak jadi 110 gambar anime (full URL GitHub, 0 duplikat; 3 file webp lokal dihapus).
 > _Hasil: bikin grup WA + icon + link invite langsung dari chat, tanpa buka WhatsApp._
 
 5. *.listgc — Daftar Grup + Ganti Icon via Reply*
    • Ketik `.listgc` → daftar SEMUA grup yang diikuti bot, realtime: nomor urut, nama, jumlah anggota, dan peran bot (👑 Pemilik / ⭐ Admin / 👤 Member / ❓) — urut Pemilik dulu.
    • *Ganti icon:* reply pesan daftar dengan `<nomor> | <kode>` (mis. `2 | 1`) atau kirim/quote gambar + reply `<nomor>`. Kode icon dinamis: 1–3 file lokal, 4–11 URL GitHub (lihat `media/buatgc/icons.json`) — SAMA dengan yang dipakai `.buatgc`.
    • *Rapih 30 Okt:* daftar kode icon format simpel `1 > Anime Chibi` (tanpa emoji) + contoh nyata di pesan (`2 | 1` → grup no. 2 pakai Anime Chibi); urut grup = anggota terbanyak di atas; respon pakai toolkit WA per konteks (*tebal*, _miring_, ~coret~, `kode`, daftar, > kutip di awal baris); pas pilih icon pesan daftar DIHAPUS otomatis → hasil dikirim sebagai pesan baru (rapih, akurat, anti-spam).
+   • *Rapih 31 Okt (layout):* daftar grup kini pakai garis pemisah simpel antar entri; tiap grup tampil 4 baris kutip sendiri-sendiri (peran → jumlah admin → jumlah anggota → tanggal dibuat); emoji dikurangi — hanya emoji peran (👑⭐👤) yang kontekstual, 👥📅💡 dibuang; tanggal buat jadi kata "dibuat …"; footer hint dipadatkan 2 baris.
+   • *Update 31 Okt:* tiap grup kini tampil *tanggal pembuatan grup* realtime (📅 tgl-bln-thn, jam WIB) — diambil dari `creation` metadata WhatsApp tiap `.listgc` dipanggil; tampil ❓ bila data tak tersedia.
    • *Bug fix 30 Okt:* `updateProfilePicture` Baileys 7 minta buffer langsung (bukan `{img}`) — error `toString` saat ganti icon sudah diperbaiki di `.listgc` & `.buatgc`.
    • Reply cuma nomor → ditampilkan pilihan icon dulu (tidak hangus); pilihan berlaku 5 menit; reply ke pesan lain / nomor salah / pesan biasa → diabaikan bersih. Khusus owner.
 > _Hasil: kelola & ganti icon semua grup bot dari 1 pesan daftar._
