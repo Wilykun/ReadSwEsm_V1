@@ -2,6 +2,54 @@
   "events": [
     {
       "type": "connected",
+      "connectedAt": "2026-11-01T02:18:41.853Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-10-31T23:53:01.548Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-10-31T23:50:18.501Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-10-31T22:20:12.271Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-10-31T21:52:23.397Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-10-31T21:50:20.140Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-10-31T21:28:37.580Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-10-31T21:04:56.951Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-10-31T19:53:31.213Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-10-31T19:50:19.434Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-10-31T17:53:07.694Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-10-31T17:50:23.322Z"
+    },
+    {
+      "type": "connected",
       "connectedAt": "2026-10-31T15:59:17.308Z"
     },
     {
@@ -151,56 +199,8 @@
     {
       "type": "connected",
       "connectedAt": "2026-10-30T10:18:12.752Z"
-    },
-    {
-      "type": "connected",
-      "connectedAt": "2026-10-30T07:51:43.482Z"
-    },
-    {
-      "type": "connected",
-      "connectedAt": "2026-10-30T07:50:23.538Z"
-    },
-    {
-      "type": "connected",
-      "connectedAt": "2026-10-30T07:44:29.797Z"
-    },
-    {
-      "type": "connected",
-      "connectedAt": "2026-10-30T07:22:16.632Z"
-    },
-    {
-      "type": "connected",
-      "connectedAt": "2026-10-30T07:20:19.443Z"
-    },
-    {
-      "type": "connected",
-      "connectedAt": "2026-10-30T05:51:41.154Z"
-    },
-    {
-      "type": "connected",
-      "connectedAt": "2026-10-30T05:50:19.087Z"
-    },
-    {
-      "type": "connected",
-      "connectedAt": "2026-10-30T04:02:11.982Z"
-    },
-    {
-      "type": "connected",
-      "connectedAt": "2026-10-30T02:51:45.396Z"
-    },
-    {
-      "type": "connected",
-      "connectedAt": "2026-10-30T02:50:21.463Z"
-    },
-    {
-      "type": "connected",
-      "connectedAt": "2026-10-30T01:01:00.000Z"
-    },
-    {
-      "type": "connected",
-      "connectedAt": "2026-10-30T00:53:23.954Z"
     }
   ],
-  "lastUpdated": "2026-10-31T15:59:17.316Z",
+  "lastUpdated": "2026-11-01T02:18:41.856Z",
   "sessionStart": "2026-10-12T07:51:44.826Z"
 }

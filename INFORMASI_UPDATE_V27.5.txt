@@ -7,7 +7,7 @@ _📅 Jumat, 23 Oktober 2026_
 ━━━━━━━━━━━━━━━━━━━━━━
 🤖 *WILY BOT* — `V27.5`
 ✨ *5 Fitur Baru*
-🐛 *7 Fix Bug*
+🐛 *8 Fix Bug*
 🛠️ *4 Fix Error*
 🚀 *13 Perubahan*
 ⚠️ *0 Hapus Fitur*
@@ -108,6 +108,11 @@ _📅 Jumat, 23 Oktober 2026_
    • Status berupa audio selalu gagal terkirim ke Telegram: kode memaksa kirim sebagai voice-note Telegram (wajib OGG/Opus) padahal data dari WhatsApp berupa MP3 → ditolak 400.
    • Kini dikirim sebagai audio biasa (sendAudio) — entri mime audio yang sebelumnya tidak pernah terpakai kini hidup.
 > _Hasil: backup status audio terkirim normal ke Telegram._
+
+8. *.tt — Pesan Error Menyesatkan saat API Down*
+   • Saat API tikwm down, pesan error selalu "Video mungkin privat atau link tidak valid" — menyesatkan karena link-nya valid, yang rusak server tikwm-nya.
+   • Kini dibedakan: bila API return "Url parsing failed" → pesan "Server TikTok downloader sedang gangguan, coba lagi nanti"; bila link memang invalid → pesan link tidak valid seperti semula.
+> _Hasil: user tahu bedanya server gangguan vs link salah._
 
 ━━━━━━━━━━━━━━━━━━━━━━
 🛠️ *FIX ERROR*

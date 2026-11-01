@@ -135,7 +135,13 @@ async function handleTiktokDl(hisoka, m, query, ctx) {
     }
 
     if (!result || result.status !== 'success') {
-        await m.reply({ edit: loadingMsg.key, text: '❌ Gagal mengunduh. Video mungkin privat atau link tidak valid.' });
+        const apiMsg = lastError?.message || '';
+        // Deteksi API tikwm down (bukan salah user)
+        if (/url parsing is failed/i.test(apiMsg) || /tiktok api error/i.test(apiMsg)) {
+            await m.reply({ edit: loadingMsg.key, text: '❌ Server TikTok downloader sedang gangguan.\n\n_Coba lagi beberapa saat._' });
+        } else {
+            await m.reply({ edit: loadingMsg.key, text: '❌ Gagal mengunduh. Video mungkin privat atau link tidak valid.' });
+        }
         return;
     }
 

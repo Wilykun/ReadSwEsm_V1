@@ -8,7 +8,7 @@
 ════════════════════════════════════════════════════════════════════════
   FILE     : infoerror.txt
   Bot      : Wily Bot
-  Update   : 31/10/2026, 13.28.04  (realtime — diperbarui otomatis setiap ada error)
+  Update   : 01/11/2026, 10.19.54  (realtime — diperbarui otomatis setiap ada error)
 ════════════════════════════════════════════════════════════════════════
 
   RINGKASAN
@@ -26,21 +26,21 @@
 │  #001  —  NekopoinNotif
 ├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
 │  PESAN ERROR
-│  [NekopoinNotif] ❌ Gagal fetch kategori 2d-animation: connect ECONNREFUSED fd8b:4f84:7d32:99::1:3128; connect ECONNREFUSED 198.19.0.1:3128
+│  [NekopoinNotif] ❌ Gagal fetch kategori hentai: Jina gagal: 429
 │
 │  DETAIL
 │  Sumber      : NekopoinNotif
 │  Frekuensi   : 1x (baru terjadi)
-│  Pertama     : 31/10/2026, 13.28.04
-│  Terakhir    : 31/10/2026, 13.28.04
+│  Pertama     : 01/11/2026, 10.19.54
+│  Terakhir    : 01/11/2026, 10.19.54
 │
 │  STACK TRACE (3 baris pertama)
-│  ▶  Error: [NekopoinNotif] ❌ Gagal fetch kategori 2d-animation: connect ECONNREFUSED fd8b:4f84:7d32:99::1:3128; connect ECONNREFUSED 198.19.0.1:3128
+│  ▶  Error: [NekopoinNotif] ❌ Gagal fetch kategori hentai: Jina gagal: 429
 │     at console.error (file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/index.js:434:27)
 │     at file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/SEMUA_FITUR/anime/nekopoi-monitor.js?t=1793289413281.416:198:25
 └───────────────────────────────────────────────────────────────────────
 
 ════════════════════════════════════════════════════════════════════════
   End of Report  —  Total: 1 jenis, 1 kejadian
-  Terakhir diperbarui: 31/10/2026, 13.28.04
+  Terakhir diperbarui: 01/11/2026, 10.19.54
 ════════════════════════════════════════════════════════════════════════
