@@ -161,7 +161,13 @@ export function formatTeleCaption({ type, text, fromUser, storyName, timestampMs
         const p = new Date(new Date(timestampMs).toLocaleString('en-US', { timeZone: 'Asia/Jakarta' }));
         const tgl = `${p.getDate()} ${bln[p.getMonth()]} ${p.getFullYear()}`;
         const jam = p.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false }).replace(':', '.');
-        return `${tipe} dari <a href="https://wa.me/${esc(fromUser)}">@${esc(storyName)}</a>\n📅 ${tgl} · 🕐 ${jam} WIB${text ? `\n\n💬 <i>${esc(text)}</i>` : ''}`;
+        // ── Sapaan waktu realtime Asia/Jakarta ──
+        const _h = p.getHours();
+        const sapa = _h >= 4 && _h < 11 ? '🌅 <b>Selamat pagi</b>'
+                : _h >= 11 && _h < 15 ? '☀️ <b>Selamat siang</b>'
+                : _h >= 15 && _h < 19 ? '🌇 <b>Selamat sore</b>'
+                : '🌙 <b>Selamat malam</b>';
+        return `${sapa}!\n\n${tipe} dari <a href="https://wa.me/${esc(fromUser)}">@${esc(storyName)}</a>\n📅 ${tgl} · 🕐 ${jam} WIB${text ? `\n\n💬 <i>${esc(text)}</i>` : ''}`;
 }
 
 // ── Kirim ke Telegram + AUTO-OFF bila kredensial terbukti salah ─────────────

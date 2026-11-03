@@ -223,7 +223,10 @@ async function handlePlayChoice({
                         }, { quoted: m });
 
                         await hisoka.sendMessage(m.from, { react: { text: '✅', key: m.key } });
-                        await m.reply({ edit: loadingMsg.key, text: `✅ *Berhasil dikirim!*\n📌 *${pending.title}*\n\n1. 🎬 Video MP4 (360p)\n2. 🎤 Voice Note` });
+                        // Pesan status dihapus agar chat rapih — video + VN tetap terpisah, tidak disatukan
+                        if (loadingMsg?.key) {
+                                try { await hisoka.sendMessage(m.from, { delete: loadingMsg.key }); } catch (_) {}
+                        }
 
                         logCommand(m, hisoka, 'play');
                 } catch (error) {

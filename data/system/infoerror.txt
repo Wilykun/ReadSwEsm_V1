@@ -8,7 +8,7 @@
 ════════════════════════════════════════════════════════════════════════
   FILE     : infoerror.txt
   Bot      : Wily Bot
-  Update   : 01/11/2026, 10.19.54  (realtime — diperbarui otomatis setiap ada error)
+  Update   : 03/11/2026, 02.06.50  (realtime — diperbarui otomatis setiap ada error)
 ════════════════════════════════════════════════════════════════════════
 
   RINGKASAN
@@ -26,21 +26,21 @@
 │  #001  —  NekopoinNotif
 ├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
 │  PESAN ERROR
-│  [NekopoinNotif] ❌ Gagal fetch kategori hentai: Jina gagal: 429
+│  [NekopoinNotif] ❌ Gagal fetch kategori 2d-animation: Jina gagal: 429
 │
 │  DETAIL
 │  Sumber      : NekopoinNotif
 │  Frekuensi   : 1x (baru terjadi)
-│  Pertama     : 01/11/2026, 10.19.54
-│  Terakhir    : 01/11/2026, 10.19.54
+│  Pertama     : 03/11/2026, 02.06.50
+│  Terakhir    : 03/11/2026, 02.06.50
 │
 │  STACK TRACE (3 baris pertama)
-│  ▶  Error: [NekopoinNotif] ❌ Gagal fetch kategori hentai: Jina gagal: 429
+│  ▶  Error: [NekopoinNotif] ❌ Gagal fetch kategori 2d-animation: Jina gagal: 429
 │     at console.error (file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/index.js:434:27)
 │     at file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/SEMUA_FITUR/anime/nekopoi-monitor.js?t=1793289413281.416:198:25
 └───────────────────────────────────────────────────────────────────────
 
 ════════════════════════════════════════════════════════════════════════
   End of Report  —  Total: 1 jenis, 1 kejadian
-  Terakhir diperbarui: 01/11/2026, 10.19.54
+  Terakhir diperbarui: 03/11/2026, 02.06.50
 ════════════════════════════════════════════════════════════════════════

@@ -662,9 +662,11 @@ async function main() {
                 }
         };
 
-        // Watchdog: cek koneksi setiap 90 detik, force reconnect jika stuck
+        // Watchdog: grace 300 detik; force reconnect hanya setelah 3x stuck beruntun.
+        // Jalur sehat reschedule tiap 90 detik + reset counter (dulu: tidak reschedule).
         // Selama QR atau pairing code aktif → tunda 30 detik lagi (jangan ganggu timer 3 menit)
         if (global.__connectWatchdog) clearTimeout(global.__connectWatchdog);
+        let __watchdogStuck = 0;
         const _scheduleWatchdog = (delayMs) => {
                 global.__connectWatchdog = setTimeout(async function _watchdogTick() {
                         // Masih nunggu user scan QR atau input pairing → jangan reconnect, tunda
@@ -673,16 +675,25 @@ async function main() {
                                 return;
                         }
                         const wsState = global.hisokaClient?.ws?.readyState;
-                        // 1 = OPEN → normal, tidak perlu apa-apa
-                        if (wsState !== 1) {
-                                console.warn('\x1b[33m[Watchdog] Koneksi stuck, force reconnect...\x1b[39m');
-                                cleanupSocket();
-                                reconnectCount++;
-                                await main();
+                        // 1 = OPEN → sehat: reset counter, cek lagi 90 detik
+                        if (wsState === 1) {
+                                __watchdogStuck = 0;
+                                global.__connectWatchdog = setTimeout(_watchdogTick, 90000);
+                                return;
                         }
+                        // Stuck: hitung beruntun, baru force reconnect di hitungan ke-3
+                        __watchdogStuck++;
+                        if (__watchdogStuck < 3) {
+                                global.__connectWatchdog = setTimeout(_watchdogTick, 30000);
+                                return;
+                        }
+                        console.warn('\x1b[33m[Watchdog] Koneksi stuck 3x beruntun, force reconnect...\x1b[39m');
+                        cleanupSocket();
+                        reconnectCount++;
+                        await main();
                 }, delayMs);
         };
-        _scheduleWatchdog(90000);
+        _scheduleWatchdog(300000);
 
         const hisoka = injectClient(
                 makeWASocket({
@@ -1525,7 +1536,14 @@ async function main() {
                                                 await Promise.allSettled(chunk.map(async jid => {
                                                         try {
                                                                 if (urlGambar) {
-                                                                        await hisoka.sendMessage(jid, { image: { url: urlGambar }, caption });
+                                                                        try {
+                                                                                await hisoka.sendMessage(jid, { image: { url: urlGambar }, caption });
+                                                                        } catch (_) {
+                                                                                // Gambar gagal (mis. "Media upload failed on all hosts")
+                                                                                // → fallback: caption teks tetap terkirim ke grup ini,
+                                                                                // item tidak hilang diam-diam walau dicap terkirim.
+                                                                                await hisoka.sendMessage(jid, { text: caption });
+                                                                        }
                                                                 } else {
                                                                         await hisoka.sendMessage(jid, { text: caption });
                                                                 }
@@ -1569,9 +1587,13 @@ async function main() {
                                                                 console.log(`[Animasu][SedangTayang] ⏳ detail belum dapat, antre "${item.judul}" ${item.episodeLabel} (kirim nanti saat lengkap)`);
                                                                 continue;
                                                         }
-                                                        await kirimKeGrup(daftarGrup, hasil.caption, item.cover || null);
+                                                        // Tandai terkirim SEBELUM kirim (anti-duplikat race 2 Nov):
+                                                        // bila 2 tick/proses berkejaran, yang kedua melihat tanda
+                                                        // di sudahTerkirimWidget lalu lewati. kirimKeGrup tak pernah
+                                                        // melempar (error per grup ditangkap internal), jadi aman.
                                                         _am.tandaiTerkirimWidget('tayang', kunci, item.slug, item.episodeLabel);
                                                         _am.hapusPending('tayang', item.slug);
+                                                        await kirimKeGrup(daftarGrup, hasil.caption, item.cover || null);
                                                         console.log(`[Animasu][SedangTayang] ✅ (${item.tipe}) "${item.judul}" ${item.episodeLabel} → ${daftarGrup.length} grup`);
                                                         await new Promise(r => setTimeout(r, 1500));
                                                 }
@@ -1587,9 +1609,10 @@ async function main() {
                                                         if (_am.sudahTerkirimWidget('tayang', kunci)) { _am.hapusPending('tayang', pending.slug); continue; }
                                                         const hasil = await _am.buatPesanLengkapMonitor(pending, { percobaan: 1, jedaMs: 0 });
                                                         if (!hasil.lengkap) continue; // tetap antre
-                                                        await kirimKeGrup(daftarGrup, hasil.caption, pending.cover || null);
+                                                        // Tandai terkirim SEBELUM kirim (anti-duplikat race 2 Nov).
                                                         _am.tandaiTerkirimWidget('tayang', kunci, pending.slug, pending.episodeLabel);
                                                         _am.hapusPending('tayang', pending.slug);
+                                                        await kirimKeGrup(daftarGrup, hasil.caption, pending.cover || null);
                                                         console.log(`[Animasu][SedangTayang] ✅ (antrean) "${pending.judul}" ${pending.episodeLabel} → ${daftarGrup.length} grup`);
                                                         await new Promise(r => setTimeout(r, 1500));
                                                 }
@@ -1627,9 +1650,10 @@ async function main() {
                                                                 console.log(`[Animasu][BaruUpdate] ⏳ detail belum dapat, antre "${item.judul}" ${item.episodeLabel} (kirim nanti saat lengkap)`);
                                                                 continue;
                                                         }
-                                                        await kirimKeGrup(daftarGrup, hasil.caption, item.cover || null);
+                                                        // Tandai terkirim SEBELUM kirim (anti-duplikat race 2 Nov).
                                                         _am.tandaiTerkirimWidget('update', kunci, item.slug, `${item.episodeLabel} | ${item.statusLabel}`);
                                                         _am.hapusPending('update', item.slug);
+                                                        await kirimKeGrup(daftarGrup, hasil.caption, item.cover || null);
                                                         console.log(`[Animasu][BaruUpdate] ✅ (${item.tipe}) "${item.judul}" ${item.episodeLabel} → ${daftarGrup.length} grup`);
                                                         await new Promise(r => setTimeout(r, 1500));
                                                 }
@@ -1643,9 +1667,10 @@ async function main() {
                                                         if (_am.sudahTerkirimWidget('update', kunci)) { _am.hapusPending('update', pending.slug); continue; }
                                                         const hasil = await _am.buatPesanLengkapMonitor(pending, { percobaan: 1, jedaMs: 0 });
                                                         if (!hasil.lengkap) continue; // tetap antre
-                                                        await kirimKeGrup(daftarGrup, hasil.caption, pending.cover || null);
+                                                        // Tandai terkirim SEBELUM kirim (anti-duplikat race 2 Nov).
                                                         _am.tandaiTerkirimWidget('update', kunci, pending.slug, `${pending.episodeLabel} | ${pending.statusLabel}`);
                                                         _am.hapusPending('update', pending.slug);
+                                                        await kirimKeGrup(daftarGrup, hasil.caption, pending.cover || null);
                                                         console.log(`[Animasu][BaruUpdate] ✅ (antrean) "${pending.judul}" ${pending.episodeLabel} → ${daftarGrup.length} grup`);
                                                         await new Promise(r => setTimeout(r, 1500));
                                                 }

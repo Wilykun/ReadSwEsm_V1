@@ -108,8 +108,10 @@ async function toVoiceNote(inputBuffer, inputMime = 'audio/mpeg') {
 }
 
 /**
- * Generate waveform data dari audio buffer — 64 titik amplitudo RMS akurat.
- * Pakai ffmpeg decode ke raw PCM mono 8kHz s16le, lalu hitung RMS tiap segmen.
+ * Generate waveform data dari audio buffer — 64 titik amplitudo PEAK akurat.
+ * Pakai ffmpeg decode ke raw PCM mono 8kHz s16le, lalu ambil nilai peak
+ * (absolut maksimum) tiap segmen — sesuai visual "gelombang" asli seperti
+ * DAW & WhatsApp (bukan RMS yang bikin visual flat).
  * Hasil: Buffer 64 byte, nilai 0–100, siap pakai sebagai `waveform` di Baileys.
  *
  * @param {Buffer} inputBuffer  - buffer audio (OGG Opus, MP3, dll)
@@ -152,28 +154,26 @@ async function generateWaveform(inputBuffer, inputMime = 'audio/ogg; codecs=opus
         const waveform = Buffer.alloc(points);
         const chunkSize = Math.max(1, Math.floor(totalSamples / points));
 
-        // Hitung RMS tiap chunk → nilai 0–100
+        // Hitung PEAK tiap chunk → nilai 0–100 (fix 2 Nov: RMS bikin visual
+        // flat/tidak akurat; peak sesuai "gelombang" asli seperti DAW/WhatsApp)
         let globalMax = 1; // cegah div/0
-        const rmsValues = new Float32Array(points);
+        const peakValues = new Float32Array(points);
 
         for (let i = 0; i < points; i++) {
             const startByte = i * chunkSize * 2;
             const endByte   = Math.min(startByte + chunkSize * 2, raw.length);
-            let sumSq = 0;
-            let count = 0;
+            let peak = 0;
             for (let j = startByte; j < endByte - 1; j += 2) {
-                const sample = raw.readInt16LE(j);
-                sumSq += sample * sample;
-                count++;
+                const sample = Math.abs(raw.readInt16LE(j));
+                if (sample > peak) peak = sample;
             }
-            const rms = count > 0 ? Math.sqrt(sumSq / count) : 0;
-            rmsValues[i] = rms;
-            if (rms > globalMax) globalMax = rms;
+            peakValues[i] = peak;
+            if (peak > globalMax) globalMax = peak;
         }
 
         // Normalisasi ke 0–100 relatif terhadap peak audio ini
         for (let i = 0; i < points; i++) {
-            waveform[i] = Math.min(100, Math.round((rmsValues[i] / globalMax) * 100));
+            waveform[i] = Math.min(100, Math.round((peakValues[i] / globalMax) * 100));
         }
 
         return waveform;
