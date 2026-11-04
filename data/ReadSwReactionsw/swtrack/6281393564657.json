@@ -1,49 +1,4 @@
 {
-  "AC68A6A2D8D2AB0949D8F6557792AB76": {
-    "id": "AC68A6A2D8D2AB0949D8F6557792AB76",
-    "sender": "6281393564657@s.whatsapp.net",
-    "name": "γυς ρου",
-    "type": "videoMessage",
-    "arrivedAt": "2026-11-03T11:38:30.325Z",
-    "read": true,
-    "reacted": true,
-    "reactionExpected": true,
-    "emoji": "🐬",
-    "resolve": "PN langsung ✓",
-    "source": "status",
-    "number": "6281393564657",
-    "resolvedPn": "6281393564657@s.whatsapp.net",
-    "messageKey": {
-      "remoteJid": "status@broadcast",
-      "remoteJidAlt": "6281393564657@s.whatsapp.net",
-      "fromMe": false,
-      "id": "AC68A6A2D8D2AB0949D8F6557792AB76",
-      "participant": "174577888038922@lid",
-      "addressingMode": "lid"
-    },
-    "updatedAt": "2026-11-03T14:38:07.297Z",
-    "receiptKeys": [
-      {
-        "remoteJid": "status@broadcast",
-        "remoteJidAlt": "6281393564657@s.whatsapp.net",
-        "fromMe": false,
-        "id": "AC68A6A2D8D2AB0949D8F6557792AB76",
-        "participant": "174577888038922@lid",
-        "addressingMode": "lid"
-      },
-      {
-        "remoteJid": "status@broadcast",
-        "remoteJidAlt": "6281393564657@s.whatsapp.net",
-        "fromMe": false,
-        "id": "AC68A6A2D8D2AB0949D8F6557792AB76",
-        "participant": "6281393564657@s.whatsapp.net",
-        "addressingMode": "lid"
-      }
-    ],
-    "processedAt": "2026-11-03T11:38:40.860Z",
-    "deleted": true,
-    "deletedAt": "2026-11-03T14:38:07.297Z"
-  },
   "AC6CA18476CFCA19ECD0D9D228FD9B68": {
     "id": "AC6CA18476CFCA19ECD0D9D228FD9B68",
     "sender": "6281393564657@s.whatsapp.net",
@@ -156,7 +111,7 @@
       "participant": "174577888038922@lid",
       "addressingMode": "lid"
     },
-    "updatedAt": "2026-11-04T11:05:18.561Z",
+    "updatedAt": "2026-11-04T15:09:35.983Z",
     "receiptKeys": [
       {
         "remoteJid": "status@broadcast",
@@ -175,7 +130,9 @@
         "addressingMode": "lid"
       }
     ],
-    "processedAt": "2026-11-04T11:05:18.561Z"
+    "processedAt": "2026-11-04T11:05:18.561Z",
+    "deleted": true,
+    "deletedAt": "2026-11-04T15:09:35.983Z"
   },
   "aff35c32-5ab0-4dd9-b90a-97fd465c9136": {
     "id": "aff35c32-5ab0-4dd9-b90a-97fd465c9136",
@@ -242,7 +199,7 @@
       "participant": "174577888038922@lid",
       "addressingMode": "lid"
     },
-    "updatedAt": "2026-11-04T12:50:37.202Z",
+    "updatedAt": "2026-11-04T15:09:36.796Z",
     "receiptKeys": [
       {
         "remoteJid": "status@broadcast",
@@ -261,6 +218,51 @@
         "addressingMode": "lid"
       }
     ],
-    "processedAt": "2026-11-04T12:50:37.197Z"
+    "processedAt": "2026-11-04T12:50:37.197Z",
+    "deleted": true,
+    "deletedAt": "2026-11-04T15:09:36.796Z"
+  },
+  "AC6C17C02E2168086B790E2861112BFF": {
+    "id": "AC6C17C02E2168086B790E2861112BFF",
+    "sender": "6281393564657@s.whatsapp.net",
+    "name": "γυς ρου",
+    "type": "videoMessage",
+    "arrivedAt": "2026-11-04T15:15:01.134Z",
+    "read": true,
+    "reacted": true,
+    "reactionExpected": true,
+    "emoji": "🐙",
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "6281393564657",
+    "resolvedPn": "6281393564657@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "6281393564657@s.whatsapp.net",
+      "fromMe": false,
+      "id": "AC6C17C02E2168086B790E2861112BFF",
+      "participant": "174577888038922@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-11-04T15:15:19.939Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6281393564657@s.whatsapp.net",
+        "fromMe": false,
+        "id": "AC6C17C02E2168086B790E2861112BFF",
+        "participant": "174577888038922@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6281393564657@s.whatsapp.net",
+        "fromMe": false,
+        "id": "AC6C17C02E2168086B790E2861112BFF",
+        "participant": "6281393564657@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-11-04T15:15:19.935Z"
   }
 }

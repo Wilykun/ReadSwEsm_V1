@@ -8,7 +8,7 @@
 ════════════════════════════════════════════════════════════════════════
   FILE     : infoerror.txt
   Bot      : Wily Bot
-  Update   : 04/11/2026, 14.30.15  (realtime — diperbarui otomatis setiap ada error)
+  Update   : 04/11/2026, 22.13.06  (realtime — diperbarui otomatis setiap ada error)
 ════════════════════════════════════════════════════════════════════════
 
   RINGKASAN
@@ -23,24 +23,24 @@
 ────────────────────────────────────────────────────────────────────────
 
 ┌───────────────────────────────────────────────────────────────────────
-│  #001  —  console.error
+│  #001  —  NekopoinNotif
 ├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
 │  PESAN ERROR
-│  [31m[HotReload] ✗ Gagal reload 'message.js', pakai versi lama.[39m
+│  [NekopoinNotif] ❌ Gagal fetch kategori 2d-animation: Jina gagal: 429
 │
 │  DETAIL
-│  Sumber      : console.error
+│  Sumber      : NekopoinNotif
 │  Frekuensi   : 1x (baru terjadi)
-│  Pertama     : 04/11/2026, 14.30.15
-│  Terakhir    : 04/11/2026, 14.30.15
+│  Pertama     : 04/11/2026, 22.13.06
+│  Terakhir    : 04/11/2026, 22.13.06
 │
 │  STACK TRACE (3 baris pertama)
-│  ▶  Error: [31m[HotReload] ✗ Gagal reload 'message.js', pakai versi lama.[39m
+│  ▶  Error: [NekopoinNotif] ❌ Gagal fetch kategori 2d-animation: Jina gagal: 429
 │     at console.error (file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/index.js:434:27)
-│     at Timeout._onTimeout (file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/src/helper/hotReload.js:300:29)
+│     at file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/SEMUA_FITUR/anime/nekopoi-monitor.js?t=1793289413281.416:198:25
 └───────────────────────────────────────────────────────────────────────
 
 ════════════════════════════════════════════════════════════════════════
   End of Report  —  Total: 1 jenis, 1 kejadian
-  Terakhir diperbarui: 04/11/2026, 14.30.15
+  Terakhir diperbarui: 04/11/2026, 22.13.06
 ════════════════════════════════════════════════════════════════════════

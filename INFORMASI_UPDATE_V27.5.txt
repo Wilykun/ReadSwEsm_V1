@@ -277,13 +277,9 @@ _📅 Jumat, 23 Oktober 2026_
 > _Hasil: setup cookies semudah kirim file via WA — tanpa utak-atik panel Replit._
 
 18. *Fitur Alias Command — Typo Tolerance ("Maksudmu...?")*
-   • Saat user salah ketik command, bot cari yang paling mirip dari 310 command terdaftar via Levenshtein distance + prefix matching.
-   • Tampilkan DAFTAR hingga 10 saran teratas (urut persen tertinggi), TIDAK auto-jalankan — user ketik ulang yang benar.
-   • Contoh: `.sja` → daftar `.s` (80%), `.sticker` (65%); `.emojis` → 7 varian emoji (`.emoji`, `.emojilist`, `.emojiadd`, dll).
-   • Format rapih pakai toolkit WA sesuai konteks: quote untuk judul & penutup, *bold* untuk persen, _italic_ untuk keterangan, ~coret~ untuk typo, `kode` + prefix untuk nama command, daftar bernomor.
-   • Threshold 40% — di bawah itu diam (bukan typo). Berlaku untuk SEMUA fitur/plugin.
-   • File: `SEMUA_FITUR/helper/cmdalias.js` (hot-reloadable); fuzzy di `src/helper/inject.js`, tampilan di `message.js`.
-> _Hasil: salah ketik command dapat daftar saran akurat — bot paham maksudnya._
+   • Salah ketik command → bot tampilkan daftar hingga 10 saran termirip (tidak auto-jalan).
+   • Contoh: `.sja` → `.s` (80%); `.emojis` → 7 varian emoji. Format rapih: quote, *bold*, _italic_, ~coret~, `kode`.
+> _Hasil: bot paham maksud meski salah ketik._
 
 ━━━━━━━━━━━━━━━━━━━━━━
 ⚠️ *HAPUS FITUR*
