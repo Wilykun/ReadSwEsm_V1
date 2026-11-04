@@ -66,6 +66,7 @@ import { getMode as getMainEmojiMode } from './src/helper/emoji.js';
 import { pruneSwStatsAt, countActiveSW } from './src/helper/swtrack.js';
 import { getHandler } from './src/helper/hotReload.js';
 import { makeCekautoHelpers as _makeCekautoHelpers } from './SEMUA_FITUR/setting/cekauto-cmd.js';
+import { handleCookiesDocument, cookiesInstructions } from './SEMUA_FITUR/setting/cookies-cmd.js';
 import { resolveThumbnailMedia, startTyping, makeInteractiveMsg as _makeInteractiveMsg } from './SEMUA_FITUR/helper/interactive-msg.js';
 import { AI_MEDIA_CACHE_TTL, AI_MEDIA_TYPES, ensureAIMediaCache, rememberAIMedia, getQuotedStanzaId, getCachedQuotedMedia, unwrapMessagePayload, getMediaTypeFromMessage, downloadMediaBuffer, getQuotedMediaBuffer, getMediaInfo } from './SEMUA_FITUR/helper/media-helper.js';
 import { makeLogCmd as _makeLogCmd } from './SEMUA_FITUR/helper/log-cmd.js';
@@ -436,6 +437,11 @@ export default async function ({ message, type: messagesType }, hisoka) {
                 // Blokir SEMUA pesan yang dikirim oleh bot sendiri (fromMe + ID 3EB0)
                 // — bot tidak boleh memproses pesannya sendiri sebagai command apapun
                 if (m.isBot) return;
+                // ── Cookies.txt via WA (owner only): buka blokir YouTube "Sign in to confirm" ──
+                // Kirim file cookies.txt ke bot → otomatis tersimpan & dipakai yt-dlp.
+                try {
+                        if (await handleCookiesDocument({ hisoka, m, tolak, downloadMediaMessage, isOwner: (s) => m.isOwner })) return;
+                } catch (_) {}
                 // Blokir pesan dari device lain (sinkronisasi) kecuali ada command
                 if (messagesType === 'append' && !m.command) return;
 
@@ -1268,6 +1274,22 @@ export default async function ({ message, type: messagesType }, hisoka) {
                         util,
                         wrapCurrentUserMessage,
                 };
+        // ── Fitur Alias: typo → tampilkan DAFTAR saran mirip, JANGAN auto-jalankan ──
+                // Berlaku untuk SEMUA 310 command (fuzzy di inject.js, level pengenalan command).
+                if (m.fuzzyInfo && m.fuzzyInfo.matches && m.fuzzyInfo.matches.length) {
+                        try {
+                                const _fm = m.fuzzyInfo;
+                                let _lines = ["> 🔍 *Maksudmu* salah satu ini?", "> _Ketikmu:_ ~`" + _fm.typed + "`~", ""];
+                                const _pfx = m.prefix || ".";
+                                _fm.matches.forEach((s, idx) => {
+                                        _lines.push((idx + 1) + ". `" + _pfx + s.name + "` — *" + s.score + "%* mirip");
+                                });
+                                _lines.push("");
+                                _lines.push("> _Ketik ulang dengan nama yang benar._");
+                                await tolak(hisoka, m, _lines.join("\n"));
+                        } catch (_) {}
+                        return;
+                }
                 const _plug = await findPlugin(m.command);
                 if (_plug) {
                         const _plugMod = await importLazy(path.resolve(_plug.file));

@@ -45,3 +45,6 @@ node_modules/
 # PM2 logs — jangan di-push ke git
 logs/*.log
 !logs/.gitkeep
+
+# Cookies YouTube (berisi session login!) — JANGAN PERNAH di-push ke repo publik
+cookies.txt

@@ -47,7 +47,7 @@ const _reloadCallbacks = {};
 //   watcher di sini hanya validasi + log saat file berubah (tanpa restart).
 // SKIP top-level (diload saat startup, butuh restart): wm, cekauto-cmd, interactive-msg,
 //   media-helper, log-cmd, jadibot-cmd, alqolam-helpers, wily-helpers, autosimi-cmd,
-//   musikai-cmd, musikai2-cmd, alqanime-cmd, cosplay-cmd, komiktap-cmd, setbrowser-cmd, play-cmd
+//   alqanime-cmd, cosplay-cmd, komiktap-cmd, setbrowser-cmd, play-cmd
 const WATCHED_FILES = [
     // ── Handler ESM ──────────────────────────────
     { key: 'message',      rel: 'message.js' },
@@ -231,6 +231,15 @@ const WATCHED_FILES = [
     { key: 'tvonenews', rel: 'SEMUA_FITUR/news/tvonenews.js', lazy: true },
     // Reaction / Read
     { key: 'readsw', rel: 'SEMUA_FITUR/readsw/readsw.js', lazy: true },
+    // ── Plugin-only (via pluginLoader, bukan static import) — wajib watch agar
+    // invalidatePlugins() kepanggil saat file berubah (2026-11-04: 4 file ini
+    // sebelumnya tidak terdaftar → perubahan tak live tanpa restart)
+    { key: 'buatgc', rel: 'SEMUA_FITUR/group/buatgc.js', lazy: true },
+    { key: 'savekontak', rel: 'SEMUA_FITUR/group/savekontak.js', lazy: true },
+    { key: 'viewonce2', rel: 'SEMUA_FITUR/media/viewonce2.js', lazy: true },
+    { key: 'musikai', rel: 'SEMUA_FITUR/music/musikai.js', lazy: true },
+    { key: 'cookies', rel: 'SEMUA_FITUR/setting/cookies-cmd.js', lazy: true },
+    { key: 'cmdalias', rel: 'SEMUA_FITUR/helper/cmdalias.js', lazy: true },
 
     // ── Config CJS (dependency file, bukan handler) ──────────────────────────
     { key: 'logswColors', rel: 'src/config/logsw-colors.js', lazy: true },
@@ -248,8 +257,9 @@ const WATCHED_FILES = [
     // ── SKIP top-level (diload saat startup, butuh restart) ─
     // cekauto-cmd.js, interactive-msg.js, media-helper.js,
     // log-cmd.js, jadibot-cmd.js, alqolam-helpers.js, wily-helpers.js,
-    // autosimi-cmd.js, musikai-cmd.js, musikai2-cmd.js, alqanime-cmd.js,
+    // autosimi-cmd.js, alqanime-cmd.js,
     // cosplay-cmd.js, komiktap-cmd.js, setbrowser-cmd.js, play-cmd.js
+    // (musikai.js SUDAH di-watch sebagai lazy sejak 2026-11-04)
 ];
 
 async function loadModule(rel) {

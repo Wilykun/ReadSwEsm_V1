@@ -113,7 +113,40 @@ async function handlePlayChoice({
                 const tmpMp3 = path.join(process.cwd(), 'tmp', `play_${tmpId}a.mp3`);
                 const tmpTemplateA = path.join(process.cwd(), 'tmp', `play_${tmpId}a.%(ext)s`);
                 const tmpThumbFf = path.join(process.cwd(), 'tmp', `play_${tmpId}t.jpg`);
-                const YT_BASE = ['--no-check-certificate', '--extractor-args', 'youtube:player_client=android', '--js-runtimes', 'node', '--no-playlist'];
+                // (YT_BASE lama diganti buildYtBaseArgs di bawah — support fallback otomatis)
+                // ── Fallback otomatis anti "Sign in to confirm you're not a bot" ──
+                // YouTube mem-flag IP datacenter (Replit/panel Pterodactyl). Bila download gagal
+                // karena bot-check, otomatis coba berurutan TANPA setup manual:
+                // L0: android client (+ cookies.txt bila ada) → L1: + impersonate chrome (TLS spoof)
+                // → L2: ios client + impersonate chrome. Semua otomatis di dalam kode.
+                function isYtBotCheckError(err) {
+                        const msg = String((err && err.message) || err || '').toLowerCase();
+                        return msg.includes("sign in to confirm you're not a bot") || msg.includes('sign in to confirm');
+                }
+                function buildYtBaseArgs(level) {
+                        const _ct = path.join(process.cwd(), 'cookies.txt');
+                        const cookieArgs = fs.existsSync(_ct) ? ['--cookies', _ct] : [];
+                        const client = level >= 2 ? 'ios' : 'android';
+                        const args = ['--no-check-certificate', '--extractor-args', `youtube:player_client=${client}`, '--js-runtimes', 'node', '--no-playlist'];
+                        if (level >= 1) args.push('--impersonate', 'chrome');
+                        return [...args, ...cookieArgs];
+                }
+                async function ytdlpDownloadFallback(bin, extraArgs, timeoutMs, onProgress) {
+                        const LEVELS = [0, 1, 2];
+                        let lastErr = null;
+                        for (let i = 0; i < LEVELS.length; i++) {
+                                try {
+                                        if (i > 0) updLoading(`🔄 *_Server YouTube menolak, mencoba metode ${i + 1}/3..._*`);
+                                        await ytdlpDownload(bin, [...buildYtBaseArgs(LEVELS[i]), ...extraArgs], timeoutMs, parseYtdlpError, onProgress);
+                                        return;
+                                } catch (e) {
+                                        lastErr = e;
+                                        if (!isYtBotCheckError(e) || i === LEVELS.length - 1) throw e;
+                                        console.warn(`[YT-DLP] Bot-check terdeteksi, fallback ke level ${LEVELS[i + 1]}...`);
+                                }
+                        }
+                        throw lastErr;
+                }
                 let loadingMsg = null;
                 const updLoading = (teks) => { if (loadingMsg) m.reply({ edit: loadingMsg.key, text: teks }).catch(() => {}); };
                 // Heartbeat: bila tidak ada progress >8 dtk, tampilkan animasi titik agar tak terlihat stuck
@@ -145,12 +178,12 @@ async function handlePlayChoice({
                         // ── 1. Download VIDEO MP4 (360p) + progress % ──
                         // (tanpa --write-thumbnail: thumbnail diurus terpisah agar tak bisa menggagalkan download)
                         _hbStart(`⏳ *_Mengunduh video..._*\n📌 *${pending.title}*`);
-                        await ytdlpDownload(ytdlpBin, [...YT_BASE,
+                        await ytdlpDownloadFallback(ytdlpBin, [
                                 '-f', 'bestvideo[height<=360]+bestaudio/best[height<=360]',
                                 '--merge-output-format', 'mp4',
                                 '--postprocessor-args', 'ffmpeg:-c:v libx264 -c:a aac -movflags +faststart -preset fast -crf 28',
                                 '-o', tmpTemplateV, pending.url,
-                        ], 240000, parseYtdlpError, (pct, fase) => {
+                        ], 240000, (pct, fase) => {
                                 _hbStop();
                                 if (fase === 'merge') _hbStart(`🔄 *_Menggabungkan video + audio..._*\n📌 *${pending.title}*`);
                                 else updLoading(`⏳ *_Mengunduh video..._* \`${Math.floor(pct)}%\`\n📌 *${pending.title}*`);
@@ -159,10 +192,10 @@ async function handlePlayChoice({
 
                         // ── 2. Download AUDIO → convert ke voice note ──
                         _hbStart(`⏳ *_Mengunduh audio..._*\n📌 *${pending.title}*`);
-                        await ytdlpDownload(ytdlpBin, [...YT_BASE,
+                        await ytdlpDownloadFallback(ytdlpBin, [
                                 '-x', '--audio-format', 'mp3', '--audio-quality', '5',
                                 '-o', tmpTemplateA, pending.url,
-                        ], 120000, parseYtdlpError, (pct, fase) => {
+                        ], 120000, (pct, fase) => {
                                 _hbStop();
                                 updLoading(`⏳ *_Mengunduh audio..._* \`${Math.floor(pct)}%\`\n📌 *${pending.title}*`);
                         });
@@ -232,8 +265,21 @@ async function handlePlayChoice({
                 } catch (error) {
                         _hbStop();
                         await hisoka.sendMessage(m.from, { react: { text: '❌', key: m.key } });
-                        if (loadingMsg) await m.reply({ edit: loadingMsg.key, text: `❌ Gagal mengunduh:\n\`${String(error.message || error).substring(0, 200)}\`` }).catch(() => {});
-                        else await tolak(hisoka, m, `❌ Gagal mengunduh: ${error.message?.substring(0, 200)}`);
+                        const errMsg = String(error.message || error);
+                        // Bot-check YouTube yang lolos semua fallback → kasih solusi praktis
+                        if (isYtBotCheckError(error)) {
+                                const helpMsg = `❌ *YouTube memblokir server ini.*\n\n` +
+                                        `IP server (Replit/panel) di-flag YouTube — 3 metode otomatis sudah dicoba tapi tetap ditolak.\n\n` +
+                                        `*Fix satu kali (2 menit):*\n` +
+                                        `1. Install extension Chrome: *Get cookies.txt LOCALLY*\n` +
+                                        `2. Buka *youtube.com* (login dulu)\n` +
+                                        `3. Klik extension → Export → download cookies.txt\n` +
+                                        `4. *Kirim file cookies.txt ke bot* via chat ini\n\n` +
+                                        `_Bot otomatis simpan & pakai — nggak perlu utak-atik Replit._`;
+                                if (loadingMsg) await m.reply({ edit: loadingMsg.key, text: helpMsg }).catch(() => {});
+                                else await tolak(hisoka, m, helpMsg);
+                        } else if (loadingMsg) await m.reply({ edit: loadingMsg.key, text: `❌ Gagal mengunduh:\n\`${errMsg.substring(0, 200)}\`` }).catch(() => {});
+                        else await tolak(hisoka, m, `❌ Gagal mengunduh: ${errMsg.substring(0, 200)}`);
                 } finally {
                         _hbStop();
                         try { fs.unlinkSync(tmpVideo); } catch (_) {}

@@ -572,18 +572,31 @@ async function injectEndMessage(hisoka, WAMessage) {
                 hisoka._commandSetSize = hisoka.loadedCommands.length;
         }
         const _cmdMatch = hisoka._commandSet.has(afterPrefix.toLowerCase());
+        // ── Fitur Alias: typo command → cari yang paling mirip ──
+        // Jika exact match gagal, coba fuzzy matching sebelum m.command di-set kosong.
+        let _fuzzyInfo = null;
+        if (!_cmdMatch && afterPrefix.length >= 2 && !!prefix) {
+                try {
+                        const { findTopMatches } = await import('../../SEMUA_FITUR/helper/cmdalias.js');
+                        const _list = findTopMatches(afterPrefix, hisoka.loadedCommands, 10, 40);
+                        if (_list.length) _fuzzyInfo = { typed: afterPrefix.toLowerCase(), matches: _list };
+                } catch (_) {}
+        }
+        const _effectiveCmdMatch = _cmdMatch || !!_fuzzyInfo;
         // Prefix tetap wajib kecuali command tanpa prefix memang diizinkan.
         // Saat mode no-prefix aktif, batasi ke nama command yang valid dan
         // satu token saja agar teks percakapan biasa tidak ikut diproses.
-        const isCommand = _cmdMatch && (!!prefix || (allowNoPrefix && !hasExtraWords));
+        const isCommand = _effectiveCmdMatch && (!!prefix || (allowNoPrefix && !hasExtraWords));
         const query = isCommand
                 ? WAMessage.text.replace(regPrefix, '').replace(afterPrefix, '').trim()
                 : WAMessage.text.trim();
 
         Object.defineProperties(WAMessage, {
                 prefix: { value: prefix, enumerable: false, writable: false },
-                command: { value: isCommand ? afterPrefix.toLowerCase() : '', enumerable: false, writable: false },
+                command: { value: isCommand ? (_fuzzyInfo ? _fuzzyInfo.matched : afterPrefix.toLowerCase()) : '', enumerable: false, writable: false },
                 query: { value: query, enumerable: false, writable: false },
+                // Info fuzzy untuk pesan "Maksudnya...?" di message.js
+                fuzzyInfo: { value: _fuzzyInfo, enumerable: false, writable: false },
         });
 
         WAMessage.downloadMedia = async () => await hisoka.downloadMediaMessage(WAMessage);

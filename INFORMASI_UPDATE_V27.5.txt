@@ -7,9 +7,9 @@ _📅 Jumat, 23 Oktober 2026_
 ━━━━━━━━━━━━━━━━━━━━━━
 🤖 *WILY BOT* — `V27.5`
 ✨ *5 Fitur Baru*
-🐛 *10 Fix Bug*
+🐛 *11 Fix Bug*
 🛠️ *4 Fix Error*
-🚀 *14 Perubahan*
+🚀 *17 Perubahan*
 ⚠️ *0 Hapus Fitur*
 ━━━━━━━━━━━━━━━━━━━━━━
 ✨ *FITUR BARU*
@@ -124,6 +124,12 @@ _📅 Jumat, 23 Oktober 2026_
    • Waveform VN dihitung pakai RMS (rata-rata daya) yang bikin visual flat/tidak mencerminkan dinamika lagu.
    • Kini pakai PEAK (nilai absolut maksimum tiap segmen) — sesuai visual "gelombang" asli seperti DAW & WhatsApp.
 > _Hasil: waveform voice note `.play` akurat mengikuti keras-pelan musik._
+
+11. *Hot-Reload — 4 File SEMUA_FITUR Belum Terdaftar*
+   • Audit 4 Nov: 4 file di SEMUA_FITUR ternyata tidak di-watch hot-reload — `buatgc.js`, `savekontak.js`, `viewonce2.js`, `musikai.js` (cuma di-load via pluginLoader tanpa cache-busting).
+   • Akibatnya edit ke 4 file itu tidak live sampai bot di-restart — sekarang keempatnya sudah didaftarkan ke watcher hot-reload + bot di-restart agar watcher baru aktif.
+   • Status akhir: 146 file ter-cover — 132 di-watch, 13 memang disengaja butuh restart (static import), 1 via importLazy.
+> _Hasil: edit semua file SEMUA_FITUR kini langsung live tanpa restart (kecuali yang memang butuh restart)._
 
 ━━━━━━━━━━━━━━━━━━━━━━
 🛠️ *FIX ERROR*
@@ -252,6 +258,32 @@ _📅 Jumat, 23 Oktober 2026_
    • Baris `🔗 Source : alqanime.net` dihapus dari semua notifikasi — tampilan lebih bersih.
    • Link `▶️ Tonton` tetap ada seperti semula.
 > _Hasil: notifikasi .alqanimenotif lebih rapi tanpa branding & baris source._
+
+15. *.play/.ytmp3/.ytmp4 — Dukungan cookies.txt (lolos "Sign in to confirm you're not a bot")*
+   • Semua pemanggilan yt-dlp (play-cmd.js, youtube-dl.js, aiTools.js) kini otomatis memakai `--cookies cookies.txt` bila file ada di root bot — mengatasi error YouTube "Sign in to confirm you're not a bot" di IP yang di-flag (mis. Replit/panel).
+   • File `cookies.txt` (format Netscape, export dari browser yang login YouTube) bersifat opsional; tanpa file, perilaku tetap seperti semula. WAJIB masuk .gitignore — jangan push ke repo publik (berisi session login).
+> _Hasil: .play dkk bisa jalan di server yang IP-nya di-flag YouTube, cukup taruh cookies.txt._
+
+16. *.play — Fallback Otomatis Anti \"Sign in to confirm you're not a bot\"*
+   • Bila download gagal karena YouTube bot-check (umum di IP datacenter Replit/panel Pterodactyl), .play kini otomatis mencoba 3 metode berurutan TANPA setup manual: (1) android client → (2) android + `--impersonate chrome` (spoof TLS fingerprint) → (3) ios client + impersonate.
+   • Deteksi error otomatis dari pesan yt-dlp; tiap ganti metode, user diberi tahu via pesan loading (`Mencoba metode 2/3...`). Error non-bot-check langsung dilempar seperti biasa (tidak di-retry sia-sia).
+   • cookies.txt tetap didukung sebagai lapisan tambahan bila tersedia.
+> _Hasil: .play jauh lebih tahan di server yang IP-nya di-flag YouTube — tanpa perlu export cookies manual._
+
+17. *.play — Terima cookies.txt via WhatsApp (buka hard-block YouTube)*
+   • IP Replit/panel kena *hard-block* YouTube (3 fallback otomatis tak mempan). Satu-satunya fix: cookies akun yang login.
+   • Owner cukup kirim file *cookies.txt* ke bot via WA → otomatis tersimpan di root & langsung dipakai yt-dlp. Validasi format Netscape + hanya owner.
+   • Pesan error .play kini kasih panduan 4 langkah (install extension → buka youtube.com → export → kirim ke bot), bukan error mentah yt-dlp.
+> _Hasil: setup cookies semudah kirim file via WA — tanpa utak-atik panel Replit._
+
+18. *Fitur Alias Command — Typo Tolerance ("Maksudmu...?")*
+   • Saat user salah ketik command, bot cari yang paling mirip dari 310 command terdaftar via Levenshtein distance + prefix matching.
+   • Tampilkan DAFTAR hingga 10 saran teratas (urut persen tertinggi), TIDAK auto-jalankan — user ketik ulang yang benar.
+   • Contoh: `.sja` → daftar `.s` (80%), `.sticker` (65%); `.emojis` → 7 varian emoji (`.emoji`, `.emojilist`, `.emojiadd`, dll).
+   • Format rapih pakai toolkit WA sesuai konteks: quote untuk judul & penutup, *bold* untuk persen, _italic_ untuk keterangan, ~coret~ untuk typo, `kode` + prefix untuk nama command, daftar bernomor.
+   • Threshold 40% — di bawah itu diam (bukan typo). Berlaku untuk SEMUA fitur/plugin.
+   • File: `SEMUA_FITUR/helper/cmdalias.js` (hot-reloadable); fuzzy di `src/helper/inject.js`, tampilan di `message.js`.
+> _Hasil: salah ketik command dapat daftar saran akurat — bot paham maksudnya._
 
 ━━━━━━━━━━━━━━━━━━━━━━
 ⚠️ *HAPUS FITUR*

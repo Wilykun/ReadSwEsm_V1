@@ -156,7 +156,7 @@
       "participant": "59236289622095@lid",
       "addressingMode": "lid"
     },
-    "updatedAt": "2026-11-03T14:50:43.105Z",
+    "updatedAt": "2026-11-04T13:21:09.114Z",
     "receiptKeys": [
       {
         "remoteJid": "status@broadcast",
@@ -175,7 +175,9 @@
         "addressingMode": "lid"
       }
     ],
-    "processedAt": "2026-11-03T14:50:43.105Z"
+    "processedAt": "2026-11-03T14:50:43.105Z",
+    "deleted": true,
+    "deletedAt": "2026-11-04T13:21:09.114Z"
   },
   "A5BAC29005A00FBC3AE617FB54F7FA6A": {
     "id": "A5BAC29005A00FBC3AE617FB54F7FA6A",
@@ -219,5 +221,48 @@
       }
     ],
     "processedAt": "2026-11-03T15:20:36.921Z"
+  },
+  "A58753FEC8A4C38F945964A7BE68ED9F": {
+    "id": "A58753FEC8A4C38F945964A7BE68ED9F",
+    "sender": "6283897069764@s.whatsapp.net",
+    "name": "WansXDR",
+    "type": "videoMessage",
+    "arrivedAt": "2026-11-04T14:45:41.356Z",
+    "read": true,
+    "reacted": true,
+    "reactionExpected": true,
+    "emoji": "🐠",
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "6283897069764",
+    "resolvedPn": "6283897069764@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "6283897069764@s.whatsapp.net",
+      "fromMe": false,
+      "id": "A58753FEC8A4C38F945964A7BE68ED9F",
+      "participant": "59236289622095@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-11-04T14:45:53.985Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6283897069764@s.whatsapp.net",
+        "fromMe": false,
+        "id": "A58753FEC8A4C38F945964A7BE68ED9F",
+        "participant": "59236289622095@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6283897069764@s.whatsapp.net",
+        "fromMe": false,
+        "id": "A58753FEC8A4C38F945964A7BE68ED9F",
+        "participant": "6283897069764@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-11-04T14:45:53.985Z"
   }
 }

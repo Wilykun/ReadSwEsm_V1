@@ -28,6 +28,13 @@ import path from 'path';
 import { importLazy } from './esmLazy.js';
 import fs from 'fs';
 import { exec } from 'child_process';
+
+// Cookies YouTube opsional (lolos "Sign in to confirm you're not a bot"): taruh
+// cookies.txt format Netscape di root bot. Kosong bila file tidak ada.
+function ytdlpCookieFlag() {
+    const p = path.join(process.cwd(), 'cookies.txt');
+    return fs.existsSync(p) ? ` --cookies "${p}"` : '';
+}
 import util from 'util';
 import { selectStickerByMood, isValidStickerUrl } from './stickerMap.js';
 import { logStickerSent } from './aiStickerStory.js';
@@ -77,7 +84,7 @@ async function searchAndDownloadAudio(query, opts = {}) {
     const outTemplate = path.join(TMP_DIR, `ai_song_${tmpId}.%(ext)s`);
 
     await execAsync(
-        `"${ytdlpBin}" --js-runtimes node --no-playlist -x --audio-format mp3 --audio-quality 5 -o "${outTemplate}" "${url}"`,
+        `"${ytdlpBin}" --js-runtimes node --no-playlist${ytdlpCookieFlag()} -x --audio-format mp3 --audio-quality 5 -o "${outTemplate}" "${url}"`,
         { timeout: 120000 }
     );
 
@@ -105,7 +112,7 @@ async function searchAndDownloadVideo(query, opts = {}) {
     const outTemplate = path.join(TMP_DIR, `ai_video_${tmpId}.%(ext)s`);
 
     await execAsync(
-        `"${ytdlpBin}" --js-runtimes node --no-playlist -f "bestvideo[ext=mp4][height<=480]+bestaudio[ext=m4a]/best[ext=mp4][height<=480]/best" --merge-output-format mp4 -o "${outTemplate}" "${url}"`,
+        `"${ytdlpBin}" --js-runtimes node --no-playlist${ytdlpCookieFlag()} -f "bestvideo[ext=mp4][height<=480]+bestaudio[ext=m4a]/best[ext=mp4][height<=480]/best" --merge-output-format mp4 -o "${outTemplate}" "${url}"`,
         { timeout: 180000 }
     );
 
@@ -511,7 +518,7 @@ export async function downloadYouTubeAudioFromUrl(url, ytdlpBin) {
     let title = 'Audio', channel = 'Unknown', duration = 0;
     try {
         const { stdout } = await execAsync(
-            `"${ytdlpBin}" --js-runtimes node --no-playlist --dump-json "${url}"`,
+            `"${ytdlpBin}" --js-runtimes node --no-playlist${ytdlpCookieFlag()} --dump-json "${url}"`,
             { timeout: 30000 }
         );
         const meta = JSON.parse(stdout.trim());
@@ -530,7 +537,7 @@ export async function downloadYouTubeAudioFromUrl(url, ytdlpBin) {
     const outFile    = path.join(TMP_DIR, `ai_ytmp3_${tmpId}.mp3`);
     const outTemplate = path.join(TMP_DIR, `ai_ytmp3_${tmpId}.%(ext)s`);
 
-    const cmd = `"${ytdlpBin}" --js-runtimes node --no-playlist -x --audio-format mp3 --audio-quality 5 -o "${outTemplate}" "${url}"`;
+    const cmd = `"${ytdlpBin}" --js-runtimes node --no-playlist${ytdlpCookieFlag()} -x --audio-format mp3 --audio-quality 5 -o "${outTemplate}" "${url}"`;
 
     try {
         await execAsync(cmd, { timeout: 120000 });
