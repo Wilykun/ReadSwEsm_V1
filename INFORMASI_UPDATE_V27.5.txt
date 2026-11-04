@@ -9,7 +9,7 @@ _📅 Jumat, 23 Oktober 2026_
 ✨ *5 Fitur Baru*
 🐛 *10 Fix Bug*
 🛠️ *4 Fix Error*
-🚀 *13 Perubahan*
+🚀 *14 Perubahan*
 ⚠️ *0 Hapus Fitur*
 ━━━━━━━━━━━━━━━━━━━━━━
 ✨ *FITUR BARU*
@@ -246,6 +246,12 @@ _📅 Jumat, 23 Oktober 2026_
    • Caption video lengkap: judul, durasi, status berhasil; pesan sukses berupa daftar bernomor (video + voice note).
    • Catatan 31 Okt: thumbnail custom *dinonaktifkan sementara* — investigasi video corrupt saat upload (diduga `jpegThumbnail` base64 merusak proto); thumbnail dikembalikan setelah terkonfirmasi.
 > _Hasil: download lagu/video YouTube sekali tap — video + VN bergelombang, rapi tanpa spam._
+
+14. *.alqanimenotif — Header & Source Dihilangkan*
+   • Pesan notifikasi tak lagi menampilkan nama "ALQANIME" di header (`RILISAN BARU!`, `EPISODE BARU!`, `BATCH RELEASE!`, `MOVIE BARU!`/`OVA BARU!`, `LAGI HANGAT!`).
+   • Baris `🔗 Source : alqanime.net` dihapus dari semua notifikasi — tampilan lebih bersih.
+   • Link `▶️ Tonton` tetap ada seperti semula.
+> _Hasil: notifikasi .alqanimenotif lebih rapi tanpa branding & baris source._
 
 ━━━━━━━━━━━━━━━━━━━━━━
 ⚠️ *HAPUS FITUR*

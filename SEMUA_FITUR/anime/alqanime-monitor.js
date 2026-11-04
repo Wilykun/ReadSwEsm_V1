@@ -524,7 +524,7 @@ function buatCaption(data) {
     ]);
 
     return (
-        `🔴 *RILISAN BARU ALQANIME!*\n` +
+        `🔴 *RILISAN BARU!*\n` +
         `${SEP}\n` +
         `📅 _${headerWaktu}_\n` +
         `${SEP}\n\n` +
@@ -534,8 +534,7 @@ function buatCaption(data) {
         `${SEP}\n` +
         `${infoBlok}\n` +
         `${SEP}\n` +
-        `▶️ *Tonton* : ${url}\n` +
-        `🔗 *Source* : alqanime.net`
+        `▶️ *Tonton* : ${url}`
     );
 }
 
@@ -624,17 +623,17 @@ function buatCaptionGabung(data) {
     let headerUtama, badgeTipe, badgeStatus;
 
     if (tipe === 'batch') {
-        headerUtama = `📦 *BATCH RELEASE — ALQANIME!*`;
+        headerUtama = `📦 *BATCH RELEASE!*`;
         badgeTipe   = `📦 *Batch* ${isBD ? '| 💿 BD/Bluray' : ''}`.trim();
         badgeStatus = `⚫ *Tamat/Complete*`;
     } else if (tipe === 'movie') {
         const isOVA = /\bOVA\b/i.test(title || judul);
-        headerUtama = isOVA ? `🎞️ *OVA BARU — ALQANIME!*` : `🎬 *MOVIE BARU — ALQANIME!*`;
+        headerUtama = isOVA ? `🎞️ *OVA BARU!*` : `🎬 *MOVIE BARU!*`;
         badgeTipe   = isOVA ? `🎞️ *OVA*` : `🎬 *Movie*`;
         badgeStatus = `⚫ *Tamat/Complete*`;
     } else {
         // Episode ongoing
-        headerUtama = `🔴 *EPISODE BARU — ALQANIME!*`;
+        headerUtama = `🔴 *EPISODE BARU!*`;
         badgeTipe   = `📺 *Episode Baru*`;
         badgeStatus = statusSeri === 'tamat'
             ? `⚫ *Tamat* _(ep terakhir)_`
@@ -716,7 +715,6 @@ function buatCaptionGabung(data) {
         infoAnime,
         `${SEP}`,
         `▶️ *Tonton:* ${url}`,
-        `🔗 *Source:* ${formatMono('alqanime.net')}`,
         dlBlok ? dlBlok : null,
     ];
 
@@ -766,7 +764,7 @@ function buatCaptionHangat(newEntries, allHangat) {
     const jamMenit   = sekarang.toLocaleTimeString('id-ID', opsiJam).replace('.', ':');
     const headerWaktu = `${namaHari}, ${tglLengkap} · ${jamMenit} WIB`;
 
-    let txt = `🔥 *LAGI HANGAT — ALQANIME!*\n`;
+    let txt = `🔥 *LAGI HANGAT!*\n`;
     txt += `${SEP}\n`;
     txt += `📅 _${headerWaktu}_\n`;
     txt += `${SEP}\n\n`;

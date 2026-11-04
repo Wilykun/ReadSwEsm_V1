@@ -8,7 +8,7 @@
 ════════════════════════════════════════════════════════════════════════
   FILE     : infoerror.txt
   Bot      : Wily Bot
-  Update   : 03/11/2026, 02.06.50  (realtime — diperbarui otomatis setiap ada error)
+  Update   : 04/11/2026, 06.21.25  (realtime — diperbarui otomatis setiap ada error)
 ════════════════════════════════════════════════════════════════════════
 
   RINGKASAN
@@ -23,24 +23,24 @@
 ────────────────────────────────────────────────────────────────────────
 
 ┌───────────────────────────────────────────────────────────────────────
-│  #001  —  NekopoinNotif
+│  #001  —  AlqanimeNotif
 ├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
 │  PESAN ERROR
-│  [NekopoinNotif] ❌ Gagal fetch kategori 2d-animation: Jina gagal: 429
+│  [AlqanimeNotif] ❌ Gagal fetch homepage: Request failed with status code 401
 │
 │  DETAIL
-│  Sumber      : NekopoinNotif
+│  Sumber      : AlqanimeNotif
 │  Frekuensi   : 1x (baru terjadi)
-│  Pertama     : 03/11/2026, 02.06.50
-│  Terakhir    : 03/11/2026, 02.06.50
+│  Pertama     : 04/11/2026, 06.21.25
+│  Terakhir    : 04/11/2026, 06.21.25
 │
 │  STACK TRACE (3 baris pertama)
-│  ▶  Error: [NekopoinNotif] ❌ Gagal fetch kategori 2d-animation: Jina gagal: 429
+│  ▶  Error: [AlqanimeNotif] ❌ Gagal fetch homepage: Request failed with status code 401
 │     at console.error (file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/index.js:434:27)
-│     at file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/SEMUA_FITUR/anime/nekopoi-monitor.js?t=1793289413281.416:198:25
+│     at Module.cariEpisodeBaru (file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/SEMUA_FITUR/anime/alqanime-monitor.js?t=1793739402537.4668:220:17)
 └───────────────────────────────────────────────────────────────────────
 
 ════════════════════════════════════════════════════════════════════════
   End of Report  —  Total: 1 jenis, 1 kejadian
-  Terakhir diperbarui: 03/11/2026, 02.06.50
+  Terakhir diperbarui: 04/11/2026, 06.21.25
 ════════════════════════════════════════════════════════════════════════
