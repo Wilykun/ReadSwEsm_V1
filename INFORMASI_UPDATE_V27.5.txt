@@ -9,7 +9,7 @@ _📅 Jumat, 23 Oktober 2026_
 ✨ *5 Fitur Baru*
 🐛 *11 Fix Bug*
 🛠️ *4 Fix Error*
-🚀 *17 Perubahan*
+🚀 *16 Perubahan*
 ⚠️ *0 Hapus Fitur*
 ━━━━━━━━━━━━━━━━━━━━━━
 ✨ *FITUR BARU*
@@ -259,24 +259,13 @@ _📅 Jumat, 23 Oktober 2026_
    • Link `▶️ Tonton` tetap ada seperti semula.
 > _Hasil: notifikasi .alqanimenotif lebih rapi tanpa branding & baris source._
 
-15. *.play/.ytmp3/.ytmp4 — Dukungan cookies.txt (lolos "Sign in to confirm you're not a bot")*
-   • Semua pemanggilan yt-dlp (play-cmd.js, youtube-dl.js, aiTools.js) kini otomatis memakai `--cookies cookies.txt` bila file ada di root bot — mengatasi error YouTube "Sign in to confirm you're not a bot" di IP yang di-flag (mis. Replit/panel).
-   • File `cookies.txt` (format Netscape, export dari browser yang login YouTube) bersifat opsional; tanpa file, perilaku tetap seperti semula. WAJIB masuk .gitignore — jangan push ke repo publik (berisi session login).
-> _Hasil: .play dkk bisa jalan di server yang IP-nya di-flag YouTube, cukup taruh cookies.txt._
+15. *.play/.ytmp3/.ytmp4 — Anti "Sign in to confirm you're not a bot"*
+   • Fallback otomatis 3 level (android → android+impersonate → ios+impersonate) bila kena bot-check.
+   • Dukungan cookies.txt opsional; owner bisa kirim file via WA (validasi Netscape, langsung dipakai).
+   • Pesan error kasih panduan 4 langkah, bukan error mentah.
+> _Hasil: .play tahan di IP yang di-flag YouTube._
 
-16. *.play — Fallback Otomatis Anti \"Sign in to confirm you're not a bot\"*
-   • Bila download gagal karena YouTube bot-check (umum di IP datacenter Replit/panel Pterodactyl), .play kini otomatis mencoba 3 metode berurutan TANPA setup manual: (1) android client → (2) android + `--impersonate chrome` (spoof TLS fingerprint) → (3) ios client + impersonate.
-   • Deteksi error otomatis dari pesan yt-dlp; tiap ganti metode, user diberi tahu via pesan loading (`Mencoba metode 2/3...`). Error non-bot-check langsung dilempar seperti biasa (tidak di-retry sia-sia).
-   • cookies.txt tetap didukung sebagai lapisan tambahan bila tersedia.
-> _Hasil: .play jauh lebih tahan di server yang IP-nya di-flag YouTube — tanpa perlu export cookies manual._
-
-17. *.play — Terima cookies.txt via WhatsApp (buka hard-block YouTube)*
-   • IP Replit/panel kena *hard-block* YouTube (3 fallback otomatis tak mempan). Satu-satunya fix: cookies akun yang login.
-   • Owner cukup kirim file *cookies.txt* ke bot via WA → otomatis tersimpan di root & langsung dipakai yt-dlp. Validasi format Netscape + hanya owner.
-   • Pesan error .play kini kasih panduan 4 langkah (install extension → buka youtube.com → export → kirim ke bot), bukan error mentah yt-dlp.
-> _Hasil: setup cookies semudah kirim file via WA — tanpa utak-atik panel Replit._
-
-18. *Fitur Alias Command — Typo Tolerance ("Maksudmu...?")*
+16. *Fitur Alias Command — Typo Tolerance ("Maksudmu...?")*
    • Salah ketik command → bot tampilkan daftar hingga 10 saran termirip (tidak auto-jalan).
    • Contoh: `.sja` → `.s` (80%); `.emojis` → 7 varian emoji. Format rapih: quote, *bold*, _italic_, ~coret~, `kode`.
 > _Hasil: bot paham maksud meski salah ketik._
