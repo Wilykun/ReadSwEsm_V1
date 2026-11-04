@@ -36,23 +36,15 @@ _📅 Jumat, 23 Oktober 2026_
 > _Hasil: cek jadwal rilis anime harian & semingguan dari chat, realtime, rapih, 1 pesan._
 
 4. *.buatgc — Buat Grup WhatsApp dari Bot*
-   • Ketik `.buatgc Nama Grup | 62812xxxx, 0813xxxx` → bot bikin grup baru, otomatis jadi admin, anggota langsung dimasukin. Alias: `.creategc`, `.newgc`. Khusus owner.
-   • Format nomor fleksibel: `+62812…`, `62812…`, `0812…`, `812…` (spasi/strip/titik otomatis dibersihkan) → dinormalisasi ke `628…`; duplikat dibuang, nomor tidak valid dilaporkan (grup tetap dibuat dengan nomor valid).
-   • Icon grup 3 jalur: kirim/quote gambar, atau `.buatgc Nama | nomor | 2` (KODE icon — lihat `.listgc`) / nama file, atau otomatis random.
-   • *Sistem icon dinamis:* 110 URL mentah GitHub di `icons.json` (Anime 1–110, tanpa duplikat, semua terverifikasi HTTP 200) — tambah URL baru → otomatis dipakai acak. File lokal webp DIHAPUS 31 Okt (sistem full-URL).
-   • Hasil: nama grup, jumlah anggota, nomor dilewati, sumber icon, + link invite `chat.whatsapp.com`.
-   • *Rapih 31 Okt:* kode icon DIHAPUS dari `.buatgc` & `.listgc` — icon selalu *otomatis acak* (default random, tanpa pilih manual); koleksi diperbanyak jadi 110 gambar anime (full URL GitHub, 0 duplikat; 3 file webp lokal dihapus).
-> _Hasil: bikin grup WA + icon + link invite langsung dari chat, tanpa buka WhatsApp._
+   • `.buatgc Nama | nomor1, nomor2` → bot bikin grup, jadi admin, anggota langsung masuk.
+   • Icon grup selalu acak dari 110 URL anime. Khusus owner.
+> _Hasil: bikin grup WA dari bot dalam 1 perintah._
 
 5. *.listgc — Daftar Grup + Ganti Icon via Reply*
-   • Ketik `.listgc` → daftar SEMUA grup yang diikuti bot, realtime: nomor urut, nama, jumlah anggota, dan peran bot (👑 Pemilik / ⭐ Admin / 👤 Member / ❓) — urut Pemilik dulu.
-   • *Ganti icon:* reply pesan daftar dengan `<nomor> | <kode>` (mis. `2 | 1`) atau kirim/quote gambar + reply `<nomor>`. Kode icon dinamis: 1–3 file lokal, 4–11 URL GitHub (lihat `media/buatgc/icons.json`) — SAMA dengan yang dipakai `.buatgc`.
-   • *Rapih 30 Okt:* daftar kode icon format simpel `1 > Anime Chibi` (tanpa emoji) + contoh nyata di pesan (`2 | 1` → grup no. 2 pakai Anime Chibi); urut grup = anggota terbanyak di atas; respon pakai toolkit WA per konteks (*tebal*, _miring_, ~coret~, `kode`, daftar, > kutip di awal baris); pas pilih icon pesan daftar DIHAPUS otomatis → hasil dikirim sebagai pesan baru (rapih, akurat, anti-spam).
-   • *Rapih 31 Okt (layout):* daftar grup kini pakai garis pemisah simpel antar entri; tiap grup tampil 4 baris kutip sendiri-sendiri (peran → jumlah admin → jumlah anggota → tanggal dibuat); emoji dikurangi — hanya emoji peran (👑⭐👤) yang kontekstual, 👥📅💡 dibuang; tanggal buat jadi kata "dibuat …"; footer hint dipadatkan 2 baris.
-   • *Update 31 Okt:* tiap grup kini tampil *tanggal pembuatan grup* realtime (📅 tgl-bln-thn, jam WIB) — diambil dari `creation` metadata WhatsApp tiap `.listgc` dipanggil; tampil ❓ bila data tak tersedia.
-   • *Bug fix 30 Okt:* `updateProfilePicture` Baileys 7 minta buffer langsung (bukan `{img}`) — error `toString` saat ganti icon sudah diperbaiki di `.listgc` & `.buatgc`.
-   • Reply cuma nomor → ditampilkan pilihan icon dulu (tidak hangus); pilihan berlaku 5 menit; reply ke pesan lain / nomor salah / pesan biasa → diabaikan bersih. Khusus owner.
-> _Hasil: kelola & ganti icon semua grup bot dari 1 pesan daftar._
+   • Daftar semua grup realtime: nama, anggota, peran bot (👑/⭐/👤), tanggal dibuat.
+   • Ganti icon: reply `<nomor> | <kode>` atau kirim gambar + reply nomor. Icon 110 URL anime acak.
+   • Format rapih pakai toolkit WA; pesan daftar auto-hapus setelah pilih.
+> _Hasil: kelola & ganti icon semua grup dari 1 pesan._
 
 ━━━━━━━━━━━━━━━━━━━━━━
 🐛 *BUG FIX*
@@ -76,25 +68,11 @@ _📅 Jumat, 23 Oktober 2026_
 > _Hasil: sticker di dalam paket tampil normal dan paket terkirim utuh sebagai 1 paket, tidak lagi pecah satuan karena gangguan jaringan sesaat._
 
 4. *.animasu — Perbaikan Gambar, Detail & Status*
-   • Cover anime sekarang pakai URL Photon asli (sebelumnya di-rewrite ke animasu.love → gambar 403 tidak tampil).
-   • Detail anime sekarang lewat translate.goog dengan retry (sebelumnya WP REST API 403 dari host bot sehingga detail gagal total).
-   • `.animasu status` & `.animasu test grup` sekarang baca dari homepage (sebelumnya WP API → kosong/gagal).
-   • Cache detail lama yang menahan data basi sudah diperbaiki: file dibaca segar tiap fallback, simpan read-then-write.
-   • Baris Rating yang kosong di situs sekarang dihilangkan, bukan tampil tanpa nilai.
-   • Monitor buta: homepage kini diambil translate.goog dulu (sebelumnya Jina menyajikan cache basi sehingga update tak terkirim); fallback direct→Jina bila TG gagal.
-   • Sinopsis bahasa Inggris dari Kitsu dihapus total dari caption (Kitsu kini hanya menyumbang genre); sinopsis Indonesia lengkap kembali begitu jalur detail hidup.
-   • Rating situs ditampilkan apa adanya, termasuk `N/A`/`?` bila situs belum punya skor (rating Kitsu tidak dipakai).
-   • Monitor notifikasi yang kadang pendek (tanpa Status/Sinopsis/Trailer) diperbaiki: penyebabnya Cloudflare memblokir semua jalur detail dari server bot (direct 403, translate.goog & Jina menyajikan halaman blokir) dan judul baru belum ada di cache — kini scheduler mencoba detail 2x dengan jeda 90 detik sebelum menyerah ke caption pendek (`.animasu test` tetap cepat, tanpa retry).
-   • Caption pendek kini tetap membawa Status dari Kitsu (cocok persis); sinopsis Inggris tetap tidak dipakai.
-   • Cache detail judul baru di-seed sehingga episode berikutnya langsung tampil lengkap (21 entri).
-   • Notifikasi ganda (judul yang sama terkirim 7-11x) diperbaiki: penyebabnya state dibangun ulang dari snapshot widget tiap tick — judul yang sesaat hilang dari fetch (429/snapshot basi) terhapus dari state lalu dianggap "baru" lagi saat muncul. State kini akumulatif (label lama dipertahankan bila judul absen) + pruning entri tak terlihat 30 hari.
-   • Jaring pengaman baru: sent-log per kategori (`data/animasu/terkirim.json`, cap 300) dicek scheduler sebelum kirim — pola yang sama seperti `.alqanimenotif` yang akurat.
-   • Antrean pending (perintah user 28 Okt 06:26): notifikasi monitor TIDAK lagi dikirim pendek — bila detail gagal didapat (live + cache) setelah retry, judul diantre di `data/animasu/pending.json` per kategori dan dicoba lagi tiap tick (1x, tanpa jeda 90 detik); baru dikirim saat caption lengkap. Label terbaru menggantikan antrean lama per slug; antrean kedaluwarsa 7 hari (dihapus, tidak dikirim). `.animasu test` tetap langsung kirim (manual, tanpa antrean).
-   • Cache detail Gensou Suikoden di-seed (entri ke-22, via browser karena server bot diblokir) sehingga episode berikutnya langsung tampil lengkap (minus sinopsis sampai jalur live pulih).
-   • Notifikasi ganda lanjutan (29 Okt: 11 judul terkirim 4-5x saat antrean pending terkuras 14:56–15:00) diperbaiki: penyebabnya tick scheduler tumpang tindih — setInterval 60 detik tidak menunggu tick async selesai; saat kirim lambat (fetch detail + upload media ke 2 grup), tick berikutnya lolos cek "sudah terkirim" sebelum tick sebelumnya menandai terkirim. Kini tiap tick monitor (tayang & update) punya busy-flag: tick baru dilewati bila tick sebelumnya masih jalan (aman — deteksi berbasis state file, tidak ada notif hilang), flag basi >10 menit di-reset otomatis, dan flag selalu di-reset via finally. Simulasi 8/8 (tanpa flag tiap judul terkirim 2x; dengan flag tepat 1x).
-   • Label episode kini "Episode 04" (angka 2 digit, tanpa suffix "/total") — sebelumnya tampil "Episode 4/3" yang aneh karena data total episode situs tidak reliable; berlaku di notifikasi detail, notifikasi pendek, & tampilan detail.
-   • Notifikasi ganda lanjutan (2 Nov: "Keroro Gunsou" & "Kashita Maryoku" terkirim 2x ke tiap grup, 01:18–01:22) diperbaiki: penyebabnya urutan tandai-kirim — kode menandai terkirim di sent-log & menghapus antrean SESUDAH `kirimKeGrup` selesai; bila 2 tick/proses berkejaran (restart watchdog + sesi utama pasca-reboot VM), keduanya lolos cek "sudah terkirim" sebelum salah satunya menandai. Kini urutannya dibalik di 4 titik kirim (deteksi & antrean, widget tayang & update): tandai terkirim + hapus antrean DULU (sinkron), baru kirim (async) — tick kedua pasti melihat tanda dan lewati. `kirimKeGrup` tak pernah melempar (error per grup ditangkap internal) jadi aman. Simulasi race 2 tick bersamaan: tepat 1x kirim.
-> _Hasil: gambar, detail, status, test & monitor animasu tampil akurat dari sumber live; rating ikut benar._
+   • Gambar pakai URL Photon asli; detail via translate.goog + retry; status/test baca homepage.
+   • Cache diperbaiki (read-then-write); rating kosong dihilangkan; sinopsis Inggris dihapus.
+   • Anti-duplikat: busy-flag per tick + tandai terkirim sebelum kirim (simulasi 8/8).
+   • Label episode 2 digit ("Episode 04", tanpa "/total").
+> _Hasil: gambar, detail & monitor animasu akurat dari sumber live._
 
 5. *.nekopoinotif — Parser & Sinopsis*
    • Parser listing & detail diperbarui (nk-search-item, paragraf separator).
@@ -180,16 +158,10 @@ _📅 Jumat, 23 Oktober 2026_
    • `.iqc` ditambahkan ke menu utama bagian PESAN & STICKER.
 > _Hasil: fitur .iqc mudah ditemukan._
 
-6. *.stickerly/.stickerpack — Pencarian Realtime, Pilihan Paket & Pengalaman Pakai*
-   • Pencarian realtime ke Stickerly (semua bahasa, semua jenis sticker): `.stickerly <keyword>` sekarang tampilkan daftar *30 paket* — balas pesan daftarnya dengan angka buat memilih, atau ketik `batal`.
-   • Info tiap paket lengkap: nama, kreator + username, pengikut kreator, kode paket, jumlah sticker, views, download/export, dan link paket. Pesan sukses juga memuat info realtime penuh yang sama — sekali lihat langsung tahu paket apa yang disimpan dan sepopuler apa.
-   • Paket dikirim sebagai *1 paket native* berisi semua sticker (fallback kirim satuan bila paket gagal total).
-   • Semua sticker di paket otomatis memakai pack/author dari `config.json` (`"sticker": { "pack", "author" }`) — mengikuti config seperti `.sticker`/`.wm`, tanpa re-encode (animasi utuh).
-   • Loading *persen asli* dari jumlah sticker yang benar-benar selesai diunduh/dikirim (sebelumnya bar animasi berbasis waktu yang berhenti di tengah), menyatu di *1 pesan* yang di-edit dari info → persen → kirim paket → selesai, tanpa pesan berserakan.
-   • Penjaga anti dobel: paket yang sama di chat yang sama tidak bisa diproses dua kali bersamaan — perintah kedua dijawab sopan, bukan membuat pesan tumpuk.
-   • Pesan daftar pilihan *langsung berubah jadi loading* begitu user membalas angka — daftar tidak tertinggal di chat (bila edit ditolak WhatsApp, bot otomatis kembali memakai pesan status baru).
-   • Tampilan balasan tanpa garis kotak: formatting WhatsApp native (tebal, miring, kode, daftar bernomor/berpoint, kutip) sesuai konteks.
-> _Hasil: cari, pilih, dan simpan paket Stickerly utuh langsung dari chat — realtime seperti aplikasi aslinya, rapi tanpa spam._
+6. *.stickerly/.stickerpack — Pencarian Realtime*
+   • Cari sticker realtime: `.stickerly <keyword>` → pilih paket → jadi sticker.
+   • Info lengkap: nama, kreator, jumlah sticker per paket.
+> _Hasil: cari & pasang sticker pack langsung dari bot._
 
 7. *.fb / .ig / .tt — Caption Full AI (Gemini API Resmi)*
    • Vision & caption sekarang memakai *Gemini API resmi* — API key disimpan di `config.json` (`"geminiApiKey"`), dibaca segar tiap panggilan sehingga ganti key langsung berlaku tanpa restart. Jalur lama (scraper) menjadi fallback.
@@ -198,13 +170,9 @@ _📅 Jumat, 23 Oktober 2026_
 > _Hasil: caption `.fb`, `.ig`, `.tt` akurat sesuai isi video, bukan tebakan dari sampul._
 
 8. *.animasu — Monitor Update, Status Rapih & Format Baru*
-   • Notifikasi update: SATU pesan lengkap per anime (header per tipe, tanggal WIB, blok info lengkap: status, rilis, jenis, durasi, studio, rating, disimpan, diposting, diupdate, karakter, lanjutan; sinopsis, trailer, episode terbaru, link tonton) — caption mentok 1000 karakter, sinopsis dipotong di batas kata bila perlu.
-   • Detail dilengkapi Kitsu (genre + sinopsis) bila detail situs gagal, dan cache file detail (maks 200 slug, live-first: update terbaru selalu live dari homepage, cache hanya menambal saat sumber live tertutup; tiap sukses live menimpa cache).
-   • `.animasu test` = SATU preview update terbaru realtime (kartu teratas widget Sedang Tayang, atau Baru Ditambah & Diperbarui bila kosong).
-   • `.animasu status` = daftar grup saja, rapih & realtime: hitungan (total, aktif, nonaktif), urutan aktif dulu lalu nama, garis simple pemisah antar grup; per grup jumlah anggota, jumlah admin, dan status bot admin (✅/❌, ❓ bila tak diketahui) — diambil live dari grup, bukan simpanan. Data tersimpan di `config.json` tetap minimal per grup: `{ enabled, diubahPada }`.
-   • Semua pesan .animasu kini tanpa garis kotak/pohon — formatting WhatsApp native (tebal, miring, coret, kode, daftar bernomor/berpoint, kutip) sesuai konteks, URL tetap polos.
-   • Caption detail kini memuat link episode terbaru & trailer (dari seed detail-cache 20 entri).
-> _Hasil: pantau update anime, cek status grup & kirim preview dari chat — realtime, rapih, dan satu pesan tanpa spam._
+   • Notifikasi update 1 pesan lengkap per anime; format native WA (tanpa garis kotak).
+   • `.animasu status` = daftar grup saja; `.animasu jadwal` = seminggu 1 pesan.
+> _Hasil: notif anime rapih & akurat._
 
 9. *Menu Utama & Struktur Fitur Grup — Tampilan Rapih*
    • Menu utama (`.menu` bot utama) & menu jadibot (`.menu` sesi jadibot) kini tanpa garis kotak/pohon/bingkai — diganti garis simple, section dinomori, tiap kategori tepat 1 section.
@@ -213,45 +181,26 @@ _📅 Jumat, 23 Oktober 2026_
    • Isi tidak berubah: menu utama tetap 166 plugin / 306 command (0 hilang), menu jadibot tetap 68 baris / 52 perintah / total 44.
 > _Hasil: menu & struktur folder rapih, enak dilihat, tanpa fitur hilang._
 
-10. *.autosholat — Pesan Rapih, 1 Gambar & Tombol Owner*
-   • Pesan notifikasi & test kini SATU gambar saja (sebelumnya gambar + kartu preview thumbnail yang sama sehingga terlihat 2) + tombol `👥 Hubungi Owner` (cta_url ke `wa.me/<owner config.json>`; tanpa owner → gambar biasa).
-   • Format pesan rapih & simple dengan toolkit WhatsApp native sesuai konteks: judul/jam tebal, tanggal/ucapan miring, jam yang sudah lewat dicoret, daftar jadwal berpoint, ucapan dikutip, perintah dalam kode; help memakai daftar bernomor, status & jadwal tanpa garis kotak.
-   • Tombol & format baru berlaku untuk `.autosholat test` DAN notifikasi scheduler realtime (helper yang sama); scheduler mengecek tiap 60 detik.
-   • Baris hint perintah dihapus dari caption (tidak bagus + perintah autosholat owner-only, mengajak anggota grup hanya berujung balasan "Hanya owner"); diganti kalimat penutup "Selamat menunaikan sholat <nama>" yang otomatis ikut nama sholatnya, tanpa nama kota di caption (kata "Jakarta" tidak ditampilkan).
-   • Emoji dipangkas sesuai konteks: 🤲 tepat 1x (baris Selamat saja; baris Allahu Akbar polos), kutip ucapan tanpa emoji, judul 1 ikon saja (tanpa pasangan), footer polos; ikon Maghrib dibetulkan jadi 🌇 (senja, bukan terbit).
-   • Ucapan kini RANDOM: 3 varian per waktu (15 total), tiap varian menyebut nama sholatnya + suasana waktunya, dipilih acak tiap kirim.
-   • Hari Jumat: Zuhur otomatis tampil sebagai *Sholat Jumat* (judul 🕌, baris jadwal ▶ *Jumat*, penutup "Selamat menunaikan sholat Jumat 🤲") + 3 varian quote menyentuh khusus Jumat (random); hari lain tetap "Zuhur" normal. Gambar & audio adzan tetap pakai file Zuhur.
-   • *True/false per grup 31 Okt:* config `autoSholat.groups` kini format `{ "<jid>": { enabled: true/false, diubahPada } }` (disamakan dengan animasu/nekopoinotif) — bisa on/off lewat `.autosholat add`/`remove` MAUPUN edit manual file config.json (baca fresh tiap cek, tanpa restart); `.autosholat status` tampil ✅/❌ per grup + hitungan aktif; `remove` tidak hapus baris (jadi `enabled: false`, tetap bisa di-flip manual).
-> _Hasil: notifikasi sholat rapih, 1 gambar + tombol owner, akurat tiap waktu._
+10. *.autosholat — Pesan Rapih*
+   • Notifikasi 1 gambar + caption rapih (tanpa nama kota); tombol owner wa.me.
+   • Quote per waktu sholat; khusus Jumat tampil "Sholat Jumat".
+> _Hasil: pengingat sholat simple & menyentuh._
 
 11. *.tele — Backup Media Telegram*
-   • `.tele on` kini pintar sesuai kondisi: token ada tapi Chat ID kosong → step lengkap ambil Chat ID + URL https://t.me/userinfobot; token kosong → step + https://t.me/BotFather; dua-duanya kosong → arah ke `.tele tutorial`.
-   • Bila notif AKTIF tapi token/chat ID belum lengkap: `.tele on` langsung warning + tiap ada status dibaca → DM owner 1x/6 jam (anti-spam) sebut field yang kurang.
-   • `.tele token` / `.tele chatid` divalidasi realtime ke API Telegram: token valid → tampilkan @username + status silang; invalid → tidak disimpan + alasan akurat; chat ID valid → tampilkan nama chat.
-   • `.tele token` / `.tele chatid` kini animasi loading → hasil meng-EDIT pesan yang sama (bukan pesan baru); bila mengganti yang lama → "Mengganti..." + "diganti & valid".
-   • `.tele test` kini tes TEKS + MEDIA (foto) sekaligus — jalur media yang dipakai backup ikut terbukti.
-   • Section baru "📤 Backup Media Telegram" di button `.readsw` (paling atas, bot utama saja): tombol ✅ Aktifkan / ❌ Nonaktifkan + description, tanda ✓, baris status di body; toggle `.readsw tele on/off` — ON tanpa token/chat ID langsung diberi step; toggle ganda dijawab "sudah aktif/nonaktif".
-   • AUTO-OFF cerdas: bila Telegram menjawab 401 (token invalid) / chat not found / kicked / forbidden saat backup → fitur mati otomatis + DM 1x ke owner sebut sebab + langkah perbaiki; network error & 429 tidak mematikan (transien).
-   • Format caption Telegram dirapikan: badge tipe di depan (🎥 Video/🖼️ Foto/🎵 Audio/📝 Teks), tanggal Indonesia, nama + link wa.me, caption italic; HTML di-escape agar tidak gagal parse diam-diam.
-   • Caption kini dibuka sapaan waktu realtime Asia/Jakarta: 🌅 Selamat pagi (04–11) / ☀️ Selamat siang (11–15) / 🌇 Selamat sore (15–19) / 🌙 Selamat malam (19–04) — dihitung dari timestamp status, bukan jam bot.
-> _Hasil: backup status ke Telegram terpantau akurat — kurang, salah, atau mati, bot selalu ngasih tau._
+   • Setup pintar: `.tele on` kasih step sesuai yang kurang (token/chat ID); validasi realtime ke API.
+   • `.tele test` tes teks + media; caption rapih + sapaan waktu realtime (pagi/siang/sore/malam).
+   • AUTO-OFF cerdas: 401/chat not found → mati otomatis + DM owner; network/429 tidak.
+> _Hasil: backup ke Telegram terpantau akurat._
 
 12. *.nekopoinotif — Menu Single-Select*
-   • `.nekopoinotif` tanpa argumen kini tampilkan menu single-select (pola `.readsw`): section 🎌 Genre (3 row toggle + Aktifkan/Matikan Semua, yang aktif di atas + tanda ✓), section 👥 Grup (daftar semua grup yang diikuti bot — aktif ✓ di atas, lalu nonaktif, lalu belum daftar; tap row = toggle grup langsung), section 🛠️ Lainnya (Status, Test).
-   • Sub baru `.nekopoinotif kat <slug|all|none>` — toggle genre (boleh kosong = Matikan Semua); sub baru `.nekopoinotif g <nomor>` — toggle grup by nomor (urutan deterministik, nomor stabil antara render & tap).
-   • Setiap aksi (toggle genre/grup, on/off, status) direspon menu single-select FRESH — tanda ✓ & status langsung update sesuai aksi; semua pesan menu/status/konfirmasi lama milik bot otomatis dihapus (tidak menumpuk ganda); pesan user tidak disentuh (tanpa tombstone "Anda menghapus pesan ini").
-   • Kategori di body menu tampil vertikal (satu baris satu genre); nama "2D Animation" tampil utuh (sebelumnya disingkat "2D Anim").
-   • Sub lama tetap jalan (`on/off/status/test/kategori`); fallback teks bila button tak tersedia.
-> _Hasil: atur notif nekopoi (genre + grup) langsung dari menu tap — akurat, rapih, tanpa spam._
+   • Menu 3 section: 🎌 Genre (toggle + Aktifkan/Matikan Semua), 👥 Grup (toggle langsung), 🛠️ Lainnya.
+   • Kategori global; thumbnail via Photon; tiap aksi respon menu fresh.
+> _Hasil: atur notif nekopoi tinggal tap._
 
 13. *.play — 1 Tombol, Video + Voice Note*
-   • `.play` kini cukup *1 tombol* `📥 Download Video + VN` — sekali tap langsung kirim *2 file*: 🎬 video MP4 (360p) + 🎤 audio sebagai *voice note* asli WhatsApp (bukan file MP3).
-   • Voice note memakai *waveform* 64 titik sesuai suara (seperti VN WhatsApp asli).
-   • Hasil pencarian tanpa garis kotak: formatting WhatsApp native (judul tebal, durasi/views kode, channel miring, link) sesuai konteks.
-   • Loading *persen asli* dari yt-dlp (update tiap 3%) + deteksi fase *merge* ffmpeg + heartbeat animasi agar tak terlihat stuck; pesan tombol otomatis *dihapus* begitu user tap — chat bersih.
-   • Caption video lengkap: judul, durasi, status berhasil; pesan sukses berupa daftar bernomor (video + voice note).
-   • Catatan 31 Okt: thumbnail custom *dinonaktifkan sementara* — investigasi video corrupt saat upload (diduga `jpegThumbnail` base64 merusak proto); thumbnail dikembalikan setelah terkonfirmasi.
-> _Hasil: download lagu/video YouTube sekali tap — video + VN bergelombang, rapi tanpa spam._
+   • 1 tombol `📥 Download Video + VN` → video MP4 + VN asli WhatsApp (waveform 64 titik).
+   • Pesan tombol & loading auto-hapus setelah terkirim.
+> _Hasil: download YouTube simple 1 tap._
 
 14. *.alqanimenotif — Header & Source Dihilangkan*
    • Pesan notifikasi tak lagi menampilkan nama "ALQANIME" di header (`RILISAN BARU!`, `EPISODE BARU!`, `BATCH RELEASE!`, `MOVIE BARU!`/`OVA BARU!`, `LAGI HANGAT!`).
