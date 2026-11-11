@@ -9,14 +9,14 @@
 // delay acak 1–20 detik. Emoji cuma 6 resmi (👍 ❤️ 😂 😮 😢 🙏), default acak dari 6 itu.
 // Balasan bot pakai format WA lengkap sesuai konteks (tebal, miring, coret, kode, daftar, kutip).
 
-import { CHANNEL_EMOJIS, EMOJI_ACAK, pilihEmoji, resolveChannelJid, namaChannel, buatTampilan, waktuWIB, getAutoReactSetting, getAutoReactChannels, getAutoReactDilihat, tambahChannel, hapusChannel, setAutoReactEnabled, setAutoReactDebug, ensureAutoReactChannels } from '../../src/helper/autoReactChannel.js';
+import { CHANNEL_EMOJIS, EMOJI_ACAK, pilihEmoji, resolveChannelJid, namaChannel, buatTampilan, waktuWIB, getAutoReactSetting, getAutoReactChannels, getAutoReactDilihat, tambahChannel, hapusChannel, setAutoReactEnabled, ensureAutoReactChannels } from '../../src/helper/autoReactChannel.js';
 
 export const command = /^(readch)$/i;
 export const tags = ['tools'];
 export const help = {
   name: 'readch',
   description: 'Auto-reaction tiap postingan baru di channel/saluran WhatsApp (delay acak 1–20 detik).',
-  usage: '.readch on [emoji|acak]\n.readch on <link channel> [emoji|acak]\n.readch off\n.readch off <link channel>\n.readch list\n.readch test <link postingan> [emoji]\n.readch debug on|off',
+  usage: '.readch on [emoji|acak]\n.readch on <link channel> [emoji|acak]\n.readch off\n.readch off <link channel>\n.readch list\n.readch test <link postingan> [emoji]',
   example: '.readch on ❤️'
 };
 
@@ -38,12 +38,20 @@ function jamWIB(ts) {
   return `${p(wib.getUTCDate())}/${p(wib.getUTCMonth() + 1)} ${p(wib.getUTCHours())}:${p(wib.getUTCMinutes())} WIB`;
 }
 
+// Menu fitur .readch — statusnya AKURAT (dibaca langsung dari config, bukan teks statis).
+function menuReadch(pfx) {
+  const { enabled, emoji } = getAutoReactSetting();
+  const jumlahChannel = Object.keys(getAutoReactChannels()).length;
+  return `*📋 .readch — Auto-Reaction Channel*\nStatus: *${enabled ? 'NYALA ✅' : 'MATI ❌'}*\nEmoji: _${emojiLabel(emoji)}_\nSaluran terdaftar: *${jumlahChannel}*\n\n*Fitur:*\n1. \`${pfx}readch on\` — nyalain auto-react\n2. \`${pfx}readch on <link channel> [emoji]\` — nyalain + follow + daftarin channel\n3. \`${pfx}readch off\` — matiin auto-react\n4. \`${pfx}readch off <link channel>\` — hapus channel dari daftar\n5. \`${pfx}readch list\` — status + daftar saluran\n6. \`${pfx}readch test <link postingan> [emoji]\` — react sekali buat ngetes (jalan walau auto MATI)\n\n> _Tiap postingan baru di channel yang bot follow langsung di-react otomatis setelah delay acak 1–20 detik. Info tiap postingan tercatat di log konsol bot._`;
+}
+
 export default async function handler(ctx) {
   const { hisoka, m, query, pfx, isMainBot } = ctx;
   if (!isMainBot || !isMainBot(hisoka)) return;
   if (!m.isOwner) return;
   const args = String(query || '').trim().split(/\s+/).filter(Boolean);
-  const sub = (args[0] || 'list').toLowerCase();
+  const sub = (args[0] || '').toLowerCase();
+  if (!sub) return m.reply(menuReadch(pfx));
 
   if (sub === 'list') {
     const { enabled, emoji, channels, dilihat } = getAutoReactSetting();
@@ -73,7 +81,7 @@ export default async function handler(ctx) {
     try {
       try { await hisoka.newsletterFollow(jid); } catch (_) {}
       await hisoka.newsletterReactMessage(jid, serverId, emojiPakai);
-      const namaCh = (await namaChannel(hisoka, jid)) || '(nama tidak tersedia)';
+      const namaCh = (await namaChannel(hisoka, jid)) || '(tanpa nama)';
       const w = waktuWIB();
       return m.reply(buatTampilan('Reaction Terkirim', [
         ['Channel', namaCh],
@@ -122,19 +130,5 @@ export default async function handler(ctx) {
     return m.reply(`*Auto-react MATI* ❌\n\n> _Postingan channel baru nggak bakal ku-react lagi sampai kamu nyalain lagi._\nNyalain lagi: \`${pfx}readch on\``);
   }
 
-  if (sub === 'debug') {
-    const arg = (args[1] || '').toLowerCase();
-    if (arg === 'on') {
-      setAutoReactDebug(true);
-      return m.reply(`*Debug .readch NYALA* 🔍\n\n> _Tiap postingan channel yang masuk bakal kukirimin detailnya ke kamu (ID channel + ID pesan + hasil react)._`);
-    }
-    if (arg === 'off') {
-      setAutoReactDebug(false);
-      return m.reply(`*Debug .readch MATI* 🔍\n\n> _Detail postingan cuma kucatat di log bot._`);
-    }
-    const { debug } = getAutoReactSetting();
-    return m.reply(`*Debug .readch: ${debug ? 'NYALA 🔍' : 'MATI 🔍'}*\n\nPakai: \`${pfx}readch debug on\` / \`${pfx}readch debug off\``);
-  }
-
-  return m.reply(`*Pakainya:*\n\`${pfx}readch on [emoji|acak]\`\n\`${pfx}readch on <link channel> [emoji|acak]\`\n\`${pfx}readch off\`\n\`${pfx}readch off <link channel>\`\n\`${pfx}readch list\`\n\`${pfx}readch test <link postingan> [emoji]\`\n\`${pfx}readch debug on|off\``);
+  return m.reply(menuReadch(pfx));
 }

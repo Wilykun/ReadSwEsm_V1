@@ -44,7 +44,7 @@
     "fixedDelayMs": 3000
   },
   "autoReactChannel": {
-    "enabled": true,
+    "enabled": false,
     "emoji": "acak",
     "channels": {
       "120363427810079465@newsletter": {
@@ -58,11 +58,18 @@
         "jumlahPost": 1
       },
       "120363427810079465@newsletter": {
-        "terakhirPost": 1794408725000,
-        "jumlahPost": 27
+        "terakhirPost": 1794412274000,
+        "jumlahPost": 37
+      },
+      "120363422614794709@newsletter": {
+        "terakhirPost": 1794410854000,
+        "jumlahPost": 3
+      },
+      "120363311886084441@newsletter": {
+        "terakhirPost": 1794410641000,
+        "jumlahPost": 1
       }
-    },
-    "debug": true
+    }
   },
   "antiDelete": {
     "enabled": false,

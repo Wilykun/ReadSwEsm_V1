@@ -75,25 +75,48 @@ export async function resolveChannelJid(hisoka, input) {
 }
 
 // Nama channel realtime dari metadata WhatsApp (namaChannel dipakai .readch list,
-// DM debug, dan balasan test). Coba JID lengkap dulu, lalu angka saja; tiap percobaan
-// dicatat ke log bot biar ketahuan kenapa nama bisa kosong (11 Nov 21:52: nama channel
-// TES BOT tidak ke-resolve, DM menampilkan "(nama tidak tersedia)").
+// DM debug, dan balasan test). BUKTI LOG 22:10: meta.name = null, nama aslinya ada di
+// thread_metadata.name TAPI bersarang sebagai objek (bukan string) — makanya ekstraksi
+// satu level gagal dan DM menampilkan "(tanpa nama)". Jadi ambilNama REKURSIF
+// (gali .name/.text/.title sampai 3 level). Percobaan JID angka saja TERBUKTI selalu
+// error (GraphQL Bad Request di 3 channel) — dihapus, cuma JID lengkap yang dipakai.
 export async function namaChannel(hisoka, jid, timeoutMs = 8000) {
   if (!hisoka?.newsletterMetadata) return '';
-  for (const kunci of [jid, jid.replace('@newsletter', '')]) {
-    try {
-      const meta = await Promise.race([
-        hisoka.newsletterMetadata('jid', kunci),
-        new Promise((resolve) => setTimeout(() => resolve(null), timeoutMs))
-      ]);
-      const nama = String(meta?.name || meta?.thread_metadata?.name || meta?.subject || '').trim();
-      if (nama) return nama;
-      console.log(`[namaChannel] ${jid} → KOSONG (kunci ${kunci === jid ? 'lengkap' : 'angka'}, meta=${meta ? 'ada-tanpa-nama' : 'null'})`);
-    } catch (e) {
-      console.log(`[namaChannel] ${jid} → ERROR ${e?.message || e}`);
+  const ambilNama = (v, dalam = 0) => {
+    if (typeof v === 'string') return v.trim();
+    if (v && typeof v === 'object' && dalam < 3) {
+      for (const k of ['name', 'text', 'title', 'displayName']) {
+        const r = ambilNama(v[k], dalam + 1);
+        if (r) return r;
+      }
     }
+    return '';
+  };
+  const ringkas = (v) => v == null ? 'null' : typeof v === 'string' ? 'string' : `object{${Object.keys(v).join(',')}}`;
+  try {
+    const meta = await Promise.race([
+      hisoka.newsletterMetadata('jid', jid),
+      new Promise((resolve) => setTimeout(() => resolve(null), timeoutMs))
+    ]);
+    const nama = ambilNama(meta?.name) || ambilNama(meta?.thread_metadata) || ambilNama(meta?.subject) || '';
+    if (nama) return nama;
+    console.log(`[namaChannel] ${jid} → KOSONG (name=${ringkas(meta?.name)}, thread=${ringkas(meta?.thread_metadata)}, subject=${ringkas(meta?.subject)})`);
+  } catch (e) {
+    console.log(`[namaChannel] ${jid} → ERROR ${e?.message || e}`);
   }
   return '';
+}
+
+// Nama dari pesan channel: pushName postingan channel sering kali cuma nomor JID
+// (bukan nama) — anggap kosong bila isinya angka saja atau sama dengan nomor JID
+// channelnya, biar jatuh ke metadata (namaChannel). BUKTI DM 22:38: pushName =
+// "120363427810079465" padahal nama channelnya "TES BOT".
+function namaDariPesan(m) {
+  const p = m?.pushName?.trim();
+  if (!p) return '';
+  if (/^\d+$/.test(p)) return '';
+  if (p === String(m?.from || '').split('@')[0]) return '';
+  return p;
 }
 
 function bacaSetting() {
@@ -103,8 +126,7 @@ function bacaSetting() {
     enabled: arc.enabled === true,
     emoji: typeof arc.emoji === 'string' && arc.emoji ? arc.emoji : EMOJI_ACAK,
     channels: arc.channels && typeof arc.channels === 'object' ? arc.channels : {},
-    dilihat: arc.dilihat && typeof arc.dilihat === 'object' ? arc.dilihat : {},
-    debug: arc.debug === true
+    dilihat: arc.dilihat && typeof arc.dilihat === 'object' ? arc.dilihat : {}
   };
 }
 
@@ -112,13 +134,25 @@ export function getAutoReactSetting() {
   return bacaSetting();
 }
 
-// Nyalain/matikan mode debug: tiap postingan channel yang masuk dikirimin detailnya
-// (ID channel + ID pesan + hasil react) ke DM owner, dan selalu tercatat di log bot.
-export function setAutoReactDebug(on) {
-  const cfg = loadConfig() || {};
-  cfg.autoReactChannel = cfg.autoReactChannel || {};
-  cfg.autoReactChannel.debug = !!on;
-  return saveConfig(cfg);
+// Kotak log konsol ala AutoReadStory (permintaan Wily 22:45): info postingan channel
+// PINDAH dari DM owner ke log bot — notif tidak lagi dikirim ke nomor sendiri.
+// Beda dengan tampilan WA (monospace tanpa garis, biar tidak membungkus di HP):
+// kotak ini cuma hidup di log konsol, jadi garis kotaknya aman. Lebar kotak menyesuaikan
+// baris terpanjang; padding dihitung per code-point (emoji = 1, bukan 2).
+export function kotakKonsol(judul, baris) {
+  const isiBaris = baris.map(([label, nilai]) => {
+    if (!label) return String(nilai ?? '');
+    return `⭔ ${label.padEnd(9)}: ${nilai ?? ''}`;
+  });
+  const semua = [judul, ...isiBaris];
+  const lebar = Math.max(...semua.map((b) => [...b].length));
+  const garis = (kiri, tengah, kanan) => kiri + tengah.repeat(lebar + 2) + kanan;
+  const tengah = Math.max(0, Math.floor((lebar - [...judul].length) / 2));
+  const judulBaris = `║ ${' '.repeat(tengah)}${judul}${' '.repeat(Math.max(0, lebar - [...judul].length - tengah))} ║`;
+  const keluar = [garis('┌', '═', '┐'), judulBaris, garis('├', '─', '┤')];
+  for (const b of isiBaris) keluar.push(`│ ${b}${' '.repeat(Math.max(0, lebar - [...b].length))} │`);
+  keluar.push(garis('└', '─', '┘'));
+  return keluar.join('\n');
 }
 
 export function getAutoReactChannels() {
@@ -298,58 +332,59 @@ export function buatTampilan(judul, baris) {
 // bila kosong delay-nya acak 1–20 detik. React HARUS pakai ID ANGKA postingan (yang di ujung
 // link, mis. 175) — ID hex dari m.key.id ditolak diam-diam sama server (terbukti 11 Nov 21:19:
 // log REACT tapi tidak ada badge di channel; .readch test yang pakai ID angka BERHASIL).
-// Tiap postingan yang masuk selalu tercatat di log bot (ID channel + ID pesan + hasil),
-// dan bila mode debug nyala detailnya juga dikirim ke DM owner setelah delay acak,
-// lengkap dengan tipe dan isi postingannya.
+// Tiap postingan yang masuk selalu tercatat di log bot sebagai kotak rapih ala
+// AutoReadStory (judul, channel, JID, ID postingan, tipe, isi, hasil, alasan, emoji,
+// hari/tanggal/waktu, delay) — debug DM ke nomor sendiri DIHAPUS atas perintah Wily
+// 22:45 ("pindah ke log console"). Beda dengan tampilan WA (monospace tanpa garis):
+// kotak ini cuma hidup di log konsol.
 export async function handleAutoReactChannel({ hisoka, m, delayMs }) {
   try {
     if (!m?.from?.endsWith('@newsletter')) return false;
     const hexId = m.key?.id;
     const ts = Number(m.messageTimestamp || 0) * 1000;
-    const umurDetik = ts ? Math.max(0, Math.round((Date.now() - ts) / 1000)) : -1;
-    const { enabled, emoji, channels, debug } = bacaSetting();
+    const { enabled, emoji, channels } = bacaSetting();
     const { jenis, cuplikan } = jenisDanCuplikan(m);
     let hasil = '';
     let alasan = '';
     let emojiPakai = '';
     let angka = { serverId: '', sumber: '' };
     let tungguMs = 0;
-    const kirimDebug = async () => {
-      console.log(`[AutoReactChannel] DEBUG post masuk: chat=${m.from} serverIdHex=${hexId} serverIdAngka=${angka.serverId || '-'} (${angka.sumber || '-'}) tipe=${jenis} umur=${umurDetik}s enabled=${enabled} → ${hasil}${alasan ? ` (${alasan})` : ''}${emojiPakai ? ` ${emojiPakai}` : ''}`);
-      if (!debug) return;
-      try {
-        const cfg = loadConfig() || {};
-        const owner = String(cfg.owners?.[0] || '').replace(/\D/g, '');
-        if (!owner || !hisoka?.sendMessage) return;
-        const namaCh = (await namaChannel(hisoka, m.from)) || '(nama tidak tersedia)';
-        const w = waktuWIB();
-        const baris = [
-          ['Channel', namaCh],
-          ['', m.from],
-          ['Postingan', angka.serverId || hexId],
-          ['Tipe', jenis]
-        ];
-        if (cuplikan) baris.push(['Isi', cuplikan]);
-        baris.push(['Hasil', hasil === 'REACT' ? 'REACT ✓' : 'SKIP ❌']);
-        if (alasan) baris.push(['Alasan', alasan]);
-        if (emojiPakai) baris.push(['Emoji', emojiPakai]);
-        if (tungguMs > 0) baris.push(['Delay', `${(tungguMs / 1000).toFixed(1)} detik`]);
-        baris.push(['Hari', w.hari]);
-        baris.push(['Tanggal', w.tanggal]);
-        baris.push(['Waktu', w.waktu]);
-        await hisoka.sendMessage(`${owner}@s.whatsapp.net`, { text: buatTampilan('Auto ReactionCh', baris) });
-      } catch (_) {}
+    const logKonsol = async () => {
+      // Info postingan PINDAH ke log konsol sebagai kotak rapih ala AutoReadStory
+      // (permintaan Wily 22:45 — debug DM ke nomor sendiri DIHAPUS). Nama channel:
+      // pushName angka diabaikan (namaDariPesan), cadangan metadata rekursif.
+      const namaCh = namaDariPesan(m) || (await namaChannel(hisoka, m.from)) || '(tanpa nama)';
+      const w = waktuWIB();
+      const potong = (s, maks) => {
+        const cp = [...String(s ?? '')];
+        return cp.length > maks ? cp.slice(0, maks - 3).join('') + '···' : cp.join('');
+      };
+      const baris = [
+        ['Channel', namaCh],
+        ['', m.from],
+        ['Postingan', angka.serverId || (hexId ? `${hexId.slice(0, 8)}…` : '-')],
+        ['Tipe', jenis]
+      ];
+      if (cuplikan) baris.push(['Isi', potong(cuplikan, 40)]);
+      baris.push(['Hasil', hasil === 'REACT' ? 'REACT ✓' : 'SKIP ❌']);
+      if (alasan) baris.push(['Alasan', alasan]);
+      if (emojiPakai) baris.push(['Emoji', emojiPakai]);
+      baris.push(['Hari', w.hari]);
+      baris.push(['Tanggal', w.tanggal]);
+      baris.push(['Waktu', w.waktu]);
+      if (tungguMs > 0) baris.push(['Delay', `${(tungguMs / 1000).toFixed(1)} detik`]);
+      console.log(kotakKonsol('Auto ReactionCh', baris));
     };
-    if (m.key?.fromMe) { hasil = 'SKIP'; alasan = 'postingan milik bot'; await kirimDebug(); return false; }
-    if (!hexId) { hasil = 'SKIP'; alasan = 'tanpa serverId'; await kirimDebug(); return false; }
+    if (m.key?.fromMe) { hasil = 'SKIP'; alasan = 'postingan milik bot'; await logKonsol(); return false; }
+    if (!hexId) { hasil = 'SKIP'; alasan = 'tanpa serverId'; await logKonsol(); return false; }
     catatChannelDilihat(m.from, ts || undefined);
-    if (!enabled) { hasil = 'SKIP'; alasan = 'fitur MATI'; await kirimDebug(); return false; }
+    if (!enabled) { hasil = 'SKIP'; alasan = 'fitur MATI'; await logKonsol(); return false; }
 
     // Hanya postingan segar (≤10 menit) — histori sync pasca-reconnect dilewati.
-    if (ts && Date.now() - ts > MAKS_UMUR_POSTINGAN_MS) { hasil = 'SKIP'; alasan = 'postingan basi'; await kirimDebug(); return false; }
+    if (ts && Date.now() - ts > MAKS_UMUR_POSTINGAN_MS) { hasil = 'SKIP'; alasan = 'postingan basi'; await logKonsol(); return false; }
 
     const kunci = `${m.from}:${hexId}`;
-    if (sudahDiReact.has(kunci)) { hasil = 'SKIP'; alasan = 'sudah di-react'; await kirimDebug(); return false; }
+    if (sudahDiReact.has(kunci)) { hasil = 'SKIP'; alasan = 'sudah di-react'; await logKonsol(); return false; }
     sudahDiReact.add(kunci);
     if (sudahDiReact.size > MAKS_CACHE_REACT) {
       sudahDiReact.delete(sudahDiReact.values().next().value);
@@ -360,7 +395,7 @@ export async function handleAutoReactChannel({ hisoka, m, delayMs }) {
 
     // ID angka wajib buat react — tanpa itu server diam-diam membuang reaction-nya.
     angka = await cariServerIdAngka(hisoka, m.from, m);
-    if (!angka.serverId) { hasil = 'SKIP'; alasan = 'ID angka tak ketemu'; await kirimDebug(); return false; }
+    if (!angka.serverId) { hasil = 'SKIP'; alasan = 'ID angka tak ketemu'; await logKonsol(); return false; }
 
     // Delay acak 1–20 detik sebelum react (biar natural, seperti baca status).
     const tunggu = typeof delayMs === 'number' ? delayMs : randomReactDelayMs();
@@ -369,7 +404,7 @@ export async function handleAutoReactChannel({ hisoka, m, delayMs }) {
 
     await hisoka.newsletterReactMessage(m.from, angka.serverId, emojiPakai);
     hasil = 'REACT';
-    await kirimDebug();
+    await logKonsol();
     return true;
   } catch (e) {
     console.error('[AutoReactChannel]', e?.message || e);
