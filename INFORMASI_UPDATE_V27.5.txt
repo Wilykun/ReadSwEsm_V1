@@ -6,8 +6,8 @@
 _📅 Jumat, 23 Oktober 2026_
 ━━━━━━━━━━━━━━━━━━━━━━
 🤖 *WILY BOT* — `V27.5`
-✨ *5 Fitur Baru*
-🐛 *11 Fix Bug*
+✨ *7 Fitur Baru*
+🐛 *12 Fix Bug*
 🛠️ *4 Fix Error*
 🚀 *16 Perubahan*
 ⚠️ *0 Hapus Fitur*
@@ -45,6 +45,22 @@ _📅 Jumat, 23 Oktober 2026_
    • Ganti icon: reply `<nomor> | <kode>` atau kirim gambar + reply nomor. Icon 110 URL anime acak.
    • Format rapih pakai toolkit WA; pesan daftar auto-hapus setelah pilih.
 > _Hasil: kelola & ganti icon semua grup dari 1 pesan._
+
+6. *.notif / .notifuser — Notifikasi Event WhatsApp*
+   • `.notif woi|3` → kirim notifikasi event ke semua anggota grup (maks 500x per perintah).
+   • `.notifuser 62858xxx|woi|5` → notifikasi event ke user tertentu — nomor 62xxx wajib (0858xxx otomatis jadi 62xxx).
+   • Selesai jalan, bot balas ringkasan realtime: jumlah berhasil/gagal, per target, total & durasi — format WA lengkap (tebal, miring, coret, kode, daftar, kutip).
+   • Event dibuat lalu langsung dihapus — yang sampai ke target hanya notifikasinya. Khusus owner, bot utama saja.
+> _Hasil: panggil anggota grup & user pakai notifikasi event._
+
+7. *.readch — Auto-Reaction Postingan Channel*
+   • `.readch on` → fitur NYALA (tersimpan di config.json), habis itu tiap postingan baru di channel yang bot follow langsung di-react otomatis (delay acak 1–20 detik).
+   • `.readch on <link channel>` → nyalain + follow dan daftarin channel itu; `.readch off` → fitur MATI; `.readch list` → status + daftar channel; `.readch test <link postingan> [emoji]` → react sekali buat ngetes.
+   • Emoji channel cuma 6 resmi: 👍 ❤️ 😂 😮 😢 🙏, default acak dari 6 itu tiap postingan. Balasan bot pakai format WA lengkap sesuai konteks (tebal, miring, coret, kode, daftar bernomor/berpoint, kutip). Khusus owner, bot utama saja.
+   • Perbaikan 11 Nov 21:14: link channel berisi invite token, BUKAN JID — JID angka aslinya di-resolve lewat newsletterMetadata('invite', kode) seperti .cekjidch, baru follow/react jalan (sebelumnya ditolak server, bot bengong). `.readch list` nunjukin saluran yang bot ikutin secara realtime (yang didaftarin lewat bot + yang postingannya pernah masuk, nama diambil realtime dari WhatsApp, data tersimpan di config.json). Mode debug baru: `.readch debug on|off` — tiap postingan masuk dikirim detailnya (ID channel + ID pesan + hasil react) ke DM owner dan tercatat di log bot.
+   • Perbaikan 11 Nov 21:29: auto-react HARUS pakai ID ANGKA postingan (ujung link, mis. 175) — ID hex dari m.key.id diterima server tapi tidak nempel di postingan (terbukti: `.readch test` yang pakai ID angka BERHASIL). Hook resolve ID angka dari m.key.server_id, fallback fetch pesan terbaru channel. DM debug kini berisi tipe + isi postingan, dikirim ke chat privat setelah delay acak 1–20 detik.
+   • Tampilan 11 Nov 21:42 (permintaan Wily): DM debug dan balasan `.readch test` dibedakan jadi 2 tampilan rapi — debug berisi Channel + JID + Postingan + Tipe + Isi + Hasil + Alasan + Emoji + Delay + Hari + Tanggal + Waktu, test berisi Channel + JID + Postingan + Emoji + Waktu. Nama channel diambil realtime dari metadata (tidak pernah kosong). Perbaikan 21:50: JID ditulis LENGKAP dengan @newsletter di baris sendiri (sebelumnya cuma angka, tidak akurat). Perbaikan 21:51: judul tampilan debug diganti dari "Debug .readch" jadi "Auto ReactionCh" (permintaan Wily). Perbaikan 21:56: GARIS KOTAK DIHAPUS TOTAL (garis ┌ ═ │ membungkus di layar HP Wily, kotaknya berantakan) — tampilannya sekarang tanpa garis, semua baris pendek maks 33 char biar pas dengan layar. Nama channel diperkuat: coba JID lengkap lalu angka saja + tiap percobaan dicatat ke log bot (21:52 nama TES BOT tidak ke-resolve, penyebabnya masih didiagnosa dari log).
+> _Hasil: postingan baru di channel langsung dapat reaction otomatis dari bot._
 
 ━━━━━━━━━━━━━━━━━━━━━━
 🐛 *BUG FIX*
@@ -108,6 +124,13 @@ _📅 Jumat, 23 Oktober 2026_
    • Akibatnya edit ke 4 file itu tidak live sampai bot di-restart — sekarang keempatnya sudah didaftarkan ke watcher hot-reload + bot di-restart agar watcher baru aktif.
    • Status akhir: 146 file ter-cover — 132 di-watch, 13 memang disengaja butuh restart (static import), 1 via importLazy.
 > _Hasil: edit semua file SEMUA_FITUR kini langsung live tanpa restart (kecuali yang memang butuh restart)._
+
+12. *.alqanimenotif — Judul Terpotong & Notif Gagal Diam-Diam*
+   • Judul kadang terkirim kepotong (`[Kanojo no Tomodachi Uncen`): Jina reader memotong markdown tepat di tengah baris H1 — fetch "sukses" tanpa error sehingga retry lama tidak kepicu.
+   • Kini ada validasi kelengkapan: judul terpotong → fetch diulang 2x; masih terpotong → pakai judul lengkap dari card homepage. Judul berupa link markdown juga dibersihkan.
+   • Fetch detail yang gagal total kini dicoba ulang tiap tick 30 menit; bila tetap gagal → dikirim notif minimal (judul + link) alih-alih hilang diam-diam.
+   • Tampilan: header "Info Anime" hanya muncul bila ada isinya; baris "Episode Baru" yang dobel dengan "Episode 05" dihapus.
+> _Hasil: notif .alqanimenotif selalu terkirim dengan judul utuh — tidak ada lagi judul kepotong atau episode yang hilang tanpa kabar._
 
 ━━━━━━━━━━━━━━━━━━━━━━
 🛠️ *FIX ERROR*

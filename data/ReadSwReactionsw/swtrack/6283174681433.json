@@ -1,14 +1,14 @@
 {
-  "ACF8C63DC0A95BE39AAA5A9CAF797AFA": {
-    "id": "ACF8C63DC0A95BE39AAA5A9CAF797AFA",
+  "AC5B6C7A3A0F6FDA845C8491D925043A": {
+    "id": "AC5B6C7A3A0F6FDA845C8491D925043A",
     "sender": "6283174681433@s.whatsapp.net",
     "name": "Bakwan gaalen",
-    "type": "videoMessage",
-    "arrivedAt": "2026-11-01T00:14:56.492Z",
+    "type": "imageMessage",
+    "arrivedAt": "2026-11-11T11:50:22.382Z",
     "read": true,
     "reacted": true,
     "reactionExpected": true,
-    "emoji": "🐬",
+    "emoji": "🦈",
     "resolve": "PN langsung ✓",
     "source": "status",
     "number": "6283174681433",
@@ -17,17 +17,17 @@
       "remoteJid": "status@broadcast",
       "remoteJidAlt": "6283174681433@s.whatsapp.net",
       "fromMe": false,
-      "id": "ACF8C63DC0A95BE39AAA5A9CAF797AFA",
+      "id": "AC5B6C7A3A0F6FDA845C8491D925043A",
       "participant": "44156575568084@lid",
       "addressingMode": "lid"
     },
-    "updatedAt": "2026-11-01T00:15:09.505Z",
+    "updatedAt": "2026-11-11T11:50:41.880Z",
     "receiptKeys": [
       {
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6283174681433@s.whatsapp.net",
         "fromMe": false,
-        "id": "ACF8C63DC0A95BE39AAA5A9CAF797AFA",
+        "id": "AC5B6C7A3A0F6FDA845C8491D925043A",
         "participant": "44156575568084@lid",
         "addressingMode": "lid"
       },
@@ -35,11 +35,11 @@
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6283174681433@s.whatsapp.net",
         "fromMe": false,
-        "id": "ACF8C63DC0A95BE39AAA5A9CAF797AFA",
+        "id": "AC5B6C7A3A0F6FDA845C8491D925043A",
         "participant": "6283174681433@s.whatsapp.net",
         "addressingMode": "lid"
       }
     ],
-    "processedAt": "2026-11-01T00:15:09.505Z"
+    "processedAt": "2026-11-11T11:50:41.880Z"
   }
 }

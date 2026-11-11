@@ -1,14 +1,14 @@
 {
-  "ACC38C1E21F31A55EF764E9C101E91A6": {
-    "id": "ACC38C1E21F31A55EF764E9C101E91A6",
+  "ACA443196AED97569948B15C989618B0": {
+    "id": "ACA443196AED97569948B15C989618B0",
     "sender": "6285624062667@s.whatsapp.net",
     "name": "Vestia",
-    "type": "imageMessage",
-    "arrivedAt": "2026-11-04T04:20:23.992Z",
+    "type": "videoMessage",
+    "arrivedAt": "2026-11-11T14:14:44.357Z",
     "read": true,
     "reacted": true,
     "reactionExpected": true,
-    "emoji": "🦈",
+    "emoji": "🐙",
     "resolve": "PN langsung ✓",
     "source": "status",
     "number": "6285624062667",
@@ -17,17 +17,17 @@
       "remoteJid": "status@broadcast",
       "remoteJidAlt": "6285624062667@s.whatsapp.net",
       "fromMe": false,
-      "id": "ACC38C1E21F31A55EF764E9C101E91A6",
+      "id": "ACA443196AED97569948B15C989618B0",
       "participant": "61362315243733@lid",
       "addressingMode": "lid"
     },
-    "updatedAt": "2026-11-04T07:57:21.597Z",
+    "updatedAt": "2026-11-11T14:14:49.937Z",
     "receiptKeys": [
       {
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6285624062667@s.whatsapp.net",
         "fromMe": false,
-        "id": "ACC38C1E21F31A55EF764E9C101E91A6",
+        "id": "ACA443196AED97569948B15C989618B0",
         "participant": "61362315243733@lid",
         "addressingMode": "lid"
       },
@@ -35,13 +35,11 @@
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6285624062667@s.whatsapp.net",
         "fromMe": false,
-        "id": "ACC38C1E21F31A55EF764E9C101E91A6",
+        "id": "ACA443196AED97569948B15C989618B0",
         "participant": "6285624062667@s.whatsapp.net",
         "addressingMode": "lid"
       }
     ],
-    "processedAt": "2026-11-04T04:20:35.034Z",
-    "deleted": true,
-    "deletedAt": "2026-11-04T07:57:21.597Z"
+    "processedAt": "2026-11-11T14:14:49.936Z"
   }
 }

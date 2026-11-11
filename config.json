@@ -43,6 +43,27 @@
     "delayMaxMs": 20000,
     "fixedDelayMs": 3000
   },
+  "autoReactChannel": {
+    "enabled": true,
+    "emoji": "acak",
+    "channels": {
+      "120363427810079465@newsletter": {
+        "emoji": "acak",
+        "ditambahPada": 1794406476494
+      }
+    },
+    "dilihat": {
+      "120363407772408064@newsletter": {
+        "terakhirPost": 1794406463000,
+        "jumlahPost": 1
+      },
+      "120363427810079465@newsletter": {
+        "terakhirPost": 1794408725000,
+        "jumlahPost": 27
+      }
+    },
+    "debug": true
+  },
   "antiDelete": {
     "enabled": false,
     "privateChat": true,
@@ -182,8 +203,8 @@
         "diubahPada": 1793622807006
       },
       "120363419402989015@g.us": {
-        "enabled": true,
-        "diubahPada": 1793622792272
+        "enabled": false,
+        "diubahPada": 1793831279425
       },
       "120363408420466353@g.us": {
         "enabled": false,
@@ -257,8 +278,8 @@
   "nekopoinotif": {
     "groups": {
       "120363383540766761@g.us": {
-        "enabled": false,
-        "diubahPada": 1785049675550
+        "enabled": true,
+        "diubahPada": 1794401011911
       },
       "120363192554714254@g.us": {
         "enabled": false,
@@ -269,8 +290,8 @@
         "diubahPada": 1785704596393
       },
       "120363419402989015@g.us": {
-        "enabled": true,
-        "diubahPada": 1793068915167
+        "enabled": false,
+        "diubahPada": 1794400862490
       }
     },
     "categories": [

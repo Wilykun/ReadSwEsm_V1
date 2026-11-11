@@ -225,6 +225,8 @@ const WATCHED_FILES = [
     { key: 'flamingtext', rel: 'SEMUA_FITUR/tools/flamingtext.js', lazy: true },
     { key: 'fontgenerator', rel: 'SEMUA_FITUR/tools/fontgenerator.js', lazy: true },
     { key: 'fontuntik', rel: 'SEMUA_FITUR/tools/fontuntik.js', lazy: true },
+    { key: 'notifCmd', rel: 'SEMUA_FITUR/tools/notif-cmd.js', lazy: true },
+    { key: 'readchCmd', rel: 'SEMUA_FITUR/tools/readch-cmd.js', lazy: true },
     { key: 'waifu', rel: 'SEMUA_FITUR/anime/waifu.js', lazy: true },
     // News
     { key: 'malnews', rel: 'SEMUA_FITUR/news/malnews.js', lazy: true },

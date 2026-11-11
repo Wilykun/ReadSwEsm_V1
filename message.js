@@ -48,6 +48,7 @@ import handleAntiTagBotAuto, { handleAntitag as _handleAntitagFn } from './SEMUA
 import { handleAd as _handleAdFn } from './SEMUA_FITUR/group/antidelete.js';
 // yg bawah pindah ke sini
 import { injectMessage } from './src/helper/inject.js';
+import { handleAutoReactChannel } from './src/helper/autoReactChannel.js';
 import listenEvent from './SEMUA_FITUR/event/event.js';
 import gemini from './src/helper/gemini.js';
 import { updateUserName, getUserName } from './src/db/userDb.js';
@@ -414,6 +415,10 @@ export default async function ({ message, type: messagesType }, hisoka) {
                         const _wsState = hisoka?.ws?.readyState;
                         if (typeof _wsState === 'number' && _wsState !== 1) return;
                 }
+
+                // ── Auto-react channel (WAJIB sebelum guard newsletter di bawah) ──
+                // Guard me-return semua pesan @newsletter, jadi hook harus jalan dulu.
+                try { await handleAutoReactChannel({ hisoka, m }); } catch (_) {}
 
                 // Pesan channel tetap diblokir, kecuali command cekjidch yang memang
                 // dipakai untuk membaca JID channel tempat command tersebut dikirim.

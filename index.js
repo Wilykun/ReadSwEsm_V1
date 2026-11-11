@@ -75,6 +75,7 @@ import { kvGet, kvSet, kvMigrateFromJSON, kvMigrateKey } from './src/db/datadb.j
 import { initBotStats, getUptime as getBotUptime, getBotStats } from './src/db/botStats.js';
 import { startPm2Metrics } from './src/metrics/pm2Metrics.js';
 import { injectClient, injectMessage } from './src/helper/inject.js';
+import { ensureAutoReactChannels } from './src/helper/autoReactChannel.js';
 import { loadConfig, saveConfig } from './src/helper/utils.js';
 import { getStatusEmojis, getRandomEmoji } from './src/helper/emoji.js';
 import { MemoryMonitor } from './src/helper/memoryMonitor.js';
@@ -1033,6 +1034,9 @@ async function main() {
 
                 if (connection === 'open') {
                         mainSocketOpen = true;
+                        // Auto-react channel: follow semua channel terdaftar biar
+                        // postingan barunya masuk lewat messages.upsert.
+                        ensureAutoReactChannels(hisoka).catch(() => {});
                         if (pendingHistoryStories.length) {
                                 const queuedHistoryStories = pendingHistoryStories.splice(0);
                                 for (const message of queuedHistoryStories) {

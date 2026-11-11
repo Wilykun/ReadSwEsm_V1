@@ -1,145 +1,53 @@
 {
-  "ACA6FDA88B9CA76101E26788718D43A2": {
-    "id": "ACA6FDA88B9CA76101E26788718D43A2",
-    "sender": "6285216433695@s.whatsapp.net",
-    "name": "apalah dia",
-    "type": "videoMessage",
-    "arrivedAt": "2026-11-03T10:07:28.549Z",
-    "read": true,
-    "reacted": true,
-    "reactionExpected": true,
-    "emoji": "🐬",
-    "resolve": "PN langsung ✓",
-    "source": "status",
-    "number": "6285216433695",
-    "resolvedPn": "6285216433695@s.whatsapp.net",
-    "messageKey": {
-      "remoteJid": "status@broadcast",
-      "remoteJidAlt": "6285216433695@s.whatsapp.net",
-      "fromMe": false,
-      "id": "ACA6FDA88B9CA76101E26788718D43A2",
-      "participant": "225670600900759@lid",
-      "addressingMode": "lid"
-    },
-    "updatedAt": "2026-11-04T09:19:13.962Z",
-    "receiptKeys": [
-      {
-        "remoteJid": "status@broadcast",
-        "remoteJidAlt": "6285216433695@s.whatsapp.net",
-        "fromMe": false,
-        "id": "ACA6FDA88B9CA76101E26788718D43A2",
-        "participant": "225670600900759@lid",
-        "addressingMode": "lid"
-      },
-      {
-        "remoteJid": "status@broadcast",
-        "remoteJidAlt": "6285216433695@s.whatsapp.net",
-        "fromMe": false,
-        "id": "ACA6FDA88B9CA76101E26788718D43A2",
-        "participant": "6285216433695@s.whatsapp.net",
-        "addressingMode": "lid"
-      }
-    ],
-    "processedAt": "2026-11-03T10:07:31.302Z",
-    "deleted": true,
-    "deletedAt": "2026-11-04T09:19:13.962Z"
-  },
-  "AC30CD9776EFF6868B00BD9321BF4B12": {
-    "id": "AC30CD9776EFF6868B00BD9321BF4B12",
-    "sender": "6285216433695@s.whatsapp.net",
-    "name": "apalah dia",
-    "type": "videoMessage",
-    "arrivedAt": "2026-11-03T10:21:33.982Z",
-    "read": true,
-    "reacted": true,
-    "reactionExpected": true,
-    "emoji": "🦈",
-    "resolve": "PN langsung ✓",
-    "source": "status",
-    "number": "6285216433695",
-    "resolvedPn": "6285216433695@s.whatsapp.net",
-    "messageKey": {
-      "remoteJid": "status@broadcast",
-      "remoteJidAlt": "6285216433695@s.whatsapp.net",
-      "fromMe": false,
-      "id": "AC30CD9776EFF6868B00BD9321BF4B12",
-      "participant": "225670600900759@lid",
-      "addressingMode": "lid"
-    },
-    "updatedAt": "2026-11-04T09:19:17.310Z",
-    "receiptKeys": [
-      {
-        "remoteJid": "status@broadcast",
-        "remoteJidAlt": "6285216433695@s.whatsapp.net",
-        "fromMe": false,
-        "id": "AC30CD9776EFF6868B00BD9321BF4B12",
-        "participant": "225670600900759@lid",
-        "addressingMode": "lid"
-      },
-      {
-        "remoteJid": "status@broadcast",
-        "remoteJidAlt": "6285216433695@s.whatsapp.net",
-        "fromMe": false,
-        "id": "AC30CD9776EFF6868B00BD9321BF4B12",
-        "participant": "6285216433695@s.whatsapp.net",
-        "addressingMode": "lid"
-      }
-    ],
-    "processedAt": "2026-11-03T10:21:36.447Z",
-    "deleted": true,
-    "deletedAt": "2026-11-04T09:19:17.310Z"
-  },
-  "ACD03F62919EC675366D38BB7CD1BD80": {
-    "id": "ACD03F62919EC675366D38BB7CD1BD80",
-    "sender": "6285216433695@s.whatsapp.net",
-    "name": "apalah dia",
-    "type": "videoMessage",
-    "arrivedAt": "2026-11-04T08:21:54.589Z",
-    "read": true,
-    "reacted": true,
-    "reactionExpected": true,
-    "emoji": "🦈",
-    "resolve": "PN langsung ✓",
-    "source": "status",
-    "number": "6285216433695",
-    "resolvedPn": "6285216433695@s.whatsapp.net",
-    "messageKey": {
-      "remoteJid": "status@broadcast",
-      "remoteJidAlt": "6285216433695@s.whatsapp.net",
-      "fromMe": false,
-      "id": "ACD03F62919EC675366D38BB7CD1BD80",
-      "participant": "225670600900759@lid",
-      "addressingMode": "lid"
-    },
-    "updatedAt": "2026-11-04T12:50:30.578Z",
-    "receiptKeys": [
-      {
-        "remoteJid": "status@broadcast",
-        "remoteJidAlt": "6285216433695@s.whatsapp.net",
-        "fromMe": false,
-        "id": "ACD03F62919EC675366D38BB7CD1BD80",
-        "participant": "225670600900759@lid",
-        "addressingMode": "lid"
-      },
-      {
-        "remoteJid": "status@broadcast",
-        "remoteJidAlt": "6285216433695@s.whatsapp.net",
-        "fromMe": false,
-        "id": "ACD03F62919EC675366D38BB7CD1BD80",
-        "participant": "6285216433695@s.whatsapp.net",
-        "addressingMode": "lid"
-      }
-    ],
-    "processedAt": "2026-11-04T08:22:03.744Z",
-    "deleted": true,
-    "deletedAt": "2026-11-04T12:50:30.577Z"
-  },
-  "ACB9C9DA18E12C53FC6BCEF172A78941": {
-    "id": "ACB9C9DA18E12C53FC6BCEF172A78941",
+  "ACEEC79A0C6EEA972AAE795EB01C127D": {
+    "id": "ACEEC79A0C6EEA972AAE795EB01C127D",
     "sender": "6285216433695@s.whatsapp.net",
     "name": "apalah dia",
     "type": "imageMessage",
-    "arrivedAt": "2026-11-04T11:26:47.094Z",
+    "arrivedAt": "2026-11-11T04:48:02.380Z",
+    "read": true,
+    "reacted": true,
+    "reactionExpected": true,
+    "emoji": "🐡",
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "6285216433695",
+    "resolvedPn": "6285216433695@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "6285216433695@s.whatsapp.net",
+      "fromMe": false,
+      "id": "ACEEC79A0C6EEA972AAE795EB01C127D",
+      "participant": "225670600900759@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-11-11T04:48:18.796Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6285216433695@s.whatsapp.net",
+        "fromMe": false,
+        "id": "ACEEC79A0C6EEA972AAE795EB01C127D",
+        "participant": "225670600900759@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6285216433695@s.whatsapp.net",
+        "fromMe": false,
+        "id": "ACEEC79A0C6EEA972AAE795EB01C127D",
+        "participant": "6285216433695@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-11-11T04:48:18.796Z"
+  },
+  "AC270A5C9E9C59F2112620F21F3C0905": {
+    "id": "AC270A5C9E9C59F2112620F21F3C0905",
+    "sender": "6285216433695@s.whatsapp.net",
+    "name": "apalah dia",
+    "type": "videoMessage",
+    "arrivedAt": "2026-11-11T11:50:22.378Z",
     "read": true,
     "reacted": true,
     "reactionExpected": true,
@@ -152,17 +60,17 @@
       "remoteJid": "status@broadcast",
       "remoteJidAlt": "6285216433695@s.whatsapp.net",
       "fromMe": false,
-      "id": "ACB9C9DA18E12C53FC6BCEF172A78941",
+      "id": "AC270A5C9E9C59F2112620F21F3C0905",
       "participant": "225670600900759@lid",
       "addressingMode": "lid"
     },
-    "updatedAt": "2026-11-04T12:50:30.645Z",
+    "updatedAt": "2026-11-11T11:50:37.135Z",
     "receiptKeys": [
       {
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6285216433695@s.whatsapp.net",
         "fromMe": false,
-        "id": "ACB9C9DA18E12C53FC6BCEF172A78941",
+        "id": "AC270A5C9E9C59F2112620F21F3C0905",
         "participant": "225670600900759@lid",
         "addressingMode": "lid"
       },
@@ -170,13 +78,11 @@
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6285216433695@s.whatsapp.net",
         "fromMe": false,
-        "id": "ACB9C9DA18E12C53FC6BCEF172A78941",
+        "id": "AC270A5C9E9C59F2112620F21F3C0905",
         "participant": "6285216433695@s.whatsapp.net",
         "addressingMode": "lid"
       }
     ],
-    "processedAt": "2026-11-04T11:26:57.047Z",
-    "deleted": true,
-    "deletedAt": "2026-11-04T12:50:30.645Z"
+    "processedAt": "2026-11-11T11:50:37.135Z"
   }
 }

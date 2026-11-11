@@ -129,6 +129,9 @@ function parseJudulEp(titleRaw) {
     const epM   = (titleRaw || '').match(/Episode\s+\(?(\d+)\)?/i);
     const epNum = epM ? parseInt(epM[1]) : 0;
     const judul = (titleRaw || '')
+        .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')   // H1 kadang berupa link markdown: [Judul](url) → Judul
+        // NOTE: kurung buka menggantung (tanda judul terpotong) SENGAJA tidak di-strip di sini —
+        // itu sinyal untuk judulTerpotong()/ambilDetailLengkap. Pembersihan tampilan ada di bersihkanInline().
         .replace(/\s*Episode\s+\(?\d+\)?\s*/gi, '')
         .replace(/\s*Sub\s*Indo\s*Uncensored\s*/gi, '')
         .replace(/\s*Sub\s*Indo\s*/gi, '')
@@ -138,6 +141,51 @@ function parseJudulEp(titleRaw) {
         .replace(/\s{2,}/g, ' ')
         .trim();
     return { judul, epNum };
+}
+
+// ── Deteksi judul terpotong ─────────────────────────────────────────────────
+// Jina reader kadang memotong markdown TEPAT di tengah baris H1, misal:
+//   "# [Kanojo no Tomodachi Uncen"  → kurung buka menggantung.
+// Fetch seperti ini "sukses" (tanpa error) sehingga retry error-based TIDAK kepicu.
+// Solusi: validasi kelengkapan → retry fetch → fallback ke judul card homepage.
+function judulTerpotong(t) {
+    const s = String(t || '').trim();
+    if (!s) return true;
+    if (/\[[^\]]*$/.test(s)) return true;   // kurung buka menggantung di akhir
+    return false;
+}
+
+// Ambil detail dengan validasi kelengkapan + retry bila data terpotong.
+// Kembalikan { detail, judul, epNum } — judul fallback ke card homepage bila tetap terpotong.
+async function ambilDetailLengkap(url, cardJudul, cardEpNum, maksRetry = 2) {
+    let detail   = await getDetailAlqanime(url);
+    let parsed   = parseJudulEp(detail.title || '');
+    let judulFix = parsed.judul;
+    let epFix    = parsed.epNum;
+
+    for (let r = 0; r < maksRetry && judulTerpotong(judulFix); r++) {
+        console.warn(`[AlqanimeNotif] ⚠️ Judul terpotong ("${judulFix}"), retry fetch ${r + 1}/${maksRetry}...`);
+        await new Promise(res => setTimeout(res, 1500));
+        try {
+            const d2 = await getDetailAlqanime(url);
+            const p2 = parseJudulEp(d2.title || '');
+            if (!judulTerpotong(p2.judul)) {
+                detail = d2; parsed = p2; judulFix = p2.judul; epFix = p2.epNum;
+                console.log(`[AlqanimeNotif] ✅ Retry judul OK: "${judulFix}"`);
+                break;
+            }
+        } catch (e) {
+            console.warn('[AlqanimeNotif] ⚠️ Retry judul gagal:', e?.message);
+        }
+    }
+
+    // Fallback terakhir: judul dari card homepage (lengkap dari daftar rilisan)
+    if (judulTerpotong(judulFix) && cardJudul && !judulTerpotong(cardJudul)) {
+        console.log(`[AlqanimeNotif] ↩️ Pakai judul card: "${cardJudul}"`);
+        judulFix = cardJudul;
+        epFix    = epFix || cardEpNum;
+    }
+    return { detail, judul: judulFix, epNum: epFix };
 }
 
 function buatId(url, epNum) {
@@ -231,18 +279,33 @@ async function cariEpisodeBaru() {
 
         const usiaGagal = now - new Date(gagal.pertamaGagal).getTime();
         if (usiaGagal > RETRY_TTL_MS) {
-            console.log(`[AlqanimeNotif] ⏭️ Retry timeout: "${gagal.judul}" ep ${gagal.epNum} diabaikan`);
+            // Daripada hilang diam-diam: kirim notif minimal dari data card homepage
+            // (judul + link; tanpa info/download). "Work sebagian" > 0%.
+            console.log(`[AlqanimeNotif] ⏰ Retry timeout — kirim notif minimal: "${gagal.judul}" ep ${gagal.epNum}`);
+            baru.push({
+                id       : gagal.id,
+                url      : gagal.url,
+                judul    : gagal.judul,
+                epNum    : gagal.epNum,
+                thumbnail: gagal.thumbnail,
+                title    : gagal.judul,
+                info     : {},
+                genres   : [],
+                sinopsis : '',
+                episodes : [],
+            });
             tandaiSudahKirim(gagal.id);
             continue;
         }
 
         try {
-            const detail = await getDetailAlqanime(gagal.url);
+            const { detail, judul: judulFix, epNum: epFix } =
+                await ambilDetailLengkap(gagal.url, gagal.judul, gagal.epNum);
             const item   = {
                 id       : gagal.id,
                 url      : gagal.url,
-                judul    : gagal.judul,
-                epNum    : gagal.epNum,
+                judul    : judulFix,
+                epNum    : epFix,
                 thumbnail: detail.thumbnail || gagal.thumbnail,
                 ...detail,
             };
@@ -275,13 +338,13 @@ async function cariEpisodeBaru() {
         if (sudahDikirim(id)) continue;
 
         try {
-            const detail = await getDetailAlqanime(card.url);
-            const { judul: judulD, epNum: epD } = parseJudulEp(detail.title || '');
+            const { detail, judul: judulFix, epNum: epFix } =
+                await ambilDetailLengkap(card.url, judul, epNum);
             const baseItem = {
                 id,
                 url      : card.url,
-                judul    : judulD || judul,
-                epNum    : epD || epNum,
+                judul    : judulFix,
+                epNum    : epFix,
                 thumbnail: detail.thumbnail || card.thumbnail,
                 ...detail,
             };
@@ -343,10 +406,13 @@ const SEP  = '━━━━━━━━━━━━━━━━━━';
 const SEP2 = '┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄';
 
  function bersihkanInline(teks) {
-     return String(teks ?? '')
+     let t = String(teks ?? '')
          .replace(/[*_~`]/g, '')
          .replace(/\s{2,}/g, ' ')
          .trim();
+     // Hapus kurung buka yang menggantung (judul terpotong)
+     t = t.replace(/^\[([^\]]*)$/, '$1').trim();
+     return t;
  }
 
  function formatMono(teks) {
@@ -634,7 +700,7 @@ function buatCaptionGabung(data) {
     } else {
         // Episode ongoing
         headerUtama = `🔴 *EPISODE BARU!*`;
-        badgeTipe   = `📺 *Episode Baru*`;
+        badgeTipe   = null;
         badgeStatus = statusSeri === 'tamat'
             ? `⚫ *Tamat* _(ep terakhir)_`
             : statusSeri === 'ongoing'
@@ -711,8 +777,7 @@ function buatCaptionGabung(data) {
         sinopsisBlok ? `📖 *Sinopsis*\n${sinopsisBlok}` : null,
         ``,
         `${SEP}`,
-        `📋 *Info Anime*`,
-        infoAnime,
+        infoAnime ? `📋 *Info Anime*\n${infoAnime}` : null,
         `${SEP}`,
         `▶️ *Tonton:* ${url}`,
         dlBlok ? dlBlok : null,
@@ -860,7 +925,7 @@ async function downloadImageBuffer(url) {
 
 // ── EXPORT ────────────────────────────────────────────────────────────────────
 
-export { getEnabledGroups, setGroupEnabled, cariEpisodeBaru, cariPerubahanHangat, buatCaption, buatCaptionLanjutan, buatCaptionGabung, buatLabelRilisan, buatCaptionHangat, ambilUrlGambar, tandaiSudahKirim, tandaiDanLog, getRecentLog, simulasi, downloadImageBuffer, buatProxyUrl };
+export { getEnabledGroups, setGroupEnabled, cariEpisodeBaru, cariPerubahanHangat, buatCaption, buatCaptionLanjutan, buatCaptionGabung, buatLabelRilisan, buatCaptionHangat, ambilUrlGambar, tandaiSudahKirim, tandaiDanLog, getRecentLog, simulasi, downloadImageBuffer, buatProxyUrl, parseJudulEp, judulTerpotong, ambilDetailLengkap };
 export { handleAlqanimeNotif, handleAlqNotifReply, handleAlqanimeNotifCallbacks };
 // ── COMMAND HANDLER ───────────────────────────────────────────────────────────
 
