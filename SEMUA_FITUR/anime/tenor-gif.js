@@ -388,7 +388,7 @@ function storeTenorChoice(item, query, from, cmdMsg) {
         key: cmdMsg.key,
         message: { conversation: String(cmdMsg.text || `.animgif ${query || ''}`).trim() },
     } : null;
-    pendingTenorChoices.set(token, { item, query, from, quotedCmd, expiresAt: now + TENOR_CHOICE_TTL_MS });
+    pendingTenorChoices.set(token, { item, query, from, quotedCmd, peminta: cmdMsg?.sender || '', expiresAt: now + TENOR_CHOICE_TTL_MS });
     return token;
 }
 
@@ -527,6 +527,10 @@ async function handleTenorGifCallback({ hisoka, m, tolak, logCommand }) {
     if (!fmt) return false;
 
     const pending = pendingTenorChoices.get(token);
+    // GATE PEMINTA (fix 24 Nov): tombol format hanya boleh ditekan peminta
+    // (owner yang menjalankan .animgif) — tanpa ini siapa pun di grup bisa
+    // menekan tombolnya dan bot merespon ke bukan-owner (bug yang sama dengan alias).
+    if (pending && pending.peminta && m.sender !== pending.peminta) return false;
     if (!pending || pending.expiresAt <= Date.now()) {
         /* Hapus picker basi biar chat rapi */
         if (pending?.botMsgKey) {

@@ -327,7 +327,7 @@ function storeTtsChoice(text, from, cmdMsg) {
         key: cmdMsg.key,
         message: { conversation: String(cmdMsg.text || `.tts ${text}`).trim().slice(0, 200) },
     } : null;
-    pendingTtsChoices.set(token, { text, from, quotedCmd, botMsgKey: null, expiresAt: now + TTS_TTL_MS });
+    pendingTtsChoices.set(token, { text, from, quotedCmd, botMsgKey: null, peminta: cmdMsg?.sender || '', expiresAt: now + TTS_TTL_MS });
     return token;
 }
 
@@ -785,6 +785,10 @@ async function handleTtsCallback({ hisoka, m, tolak, logCommand, logError, Butto
     const token = rest.slice(sepIdx + 1);
 
     const pending = pendingTtsChoices.get(token);
+    // GATE PEMINTA (fix 24 Nov): tombol bahasa/suara hanya boleh ditekan peminta
+    // (owner yang menjalankan .tts) — tanpa ini siapa pun di grup bisa menekan
+    // tombolnya dan bot merespon ke bukan-owner (bug yang sama dengan alias).
+    if (pending && pending.peminta && m.sender !== pending.peminta) return false;
     if (!pending || pending.expiresAt <= Date.now()) {
         if (pending?.botMsgKey) {
             try { await hisoka.sendMessage(m.from, { delete: pending.botMsgKey }); } catch (_) {}

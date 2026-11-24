@@ -92,6 +92,7 @@ import { setupCrashGuard } from './src/helper/crashGuard.js';
 import { logError } from './src/db/errorLog.js';
 import { initHotReload, getHandler, stopHotReload, onReload } from './src/helper/hotReload.js';
 import { getProxyAgents } from './src/helper/proxyAgent.js'; // proxy env-gated: aktif hanya jika HTTPS_PROXY ter-set (VM)
+import { catatJoin, catatKeluar } from './src/helper/cfc-join.js'; // .cfc: catat waktu join & keluar anggota grup biar kirim langsung bisa hitung jam pesan otomatis tanpa isi menit
 
 /* ================= VOONCE AUTO-SAVE ================= */
 async function autoSaveViewOnce(message, hisoka) {
@@ -129,6 +130,15 @@ async function autoSaveViewOnce(message, hisoka) {
                 }
         }
 
+        // Placeholder VO live: pesan VO yang sampai tanpa wrapper viewOnce dan tanpa flag viewOnce (hanya media tanpa url/directPath/mediaKey) tetap dikenali sebagai VO agar dicoba simpan + diminta ulang
+        if (!isVO) {
+                const mediaTypesPH = ['imageMessage', 'videoMessage', 'audioMessage']
+                for (const mType of mediaTypesPH) {
+                        const c = targetMsg[mType]
+                        if (c && !c.url && !c.directPath && !c.mediaKey) { isVO = true; break }
+                }
+        }
+
         if (!isVO) return
 
         const mediaTypes = ['imageMessage', 'videoMessage', 'audioMessage', 'stickerMessage', 'documentMessage']
@@ -156,16 +166,30 @@ async function autoSaveViewOnce(message, hisoka) {
                 } catch (dlErr) {
                         console.error(`\x1b[31m[VOCache]\x1b[0m Download pertama gagal (${msgId}): ${dlErr.message}`)
                         // Coba fallback dengan pesan original
-                        buffer = await downloadMediaMessage(
-                                message,
-                                'buffer',
-                                {},
-                                { logger: hisoka.logger, reuploadRequest: hisoka.updateMediaMessage }
-                        )
+                        try {
+                                buffer = await downloadMediaMessage(
+                                        message,
+                                        'buffer',
+                                        {},
+                                        { logger: hisoka.logger, reuploadRequest: hisoka.updateMediaMessage }
+                                )
+                        } catch (dlErr2) {
+                                console.error(`\x1b[31m[VOCache]\x1b[0m Download fallback gagal (${msgId}): ${dlErr2.message}`)
+                                buffer = null
+                        }
                 }
 
                 if (!buffer || buffer.length === 0) {
                         console.error(`\x1b[31m[VOCache]\x1b[0m Buffer kosong untuk ${msgId}`)
+                        // Media tidak bisa diunduh (placeholder tanpa kunci): minta HP kirim ulang isi pesan lewat placeholder-resend Baileys; bila HP mengirim ulang dengan media, upsert berikutnya akan menyimpan ke cache
+                        if (typeof hisoka?.requestPlaceholderResend === 'function') {
+                                try {
+                                        await hisoka.requestPlaceholderResend(message.key)
+                                        console.log(`\x1b[36m[VOCache]\x1b[0m Minta kirim ulang: ${msgId}`)
+                                } catch (rsErr) {
+                                        console.error(`\x1b[31m[VOCache]\x1b[0m Gagal minta kirim ulang ${msgId}: ${rsErr.message}`)
+                                }
+                        }
                         return
                 }
 
@@ -2681,6 +2705,11 @@ async function main() {
                 switch (action) {
                         case 'add': {
                                 existingGroup.participants = [...(existingGroup.participants || []), ...participants];
+                                // .cfc: catat waktu join tiap peserta yang masuk, biar kirim langsung bisa hitung jam pesan otomatis tanpa isi menit.
+                                for (const p of participants) {
+                                        const pj = p?.jid || p?.phoneNumber || p?.id || '';
+                                        if (pj) catatJoin(id, pj);
+                                }
                                 // Jika bot sendiri yang di-add ke grup, auto-add ke Anti Tag SW + set botadmin = false (belum admin)
                                 const botAdded = participants.some(p => {
                                         const rawJid = p.jid || p.phoneNumber || p.id || '';
@@ -2695,6 +2724,11 @@ async function main() {
                                 break;
                         }
                         case 'remove': {
+                                // .cfc: catat waktu keluar tiap peserta yang meninggalkan grup, biar kirim langsung bisa hitung tengah masa absen bila keluar-masuknya sebentar.
+                                for (const p of participants) {
+                                        const pj = p?.jid || p?.phoneNumber || p?.id || '';
+                                        if (pj) catatKeluar(id, pj);
+                                }
                                 existingGroup.participants = (existingGroup.participants || []).filter(p => {
                                         const existId = p.phoneNumber || p.id;
                                         return !participants.some(removed => areJidsSameUser(existId, removed.phoneNumber || removed.id));

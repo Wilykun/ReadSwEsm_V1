@@ -336,7 +336,7 @@ async function sendRandomQuote({ hisoka, m, tolak, Button, logError }) {
         quote.indonesianSentence = translation.text;
         quote.translationApplied = translation.translated;
         const messageKey = await sendQuoteWithButton({ hisoka, m, tolak, Button, quote });
-        if (messageKey) activeQuoteMessages.set(m.from, { key: messageKey });
+        if (messageKey) activeQuoteMessages.set(m.from, { key: messageKey, peminta: m.sender || '' });
         return messageKey;
 }
 
@@ -369,6 +369,10 @@ async function handleAnimquoteCallback({
         if (String(m.text || '').trim() !== ANIMQUOTE_NEXT_BUTTON_ID) return false;
 
         const current = activeQuoteMessages.get(m.from);
+        // GATE PEMINTA (fix 24 Nov): tombol quote berikutnya hanya boleh ditekan
+        // peminta (owner yang menjalankan .animquote) — tanpa ini siapa pun di grup
+        // bisa menekan dan bot merespon ke bukan-owner (bug yang sama dengan alias).
+        if (current?.peminta && m.sender !== current.peminta) return false;
         const quotedId = typeof getQuotedStanzaId === 'function' ? getQuotedStanzaId(m) : null;
         if (current?.key?.id && quotedId && quotedId !== current.key.id) {
                 await tolak(hisoka, m, 'ℹ️ Tombol quote ini sudah digantikan oleh quote yang lebih baru.');

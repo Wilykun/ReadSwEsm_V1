@@ -968,6 +968,12 @@ export default async function ({ message, type: messagesType }, hisoka) {
                         if (await handleWilyaiCallbacks({ hisoka, m, tolak, logCommand, loadConfig, saveConfig, isMainBot, countHistory, clearAllHistory, clearAllUserMemory, Button })) return;
                 }
 
+                // ── Handle tap button single-select .alias (__alias_on__/__alias_off__) ──
+                {
+                        const { handleAliasCallbacks } = await importLazy(path.resolve('./SEMUA_FITUR/setting/alias-cmd.js'));
+                        if (await handleAliasCallbacks({ hisoka, m, tolak, logCommand, loadConfig, saveConfig })) return;
+                }
+
                 // ── Handle pending hentaidad confirm (Lanjutkan/Tidak) → hentaidad.js ──
                 {
                         const { handleHentaidadConfirm } = await importLazy(path.resolve('./SEMUA_FITUR/anime/hentaidad.js'));
@@ -1281,7 +1287,20 @@ export default async function ({ message, type: messagesType }, hisoka) {
                 };
         // ── Fitur Alias: typo → tampilkan DAFTAR saran mirip, JANGAN auto-jalankan ──
                 // Berlaku untuk SEMUA 310 command (fuzzy di inject.js, level pengenalan command).
+                // GATE OWNER (fix 24 Nov): alias sempat merespon SIAPA PUN yang typo di grup —
+                // m.command undefined untuk fuzzy match (inject.js: _fuzzyInfo.matched tidak
+                // ada) sehingga guard self-mode di atas tidak menangkapnya. Alias kini digate
+                // seperti command: bot utama hanya isRealOwner, jadibot hanya isOwner/pemilik sesi.
                 if (m.fuzzyInfo && m.fuzzyInfo.matches && m.fuzzyInfo.matches.length) {
+                        // Toggle .alias (config.json, realtime): bila dimatikan, jangan
+                        // tampilkan saran sama sekali. Default aktif bila seksi belum ada.
+                        let _aliasCfg = null;
+                        try { _aliasCfg = loadConfig().alias; } catch (_) { _aliasCfg = null; }
+                        if (_aliasCfg && _aliasCfg.enabled === false) return;
+                        const _aliasBoleh = hisoka?.isMainBot === false
+                                ? (m.isOwner || String(m.sender || '').split('@')[0].split(':')[0] === String(hisoka.jadibotUserNumber || '').split('@')[0].split(':')[0])
+                                : m.isRealOwner;
+                        if (!_aliasBoleh) return;
                         try {
                                 const _fm = m.fuzzyInfo;
                                 let _lines = ["> 🔍 *Maksudmu* salah satu ini?", "> _Ketikmu:_ ~`" + _fm.typed + "`~", ""];

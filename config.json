@@ -1,10 +1,10 @@
 {
   "botVersion": "V27.1",
-  "botNumber": "6285159438825",
+  "botNumber": "6289681008411",
   "browserDevice": {
-    "selected": "v13"
+    "selected": "v1"
   },
-  "pairedBrowserKey": "v13",
+  "pairedBrowserKey": "v1",
   "pairingCode": "AAAAAAAA",
   "jadibotPairingMode": "v2",
   "cekswTracking": true,
@@ -54,19 +54,95 @@
     },
     "dilihat": {
       "120363407772408064@newsletter": {
-        "terakhirPost": 1794406463000,
-        "jumlahPost": 1
+        "terakhirPost": 1795526310000,
+        "jumlahPost": 85
       },
       "120363427810079465@newsletter": {
         "terakhirPost": 1794412274000,
-        "jumlahPost": 37
+        "jumlahPost": 38
       },
       "120363422614794709@newsletter": {
-        "terakhirPost": 1794410854000,
-        "jumlahPost": 3
+        "terakhirPost": 1795525356000,
+        "jumlahPost": 46
       },
       "120363311886084441@newsletter": {
         "terakhirPost": 1794410641000,
+        "jumlahPost": 1
+      },
+      "120363380388430434@newsletter": {
+        "terakhirPost": 1795523244000,
+        "jumlahPost": 80
+      },
+      "120363408975923153@newsletter": {
+        "terakhirPost": 1795520941000,
+        "jumlahPost": 10
+      },
+      "120363400911374213@newsletter": {
+        "terakhirPost": 1795519837000,
+        "jumlahPost": 33
+      },
+      "120363425281725693@newsletter": {
+        "terakhirPost": 1795519238000,
+        "jumlahPost": 15
+      },
+      "120363312297133690@newsletter": {
+        "terakhirPost": 1795518791000,
+        "jumlahPost": 14
+      },
+      "120363399226798445@newsletter": {
+        "terakhirPost": 1795425982000,
+        "jumlahPost": 3
+      },
+      "120363408668270262@newsletter": {
+        "terakhirPost": 1795525869000,
+        "jumlahPost": 12
+      },
+      "120363427659235345@newsletter": {
+        "terakhirPost": 1794448082000,
+        "jumlahPost": 1
+      },
+      "120363308894748175@newsletter": {
+        "terakhirPost": 1795229075000,
+        "jumlahPost": 5
+      },
+      "120363404713362611@newsletter": {
+        "terakhirPost": 1795415897000,
+        "jumlahPost": 6
+      },
+      "120363362233410904@newsletter": {
+        "terakhirPost": 1795512977000,
+        "jumlahPost": 4
+      },
+      "120363426504310215@newsletter": {
+        "terakhirPost": 1795500390000,
+        "jumlahPost": 8
+      },
+      "120363427226572683@newsletter": {
+        "terakhirPost": 1794572118000,
+        "jumlahPost": 1
+      },
+      "120363420385250482@newsletter": {
+        "terakhirPost": 1795477877000,
+        "jumlahPost": 7
+      },
+      "120363407749680764@newsletter": {
+        "terakhirPost": 1795157781000,
+        "jumlahPost": 2
+      },
+      "120363423707467155@newsletter": {
+        "terakhirPost": 1795306102000,
+        "jumlahPost": 2
+      },
+      "120363415378917362@newsletter": {
+        "terakhirPost": 1795477904000,
+        "jumlahPost": 2
+      },
+      "120363421092816069@newsletter": {
+        "terakhirPost": 1795410579000,
+        "jumlahPost": 1
+      },
+      "120363423286058962@newsletter": {
+        "terakhirPost": 1795478278000,
         "jumlahPost": 1
       }
     }
@@ -313,5 +389,9 @@
         "updatedAt": 1787901894172
       }
     }
+  },
+  "alias": {
+    "enabled": true,
+    "sejak": 1795520211492
   }
 }

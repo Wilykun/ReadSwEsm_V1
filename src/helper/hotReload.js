@@ -132,6 +132,7 @@ const WATCHED_FILES = [
     { key: 'credsjson', rel: 'SEMUA_FITUR/jadibot/credsjson.js', lazy: true },
     { key: 'listbotCmd', rel: 'SEMUA_FITUR/jadibot/listbot-cmd.js', lazy: true },
     // Setting
+    { key: 'aliasCmd', rel: 'SEMUA_FITUR/setting/alias-cmd.js', lazy: true },
     { key: 'anticall', rel: 'SEMUA_FITUR/setting/anticall.js', lazy: true },
     { key: 'aturbrowser', rel: 'SEMUA_FITUR/setting/aturbrowser.js', lazy: true },
     { key: 'autosholat', rel: 'SEMUA_FITUR/setting/autosholat.js', lazy: true },
@@ -156,6 +157,7 @@ const WATCHED_FILES = [
     { key: 'menuPages2', rel: 'SEMUA_FITUR/menu/menu-pages2.js', lazy: true },
     // Media
     { key: 'stickerCmd', rel: 'SEMUA_FITUR/media/sticker-cmd.js', lazy: true },
+    { key: 'sticaudio', rel: 'SEMUA_FITUR/media/sticaudio-cmd.js', lazy: true },
     { key: 'stickerai', rel: 'SEMUA_FITUR/media/stickerai.js', lazy: true },
     { key: 'smeme', rel: 'SEMUA_FITUR/media/smeme.js', lazy: true },
     { key: 'wm', rel: 'SEMUA_FITUR/media/wm.js', lazy: true },
@@ -227,6 +229,7 @@ const WATCHED_FILES = [
     { key: 'fontuntik', rel: 'SEMUA_FITUR/tools/fontuntik.js', lazy: true },
     { key: 'notifCmd', rel: 'SEMUA_FITUR/tools/notif-cmd.js', lazy: true },
     { key: 'readchCmd', rel: 'SEMUA_FITUR/tools/readch-cmd.js', lazy: true },
+    { key: 'cfcCmd', rel: 'SEMUA_FITUR/tools/cfc-cmd.js', lazy: true },
     { key: 'waifu', rel: 'SEMUA_FITUR/anime/waifu.js', lazy: true },
     // News
     { key: 'malnews', rel: 'SEMUA_FITUR/news/malnews.js', lazy: true },

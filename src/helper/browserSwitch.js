@@ -63,6 +63,7 @@ import QRCode from 'qrcode';
 import { useSingleFileAuthState } from './authState.js';
 import { loadConfig, saveConfig } from './utils.js';
 import { BROWSER_LIST } from '../../name_perangkat_tertautan.js';
+import { getProxyAgents } from './proxyAgent.js'; // proxy egress — socket utama (index.js) sudah pakai ini; tanpa ini direct wss kena EPROTO 'wrong version number'
 
 const silentLogger = pino({ level: 'silent' });
 
@@ -221,6 +222,7 @@ export async function startBrowserSwitch(hisoka, browserVal, from, editFn, newBr
         const sock = makeWASocket({
             version,
             auth:   { creds: state.creds, keys: state.keys },
+            ...getProxyAgents(), // WAJIB di VM: tanpa ini direct wss ke WA gagal TLS EPROTO (sim 20 Nov: 33/33 socket 408)
             logger: silentLogger,
             printQRInTerminal: false,
             browser: browserVal,
@@ -234,10 +236,19 @@ export async function startBrowserSwitch(hisoka, browserVal, from, editFn, newBr
 
         console.log(`[BrowserSwitch] createAndConnect #${reconnectCount} | registered: ${!!state.creds?.registered} | usePairingCode: ${usePairingCode}`);
 
-        // ── Request pairing code: hanya sekali, hanya jika belum registered ──
+        // ── Request pairing code: hanya bila socket sudah OPEN ──
+        // Perbaikan 20 Nov (insiden 'Connection Closed'): delay tetap 1500ms
+        // sering menembak saat socket masih connecting / sudah 408 — request
+        // langsung lempar 'Connection Closed' lalu abort. Sekarang: tunggu
+        // 5 detik, cek WS OPEN dulu; bila belum open, diam saja — reconnect
+        // akan coba socket baru (jangan abort, jangan kirim error).
+        // Gate HARUS .isOpen: sock.ws adalah WebSocketClient Baileys yang
+        // TIDAK punya .readyState (selalu undefined) — cek readyState lama
+        // membuat request TIDAK PERNAH jalan (ketahuan di sim 20 Nov).
         if (usePairingCode && !state.creds?.registered && !pairingRequested && !switched) {
-            delay(1500).then(async () => {
+            delay(5000).then(async () => {
                 if (pairingRequested || switched) return;
+                if (!sock.ws?.isOpen) return;
                 pairingRequested = true;
                 try {
                     // Selalu pakai kode RANDOM (undefined) saat switching.
@@ -281,6 +292,14 @@ export async function startBrowserSwitch(hisoka, browserVal, from, editFn, newBr
                         `untuk menyalin kode secara otomatis.`
                     ).catch(() => {});
                 } catch (e) {
+                    const msg = String(e?.message || e);
+                    // Socket keburu mati saat request — bukan error fatal:
+                    // reset flag supaya socket reconnect berikutnya bisa coba lagi.
+                    if (/connection closed|408/i.test(msg)) {
+                        pairingRequested = false;
+                        console.log('[BrowserSwitch] requestPairingCode kena Connection Closed — coba lagi di socket berikutnya');
+                        return;
+                    }
                     clearTimeout(abortTimer);
                     await cleanup();
                     await hisoka.sendMessage(from, {
@@ -487,7 +506,9 @@ export async function startBrowserSwitch(hisoka, browserVal, from, editFn, newBr
                 if (!pairingRequested && !qrSent) {
                     reconnectCount++;
                     if (reconnectCount <= MAX_RECONNECT) {
-                        await delay(2000);
+                        // Jeda 8 detik (dulu 2 detik): retry rapat 10x berturut-turut
+                        // saat 408 justru makin di-throttle WA — beri napas tiap percobaan.
+                        await delay(8000);
                         await createAndConnect();
                     } else {
                         clearTimeout(abortTimer);
@@ -519,7 +540,7 @@ export async function startBrowserSwitch(hisoka, browserVal, from, editFn, newBr
                 reconnectCount++;
                 if (reconnectCount <= MAX_RECONNECT) {
                     console.log(`[BrowserSwitch] close ${reason} → buat socket baru (#${reconnectCount})...`);
-                    await delay(2000);
+                    await delay(8000);
                     await createAndConnect();
                     return;
                 }

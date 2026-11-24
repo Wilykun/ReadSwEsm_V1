@@ -373,7 +373,8 @@ async function handleYtmp4(hisoka, m, query, ctx) {
     const tmpTemplate = path.join(process.cwd(), 'tmp', `ytmp4_${tmpId}.%(ext)s`);
 
     await new Promise((resolve, reject) => {
-        const cmd = `"${ytdlpBin}" --no-check-certificate --extractor-args "youtube:player_client=android" --js-runtimes node --no-playlist${ytdlpCookieFlag()} -f "bestvideo[height<=360]+bestaudio/best[height<=360]" --merge-output-format mp4 --postprocessor-args "ffmpeg:-c:v libx264 -c:a aac -movflags +faststart -preset fast -crf 28" -o "${tmpTemplate}" "${ytUrl}"`;
+        // Fallback /best di ujung selector: video vertikal/Shorts itu 360x640, jadi height-nya 640 dan best[height<=360] tidak cocok, sementara format video+audio terpisah tidak ada URL-nya karena eksperimen SABR-only YouTube — tanpa /best, yt-dlp menolak dengan "Requested format is not available" padahal format gabungan 18 (360p) tersedia.
+        const cmd = `"${ytdlpBin}" --no-check-certificate --extractor-args "youtube:player_client=android" --js-runtimes node --no-playlist${ytdlpCookieFlag()} -f "bestvideo[height<=360]+bestaudio/best[height<=360]/best" --merge-output-format mp4 --postprocessor-args "ffmpeg:-c:v libx264 -c:a aac -movflags +faststart -preset fast -crf 28" -o "${tmpTemplate}" "${ytUrl}"`;
         exec(cmd, { timeout: 240000 }, (err, stdout, stderr) => {
             if (err) return reject(new Error(parseYtdlpError(stderr, err.message)));
             resolve();

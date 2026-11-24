@@ -18,83 +18,92 @@
  *  Terima kasih sudah support.
  * ───────────────────────────────
  *
- *  viewonce.js — View once handler
- *  Perintah .vo untuk buka ulang & simpan pesan view once
+ *  viewonce.js — View once handler (REWRITE ESM, 17 Nov 2026)
+ *  Perintah .rvo untuk buka ulang & simpan pesan view once
+ *  Murni ESM (export/import) — tidak ada require/module.exports.
+ *
+ *  Cara kerja (urutan sumber media):
+ *  1. Cache disk voCache (pesan view-once yang sempat disimpan bot saat masuk)
+ *  2. Media asli dari m.quoted (pesan asli lengkap, hidup 60 detik di cache pesan)
+ *  3. Salinan quote — hanya bila masih bawa kunci unduh (url/directPath/thumbnail)
+ *  4. Re-upload: minta pengirim upload ulang bila ada mediaKey (batas 60 detik)
+ *  5. Bila tidak ada kunci apa pun (placeholder): error jujur, bukan error Baileys
  * ───────────────────────────────
  */
 'use strict';
 
-function extractMediaFromMessage(quotedMsg) {
-        let targetMessage = quotedMsg;
-        let foundViewOnce = false;
+// Semua pembungkus view-once yang dikenal (V2Lid defensif — belum ada di Baileys rc14).
+const PEMBUNGKUS_VO = ['viewOnceMessage', 'viewOnceMessageV2', 'viewOnceMessageV2Extension', 'viewOnceMessageV2Lid'];
+const TIPE_MEDIA = ['imageMessage', 'videoMessage', 'audioMessage', 'documentMessage', 'stickerMessage'];
 
-        if (quotedMsg.ephemeralMessage?.message) {
-                targetMessage = quotedMsg.ephemeralMessage.message;
+// Kupas ephemeral + semua pembungkus view-once sampai ke isi media.
+// Kembalikan { mediaMessage, mediaType, isViewOnce } atau null bila tidak ada media.
+function cariMedia(pesan) {
+        if (!pesan || typeof pesan !== 'object') return null;
+        let isi = pesan;
+        let ketemuVo = false;
+        if (isi.ephemeralMessage?.message) isi = isi.ephemeralMessage.message;
+        let berubah = true;
+        while (berubah) {
+                berubah = false;
+                for (const bungkus of PEMBUNGKUS_VO) {
+                        if (isi[bungkus]?.message) {
+                                isi = isi[bungkus].message;
+                                ketemuVo = true;
+                                berubah = true;
+                                break;
+                        }
+                }
         }
-
-        if (targetMessage.viewOnceMessage?.message) {
-                targetMessage = targetMessage.viewOnceMessage.message;
-                foundViewOnce = true;
-        }
-
-        if (targetMessage.viewOnceMessageV2?.message) {
-                targetMessage = targetMessage.viewOnceMessageV2.message;
-                foundViewOnce = true;
-        }
-
-        if (targetMessage.viewOnceMessageV2Extension?.message) {
-                targetMessage = targetMessage.viewOnceMessageV2Extension.message;
-                foundViewOnce = true;
-        }
-
-        const mediaTypes = [
-                'imageMessage',
-                'videoMessage',
-                'audioMessage',
-                'documentMessage',
-                'stickerMessage'
-        ];
-
-        for (const mediaType of mediaTypes) {
-                if (targetMessage[mediaType]) {
+        for (const tipe of TIPE_MEDIA) {
+                if (isi[tipe]) {
                         return {
-                                mediaMessage: targetMessage[mediaType],
-                                mediaType: mediaType,
-                                isViewOnce: foundViewOnce ||
-                                        targetMessage[mediaType].viewOnce === true ||
-                                        quotedMsg.viewOnceMessage ||
-                                        quotedMsg.viewOnceMessageV2 ||
-                                        quotedMsg.viewOnceMessageV2Extension
+                                mediaMessage: isi[tipe],
+                                mediaType: tipe,
+                                isViewOnce: ketemuVo ||
+                                        isi[tipe].viewOnce === true ||
+                                        PEMBUNGKUS_VO.some((b) => !!pesan[b] || !!pesan.ephemeralMessage?.message?.[b])
                         };
                 }
         }
-
         return null;
 }
 
-function isViewOnceMessage(quotedMsg) {
-        if (quotedMsg.viewOnceMessage) return true;
-        if (quotedMsg.viewOnceMessageV2) return true;
-        if (quotedMsg.viewOnceMessageV2Extension) return true;
+// Media bisa diunduh bila bawa salah satu kunci ini.
+function kunciUnduh(media) {
+        return !!(media?.url || media?.directPath || media?.thumbnailDirectPath);
+}
 
-        if (quotedMsg.ephemeralMessage?.message) {
-                const ephemeralContent = quotedMsg.ephemeralMessage.message;
-                if (ephemeralContent.viewOnceMessage) return true;
-                if (ephemeralContent.viewOnceMessageV2) return true;
-                if (ephemeralContent.viewOnceMessageV2Extension) return true;
-
-                const mediaTypes = ['imageMessage', 'videoMessage', 'audioMessage', 'documentMessage', 'stickerMessage'];
-                for (const type of mediaTypes) {
-                        if (ephemeralContent[type]?.viewOnce) return true;
+// Download media view-once dengan fallback re-upload: Baileys hanya mencoba re-upload
+// otomatis untuk error 410/404, sementara salinan quote yang kehilangan url/directPath
+// gagal dengan 400 — jadi bila download pertama gagal, minta pengirim upload ulang medianya.
+async function unduhMediaVo(hisoka, dlMsg, downloadMediaMessage) {
+        try {
+                return await downloadMediaMessage(dlMsg, 'buffer', {}, { logger: hisoka.logger, reuploadRequest: hisoka.updateMediaMessage });
+        } catch (ePertama) {
+                try {
+                        if (typeof hisoka.updateMediaMessage !== 'function') throw ePertama;
+                        const batasWaktu = new Promise((_, tolak) => setTimeout(() => tolak(new Error('reupload timeout')), 60000));
+                        await Promise.race([hisoka.updateMediaMessage(dlMsg), batasWaktu]);
+                        return await downloadMediaMessage(dlMsg, 'buffer', {}, { logger: hisoka.logger, reuploadRequest: hisoka.updateMediaMessage });
+                } catch {
+                        throw ePertama;
                 }
         }
+}
 
-        const mediaTypes = ['imageMessage', 'videoMessage', 'audioMessage', 'documentMessage', 'stickerMessage'];
-        for (const type of mediaTypes) {
-                if (quotedMsg[type]?.viewOnce) return true;
-        }
-
-        return false;
+// Bangun pesan download dari kandidat media (pakai key pesan asli bila ada).
+function bangunDlMsg(m, mediaPakai, contextInfo, quotedParticipant, quotedStanzaId, isJidGroup) {
+        const isi = {};
+        isi[mediaPakai.mediaType] = mediaPakai.mediaMessage;
+        if (m.quoted?.key) return { ...m.quoted, message: isi };
+        return {
+                key: {
+                        remoteJid: m.from, fromMe: quotedParticipant ? false : (contextInfo?.fromMe ?? false), id: quotedStanzaId,
+                        ...(isJidGroup(m.from) && quotedParticipant ? { participant: quotedParticipant } : {})
+                },
+                message: isi
+        };
 }
 
 async function handleVo({ hisoka, m, query, tolak, logCommand, quoted, downloadMediaMessage, isJidGroup, hasViewOnceCache, getViewOnceCache }) {
@@ -124,14 +133,23 @@ async function handleVo({ hisoka, m, query, tolak, logCommand, quoted, downloadM
                 const quotedMsg = m.content?.contextInfo?.quotedMessage;
                 if (!quotedMsg) { await tolak(hisoka, m, 'Tidak ada pesan yang di-reply.'); return; }
 
-                const mediaInfo = extractMediaFromMessage(quotedMsg);
+                const mediaInfo = cariMedia(quotedMsg);
                 if (!mediaInfo) { await tolak(hisoka, m, 'Media tidak ditemukan dalam pesan yang di-reply.'); return; }
-
-                await hisoka.sendMessage(m.from, { react: { text: '⏳', key: m.key } });
 
                 const contextInfo       = m.content?.contextInfo;
                 const quotedParticipant = contextInfo?.participant;
                 const quotedStanzaId    = contextInfo?.stanzaId;
+
+                // Media asli lengkap dari pesan asli (m.quoted) — salinan quote WhatsApp
+                // untuk view-once TIDAK membawa url/directPath, jadi jangan download dari situ.
+                const asli = m.quoted?.message ? cariMedia(m.quoted.message) : null;
+
+                // Diagnosa live: kunci media apa saja yang ada di pesan asli vs salinan quote.
+                // Yang dicatat hanya nama kunci + boolean — tidak ada nilai media / URL.
+                const kunciAtas = m.quoted?.message ? Object.keys(m.quoted.message) : [];
+                console.log(`[RVO-DIAG] stanza:${quotedStanzaId} | cacheVo:${!!(quotedStanzaId && hasViewOnceCache(quotedStanzaId))} | quoted:${!!m.quoted?.key} quotedKeys:${kunciAtas.join(',')} | asliTipe:${asli?.mediaType || '-'} asliUrl:${!!asli?.mediaMessage?.url} asliPath:${!!asli?.mediaMessage?.directPath} asliThumb:${!!asli?.mediaMessage?.thumbnailDirectPath} asliKey:${!!asli?.mediaMessage?.mediaKey} | stripTipe:${mediaInfo.mediaType} stripUrl:${!!mediaInfo.mediaMessage?.url} stripPath:${!!mediaInfo.mediaMessage?.directPath} stripThumb:${!!mediaInfo.mediaMessage?.thumbnailDirectPath} stripKey:${!!mediaInfo.mediaMessage?.mediaKey}`);
+
+                await hisoka.sendMessage(m.from, { react: { text: '⏳', key: m.key } });
 
                 let buffer = null, cachedMeta = null;
                 if (quotedStanzaId && hasViewOnceCache(quotedStanzaId)) {
@@ -140,18 +158,37 @@ async function handleVo({ hisoka, m, query, tolak, logCommand, quoted, downloadM
                 }
 
                 if (!buffer) {
-                        let downloadMessage = {};
-                        downloadMessage[mediaInfo.mediaType] = mediaInfo.mediaMessage;
-                        const dlMsg = m.quoted?.key
-                                ? { ...m.quoted, message: downloadMessage }
-                                : {
-                                        key: {
-                                                remoteJid: m.from, fromMe: quotedParticipant ? false : (contextInfo?.fromMe ?? false), id: quotedStanzaId,
-                                                ...(isJidGroup(m.from) && quotedParticipant ? { participant: quotedParticipant } : {})
-                                        },
-                                        message: downloadMessage
-                                };
-                        buffer = await downloadMediaMessage(dlMsg, 'buffer', {}, { logger: hisoka.logger, reuploadRequest: hisoka.updateMediaMessage });
+                        // Pilih media terbaik yang masih punya kunci unduh: asli dulu, baru salinan.
+                        let mediaPakai = null;
+                        if (asli && kunciUnduh(asli.mediaMessage)) mediaPakai = asli;
+                        else if (kunciUnduh(mediaInfo.mediaMessage)) mediaPakai = mediaInfo;
+
+                        if (mediaPakai) {
+                                const dlMsg = bangunDlMsg(m, mediaPakai, contextInfo, quotedParticipant, quotedStanzaId, isJidGroup);
+                                buffer = await unduhMediaVo(hisoka, dlMsg, downloadMediaMessage);
+                        } else {
+                                // Tidak ada kunci unduh di mana pun — coba re-upload langsung
+                                // bila ada mediaKey di pesan asli atau salinan.
+                                const berkunci = (asli?.mediaMessage?.mediaKey && asli) || (mediaInfo.mediaMessage?.mediaKey && mediaInfo) || null;
+                                if (berkunci && typeof hisoka.updateMediaMessage === 'function') {
+                                        const dlMsg = bangunDlMsg(m, berkunci, contextInfo, quotedParticipant, quotedStanzaId, isJidGroup);
+                                        try {
+                                                const batasWaktu = new Promise((_, tolak) => setTimeout(() => tolak(new Error('reupload timeout')), 60000));
+                                                await Promise.race([hisoka.updateMediaMessage(dlMsg), batasWaktu]);
+                                                buffer = await downloadMediaMessage(dlMsg, 'buffer', {}, { logger: hisoka.logger, reuploadRequest: hisoka.updateMediaMessage });
+                                        } catch { buffer = null; }
+                                }
+                        }
+
+                        if (!buffer) {
+                                // Tidak ada kunci apa pun: bot tidak menyimpan media untuk pesan
+                                // ini — masuk saat bot offline, atau WhatsApp hanya mengirim
+                                // placeholder (tanpa media) ke perangkat tertaut bot.
+                                if (!asli?.mediaMessage?.mediaKey && !mediaInfo.mediaMessage?.mediaKey) {
+                                        throw new Error('BOT_TANPA_MEDIA');
+                                }
+                                throw new Error('No valid media URL or directPath present in message');
+                        }
                 }
 
                 const jakartaTime = new Date().toLocaleString('id-ID', {
@@ -182,7 +219,13 @@ async function handleVo({ hisoka, m, query, tolak, logCommand, quoted, downloadM
         } catch (error) {
                 console.error('\x1b[31m[RVO] Error:\x1b[39m', error.message);
                 await hisoka.sendMessage(m.from, { react: { text: '❌', key: m.key } });
-                await tolak(hisoka, m, `Gagal membuka view once: ${error.message}`);
+                if (error.message === 'BOT_TANPA_MEDIA') {
+                        await tolak(hisoka, m, `Media view once ini tidak bisa dibuka: bot tidak menyimpan medianya untuk pesan ini.
+
+Kemungkinan penyebabnya: pesan masuk saat bot offline, atau WhatsApp hanya mengirim placeholder (tanpa media) ke perangkat tertaut bot (saat ini perangkat web). Solusi: balas view once BARU selagi bot online. Bila masih gagal, perangkat harus Android — tapi _.aturbrowser v11_ saat ini ditolak WhatsApp, jadi belum ada jalan Android yang jalan.`);
+                } else {
+                        await tolak(hisoka, m, `Gagal membuka view once: ${error.message}`);
+                }
         }
 }
 

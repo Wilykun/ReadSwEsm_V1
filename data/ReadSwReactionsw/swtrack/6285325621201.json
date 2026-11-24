@@ -1,10 +1,10 @@
 {
-  "AC29AED5AF32156D6B447989B3584C96": {
-    "id": "AC29AED5AF32156D6B447989B3584C96",
+  "AC0A0C30E2A5D6A25AC411EF7061746D": {
+    "id": "AC0A0C30E2A5D6A25AC411EF7061746D",
     "sender": "6285325621201@s.whatsapp.net",
     "name": "Nurmila Harli",
-    "type": "imageMessage",
-    "arrivedAt": "2026-10-28T13:51:35.254Z",
+    "type": "conversation",
+    "arrivedAt": "2026-11-24T09:24:18.591Z",
     "read": true,
     "reacted": true,
     "reactionExpected": true,
@@ -17,17 +17,17 @@
       "remoteJid": "status@broadcast",
       "remoteJidAlt": "6285325621201@s.whatsapp.net",
       "fromMe": false,
-      "id": "AC29AED5AF32156D6B447989B3584C96",
+      "id": "AC0A0C30E2A5D6A25AC411EF7061746D",
       "participant": "41339228057676@lid",
       "addressingMode": "lid"
     },
-    "updatedAt": "2026-10-28T13:51:49.142Z",
+    "updatedAt": "2026-11-24T09:24:20.839Z",
     "receiptKeys": [
       {
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6285325621201@s.whatsapp.net",
         "fromMe": false,
-        "id": "AC29AED5AF32156D6B447989B3584C96",
+        "id": "AC0A0C30E2A5D6A25AC411EF7061746D",
         "participant": "41339228057676@lid",
         "addressingMode": "lid"
       },
@@ -35,11 +35,11 @@
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6285325621201@s.whatsapp.net",
         "fromMe": false,
-        "id": "AC29AED5AF32156D6B447989B3584C96",
+        "id": "AC0A0C30E2A5D6A25AC411EF7061746D",
         "participant": "6285325621201@s.whatsapp.net",
         "addressingMode": "lid"
       }
     ],
-    "processedAt": "2026-10-28T13:51:49.142Z"
+    "processedAt": "2026-11-24T09:24:20.839Z"
   }
 }

@@ -1,14 +1,14 @@
 {
-  "ACB6A0D2A1DC1BB89CF880ED614944A0": {
-    "id": "ACB6A0D2A1DC1BB89CF880ED614944A0",
+  "AC9129C3833E1614AD444DA9D90E1098": {
+    "id": "AC9129C3833E1614AD444DA9D90E1098",
     "sender": "6283833697404@s.whatsapp.net",
     "name": "MJ",
-    "type": "imageMessage",
-    "arrivedAt": "2026-11-11T11:50:22.362Z",
+    "type": "conversation",
+    "arrivedAt": "2026-11-20T06:56:25.583Z",
     "read": true,
     "reacted": true,
     "reactionExpected": true,
-    "emoji": "🐡",
+    "emoji": "🐟",
     "resolve": "PN langsung ✓",
     "source": "status",
     "number": "6283833697404",
@@ -17,17 +17,17 @@
       "remoteJid": "status@broadcast",
       "remoteJidAlt": "6283833697404@s.whatsapp.net",
       "fromMe": false,
-      "id": "ACB6A0D2A1DC1BB89CF880ED614944A0",
+      "id": "AC9129C3833E1614AD444DA9D90E1098",
       "participant": "26345463611535@lid",
       "addressingMode": "lid"
     },
-    "updatedAt": "2026-11-11T11:50:30.486Z",
+    "updatedAt": "2026-11-20T06:56:28.066Z",
     "receiptKeys": [
       {
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6283833697404@s.whatsapp.net",
         "fromMe": false,
-        "id": "ACB6A0D2A1DC1BB89CF880ED614944A0",
+        "id": "AC9129C3833E1614AD444DA9D90E1098",
         "participant": "26345463611535@lid",
         "addressingMode": "lid"
       },
@@ -35,80 +35,11 @@
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6283833697404@s.whatsapp.net",
         "fromMe": false,
-        "id": "ACB6A0D2A1DC1BB89CF880ED614944A0",
+        "id": "AC9129C3833E1614AD444DA9D90E1098",
         "participant": "6283833697404@s.whatsapp.net",
         "addressingMode": "lid"
       }
     ],
-    "processedAt": "2026-11-11T11:50:30.486Z"
-  },
-  "ACAD526650AA100EA971377DAECCDD06": {
-    "id": "ACAD526650AA100EA971377DAECCDD06",
-    "sender": "6283833697404@s.whatsapp.net",
-    "name": "MJ",
-    "type": "imageMessage",
-    "arrivedAt": "2026-11-11T11:50:22.391Z",
-    "read": true,
-    "reacted": true,
-    "reactionExpected": true,
-    "emoji": "🐬",
-    "resolve": "PN langsung ✓",
-    "source": "status",
-    "number": "6283833697404",
-    "resolvedPn": "6283833697404@s.whatsapp.net",
-    "messageKey": {
-      "remoteJid": "status@broadcast",
-      "remoteJidAlt": "6283833697404@s.whatsapp.net",
-      "fromMe": false,
-      "id": "ACAD526650AA100EA971377DAECCDD06",
-      "participant": "26345463611535@lid",
-      "addressingMode": "lid"
-    },
-    "updatedAt": "2026-11-11T11:50:33.771Z",
-    "receiptKeys": [
-      {
-        "remoteJid": "status@broadcast",
-        "remoteJidAlt": "6283833697404@s.whatsapp.net",
-        "fromMe": false,
-        "id": "ACAD526650AA100EA971377DAECCDD06",
-        "participant": "26345463611535@lid",
-        "addressingMode": "lid"
-      },
-      {
-        "remoteJid": "status@broadcast",
-        "remoteJidAlt": "6283833697404@s.whatsapp.net",
-        "fromMe": false,
-        "id": "ACAD526650AA100EA971377DAECCDD06",
-        "participant": "6283833697404@s.whatsapp.net",
-        "addressingMode": "lid"
-      }
-    ],
-    "processedAt": "2026-11-11T11:50:33.771Z"
-  },
-  "ACFB22F9E564EAE5ACAE87A4C869817E": {
-    "id": "ACFB22F9E564EAE5ACAE87A4C869817E",
-    "sender": "6283833697404@s.whatsapp.net",
-    "name": "MJ",
-    "type": "imageMessage",
-    "arrivedAt": "2026-11-11T14:32:45.076Z",
-    "read": false,
-    "reacted": false,
-    "reactionExpected": true,
-    "emoji": null,
-    "resolve": "PN langsung ✓",
-    "source": "status",
-    "number": "6283833697404",
-    "resolvedPn": "6283833697404@s.whatsapp.net",
-    "messageKey": {
-      "remoteJid": "status@broadcast",
-      "remoteJidAlt": "6283833697404@s.whatsapp.net",
-      "fromMe": false,
-      "id": "ACFB22F9E564EAE5ACAE87A4C869817E",
-      "participant": "26345463611535@lid",
-      "addressingMode": "lid"
-    },
-    "updatedAt": "2026-11-11T14:32:49.361Z",
-    "deleted": true,
-    "deletedAt": "2026-11-11T14:32:49.361Z"
+    "processedAt": "2026-11-20T06:56:28.066Z"
   }
 }
