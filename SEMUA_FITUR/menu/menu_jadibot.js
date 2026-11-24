@@ -73,29 +73,25 @@ export function getMenuJadibotBody() {
 • \`.anticallvid del [nomor]\`
 • \`.anticallvid list\`
 ────────────────────────
-7. 👁️ *VIEW ONCE*
-• \`.rvo / .viewonce / .vo\`
-• \`.rvo2\`
-────────────────────────
-8. 🗑️ *HAPUS PESAN*
+7. 🗑️ *HAPUS PESAN*
 • \`.del / .d\`
 • \`.delbot\`
 ────────────────────────
-9. 🎨 *STICKER & GAMBAR*
+8. 🎨 *STICKER & GAMBAR*
 • \`.sticker / .s\`
 • \`.wm / .swm [Pack|Author]\`
 • \`.toimg\`
 • \`.smeme [teks]\`
 • \`.hd / .remini\`
 ────────────────────────
-10. 🔤 *FONT & LOGO*
+9. 🔤 *FONT & LOGO*
 • \`.font [teks]\`
 • \`.fontgen [teks]\`
 • \`.fontuntik [teks]\`
 • \`.logo [style]|[teks]\`
 • \`.logo list\`
 ────────────────────────
-11. 😊 *EMOJI REAKSI SW*
+10. 😊 *EMOJI REAKSI SW*
 • \`.emoji\`
 • \`.emojiadd 😊,😄\`
 • \`.emojidel 😊\`
@@ -104,15 +100,15 @@ export function getMenuJadibotBody() {
 • \`.emojidefault\`
 • \`.emojicustom\`
 ────────────────────────
-12. 📡 *STATUS & STORY*
+11. 📡 *STATUS & STORY*
 • \`.upswgc [caption]\`
 ────────────────────────
-13. 🎌 *ANIME GIF*
+12. 🎌 *ANIME GIF*
 • \`.animgif\`
 • \`.animgif [kategori]\`
 • \`.animgif list\`
 ────────────────────────
-14. 📥 *DOWNLOAD*
+13. 📥 *DOWNLOAD*
 • \`.allunduh [link]\`
 • \`.tt [link]\`
 • \`.ig [link]\`

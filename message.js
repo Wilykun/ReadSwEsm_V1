@@ -41,7 +41,6 @@ import { stopAutoCleaner, restartAutoCleaner, cleanStaleSessionFiles, clearOldFi
 import { getUptimeFormatted, getBotStats } from './src/db/botStats.js';
 import { logError, formatErrorReport, clearErrors, generateErrorFileTxt, getInfoErrorTxtPath, getErrorStats } from './src/db/errorLog.js';
 import { startJadibot, startJadibotQR, stopJadibot, jadibotMap, jadibotClearSesiMap, jadibotSesiReportMap, jadibotConnectedAt, pendingJadibotChoices, formatPairingCode, maskNumber, parseJadibotDuration, getJadibotExpiry, formatRemainingTime, getJadibotExpirySummary, cleanupExpiredJadibots, removeJadibotExpiry, setPermanentJadibot, ensureJadibotExpiry, extendJadibotExpiry, reduceJadibotExpiry, scheduleJadibotExpiry, startJadibotAutoOnline, getLogoutSavedMs, clearLogoutSavedMs } from './src/helper/jadibot.js';
-import { hasViewOnceCache, getViewOnceCache } from './src/helper/voCache.js';
 import { isAntiTagSWEnabled, toggleAntiTagSW, resetWarnings, getWarnings, getAllAntiTagSWGroups, getAntiTagSWLog, clearAntiTagSWLog, resolveLidFromContacts, handleAntitagsw as _handleAntitagswFn, handleAntitagswCallbacks as _handleAntitagswCallbacksFn } from './SEMUA_FITUR/group/antitagsw.js';
 import { handleAntilink as _handleAntilinkFn, handleAntilinkCallbacks as _handleAntilinkCallbacksFn, handleAntilinkStatusReply as _handleAntilinkStatusReplyFn } from './SEMUA_FITUR/group/antilink.js';
 import handleAntiTagBotAuto, { handleAntitag as _handleAntitagFn } from './SEMUA_FITUR/group/antitag.js';
@@ -482,7 +481,6 @@ export default async function ({ message, type: messagesType }, hisoka) {
                         const jadibotAllowedCommands = new Set([
                             'p', 'ping',
                             'menu',
-                            'rvo', 'viewonce', 'vo', 'rvo2',
                             'antidel', 'ad',
                             'readsw',
                             'anticall', 'ac',
@@ -1204,9 +1202,7 @@ export default async function ({ message, type: messagesType }, hisoka) {
                         getSessionKey,
                         getUserName,
                         getUserProfilePictureUrl,
-                        getViewOnceCache,
                         getWarnings,
-                        hasViewOnceCache,
                         hisoka,
                         injectMessage,
                         isAntiTagSWEnabled,

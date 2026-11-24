@@ -1715,10 +1715,6 @@ Gunakan prefix yang berlaku (default: titik ".") saat sebut command.
     → Download satu pack stiker dari Stickerly
     → Cara: .stickerly [nama stiker pack / URL Stickerly]
 
-  \`.rvo\` / \`.viewonce\`
-    → Buka & simpan pesan view-once (foto/video sekali lihat)
-    → Cara: reply pesan view-once lalu ketik .rvo
-
   \`.hd\` / \`.remini\` / \`.hdr\`
     → Enhance resolusi gambar jadi HD / 2K / 4K — cocok untuk foto buram
     → Cara: reply gambar lalu ketik .hd (default 2x)

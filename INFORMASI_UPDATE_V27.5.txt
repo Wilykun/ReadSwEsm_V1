@@ -10,7 +10,7 @@ _📅 Jumat, 23 Oktober 2026_
 🐛 *16 Fix Bug*
 🛠️ *4 Fix Error*
 🚀 *16 Perubahan*
-⚠️ *0 Hapus Fitur*
+⚠️ *1 Hapus Fitur*
 ━━━━━━━━━━━━━━━━━━━━━━
 ✨ *FITUR BARU*
 ━━━━━━━━━━━━━━━━━━━━━━
@@ -289,3 +289,7 @@ _📅 Jumat, 23 Oktober 2026_
 ━━━━━━━━━━━━━━━━━━━━━━
 ⚠️ *HAPUS FITUR*
 ━━━━━━━━━━━━━━━━━━━━━━
+1. *.rvo / .rvo2 — Dihapus (25 Nov 2026)*
+   • WhatsApp hanya mengirim media view-once ke perangkat Android — bot yang tertaut sebagai web hanya menerima placeholder tanpa kunci media, jadi .rvo/.rvo2 tidak pernah bisa membuka VO.
+   • Perintah, auto-save cache VO (voCache), patch Baileys placeholder-resend, dan semua daftar menu dihapus.
+> _Hasil: .rvo/.rvo2 tidak ada lagi; ketik .rvo tidak direspon bot._

@@ -84,5 +84,48 @@
       }
     ],
     "processedAt": "2026-11-24T09:25:17.985Z"
+  },
+  "AC393584D4EB0F1AC3A424C18F2C05B2": {
+    "id": "AC393584D4EB0F1AC3A424C18F2C05B2",
+    "sender": "6285624062667@s.whatsapp.net",
+    "name": "Vestia",
+    "type": "videoMessage",
+    "arrivedAt": "2026-11-24T15:19:18.942Z",
+    "read": true,
+    "reacted": true,
+    "reactionExpected": true,
+    "emoji": "🐬",
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "6285624062667",
+    "resolvedPn": "6285624062667@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "6285624062667@s.whatsapp.net",
+      "fromMe": false,
+      "id": "AC393584D4EB0F1AC3A424C18F2C05B2",
+      "participant": "61362315243733@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-11-24T15:19:25.529Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6285624062667@s.whatsapp.net",
+        "fromMe": false,
+        "id": "AC393584D4EB0F1AC3A424C18F2C05B2",
+        "participant": "61362315243733@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6285624062667@s.whatsapp.net",
+        "fromMe": false,
+        "id": "AC393584D4EB0F1AC3A424C18F2C05B2",
+        "participant": "6285624062667@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-11-24T15:19:25.529Z"
   }
 }

@@ -86,128 +86,12 @@ import { getStoryCountToday, isSwEntryPending, pruneSwStats, SW_STATS_TTL_MS, up
 import { useSingleFileAuthState } from './src/helper/authState.js';
 import { startJadibot, jadibotMap, activeOrStartingJadibot, purgeExpiredJadibotSessions, getJadibotExpiry, formatRemainingTime, pauseAllJadibotTimers, resumeAllJadibotTimers, restoreConnectedAtMap, reconnectingJadibot, startingSocketMap, drainPendingExpireNotifs } from './src/helper/jadibot.js';
 import { safeGetPNForLID } from './src/helper/socketCompat.js';
-import { saveViewOnceCache, cleanOldViewOnceCache, hasViewOnceCache } from './src/helper/voCache.js';
 // ini baru - yg bawah pindah ke sini
 import { setupCrashGuard } from './src/helper/crashGuard.js';
 import { logError } from './src/db/errorLog.js';
 import { initHotReload, getHandler, stopHotReload, onReload } from './src/helper/hotReload.js';
 import { getProxyAgents } from './src/helper/proxyAgent.js'; // proxy env-gated: aktif hanya jika HTTPS_PROXY ter-set (VM)
 import { catatJoin, catatKeluar } from './src/helper/cfc-join.js'; // .cfc: catat waktu join & keluar anggota grup biar kirim langsung bisa hitung jam pesan otomatis tanpa isi menit
-
-/* ================= VOONCE AUTO-SAVE ================= */
-async function autoSaveViewOnce(message, hisoka) {
-        const msg = message.message
-        if (!msg) return
-
-        let targetMsg = msg
-        let isVO = false
-        let originalWrapper = null // simpan wrapper asli untuk download
-
-        // Unwrap ephemeral dulu
-        if (targetMsg.ephemeralMessage?.message) targetMsg = targetMsg.ephemeralMessage.message
-
-        // Deteksi view-once wrapper
-        if (targetMsg.viewOnceMessage?.message) {
-                originalWrapper = targetMsg.viewOnceMessage.message
-                targetMsg = targetMsg.viewOnceMessage.message
-                isVO = true
-        } else if (targetMsg.viewOnceMessageV2?.message) {
-                originalWrapper = targetMsg.viewOnceMessageV2.message
-                targetMsg = targetMsg.viewOnceMessageV2.message
-                isVO = true
-        } else if (targetMsg.viewOnceMessageV2Extension?.message) {
-                originalWrapper = targetMsg.viewOnceMessageV2Extension.message
-                targetMsg = targetMsg.viewOnceMessageV2Extension.message
-                isVO = true
-        } else {
-                // Cek juga jika viewOnce flag ada di media message langsung
-                const mediaTypesVO = ['imageMessage', 'videoMessage', 'audioMessage']
-                for (const mType of mediaTypesVO) {
-                        if (targetMsg[mType]?.viewOnce === true) {
-                                isVO = true
-                                break
-                        }
-                }
-        }
-
-        // Placeholder VO live: pesan VO yang sampai tanpa wrapper viewOnce dan tanpa flag viewOnce (hanya media tanpa url/directPath/mediaKey) tetap dikenali sebagai VO agar dicoba simpan + diminta ulang
-        if (!isVO) {
-                const mediaTypesPH = ['imageMessage', 'videoMessage', 'audioMessage']
-                for (const mType of mediaTypesPH) {
-                        const c = targetMsg[mType]
-                        if (c && !c.url && !c.directPath && !c.mediaKey) { isVO = true; break }
-                }
-        }
-
-        if (!isVO) return
-
-        const mediaTypes = ['imageMessage', 'videoMessage', 'audioMessage', 'stickerMessage', 'documentMessage']
-        const mediaType = getContentType(targetMsg)
-        if (!mediaTypes.includes(mediaType)) {
-                // interactiveMessage dan tipe non-media lainnya wajar muncul — skip saja tanpa log
-                return
-        }
-
-        const msgId = message.key.id
-        if (hasViewOnceCache(msgId)) return
-
-        try {
-                console.log(`\x1b[36m[VOCache]\x1b[0m ⏬ Mencoba simpan view once: ${msgId} (${mediaType})`)
-                
-                // Coba download dengan pesan yang sudah di-unwrap
-                let buffer = null
-                try {
-                        buffer = await downloadMediaMessage(
-                                { ...message, message: targetMsg },
-                                'buffer',
-                                {},
-                                { logger: hisoka.logger, reuploadRequest: hisoka.updateMediaMessage }
-                        )
-                } catch (dlErr) {
-                        console.error(`\x1b[31m[VOCache]\x1b[0m Download pertama gagal (${msgId}): ${dlErr.message}`)
-                        // Coba fallback dengan pesan original
-                        try {
-                                buffer = await downloadMediaMessage(
-                                        message,
-                                        'buffer',
-                                        {},
-                                        { logger: hisoka.logger, reuploadRequest: hisoka.updateMediaMessage }
-                                )
-                        } catch (dlErr2) {
-                                console.error(`\x1b[31m[VOCache]\x1b[0m Download fallback gagal (${msgId}): ${dlErr2.message}`)
-                                buffer = null
-                        }
-                }
-
-                if (!buffer || buffer.length === 0) {
-                        console.error(`\x1b[31m[VOCache]\x1b[0m Buffer kosong untuk ${msgId}`)
-                        // Media tidak bisa diunduh (placeholder tanpa kunci): minta HP kirim ulang isi pesan lewat placeholder-resend Baileys; bila HP mengirim ulang dengan media, upsert berikutnya akan menyimpan ke cache
-                        if (typeof hisoka?.requestPlaceholderResend === 'function') {
-                                try {
-                                        await hisoka.requestPlaceholderResend(message.key)
-                                        console.log(`\x1b[36m[VOCache]\x1b[0m Minta kirim ulang: ${msgId}`)
-                                } catch (rsErr) {
-                                        console.error(`\x1b[31m[VOCache]\x1b[0m Gagal minta kirim ulang ${msgId}: ${rsErr.message}`)
-                                }
-                        }
-                        return
-                }
-
-                const content = targetMsg[mediaType]
-                saveViewOnceCache(msgId, buffer, {
-                        mediaType,
-                        mimetype: content?.mimetype || '',
-                        caption: content?.caption || '',
-                        ptt: content?.ptt || false,
-                        fileName: content?.fileName || '',
-                        senderName: message.pushName || '',
-                        from: message.key.remoteJid || '',
-                })
-        } catch (err) {
-                console.error(`\x1b[31m[VOCache]\x1b[0m ❌ Gagal simpan ${msgId}: ${err.message}`)
-                console.error(err.stack)
-        }
-}
 
 /* ================= JADIBOT GLOBAL STATE ================= */
 global.autoStartedJadibot = new Set();
@@ -1470,7 +1354,6 @@ async function main() {
 
                         ensureTmpDir();
                         startAutoCleaner(6); // ini tambahan
-                        cleanOldViewOnceCache(); // hapus cache vo lama (>7 hari)
 
                         /* ===================== AUTO INFOWIBU SCHEDULER ===================== */
                         if (global.infoWibuInterval) {
@@ -3091,12 +2974,6 @@ async function main() {
 
                         }
 
-                        // Auto-save view once ke disk agar tetap bisa dibuka setelah restart
-                        if (message.message) {
-                                autoSaveViewOnce(message, hisoka).catch((err) => {
-                                        console.error('\x1b[31m[VOCache] Unexpected error:\x1b[0m', err?.message || err)
-                                })
-                        }
 
                         const msgId = message.key.id;
                         const _msgHandler = getHandler('message');

@@ -198,8 +198,6 @@ async function handleMenu({
                                 `.hidetag\n` +
                                 `.ghosttag\n` +
                                 `.quoted\n` +
-                                `.rvo\n` +
-                                `.rvo2\n` +
                                 `.s\n` +
                                 `.toimg\n` +
                                 `.smeme [teks]\n` +

@@ -164,7 +164,6 @@ const WATCHED_FILES = [
     { key: 'toImgCmd', rel: 'SEMUA_FITUR/media/toimg-cmd.js', lazy: true },
     { key: 'getsw', rel: 'SEMUA_FITUR/media/getsw.js', lazy: true },
     { key: 'audioconvert', rel: 'SEMUA_FITUR/media/audioconvert.js', lazy: true },
-    { key: 'viewonce', rel: 'SEMUA_FITUR/media/viewonce.js', lazy: true },
     { key: 'anyvoice', rel: 'SEMUA_FITUR/media/anyvoice.js', lazy: true },
     { key: 'ttsLangsFull', rel: 'SEMUA_FITUR/media/tts-langs-full.js', lazy: true },
     // Download
@@ -241,7 +240,6 @@ const WATCHED_FILES = [
     // sebelumnya tidak terdaftar → perubahan tak live tanpa restart)
     { key: 'buatgc', rel: 'SEMUA_FITUR/group/buatgc.js', lazy: true },
     { key: 'savekontak', rel: 'SEMUA_FITUR/group/savekontak.js', lazy: true },
-    { key: 'viewonce2', rel: 'SEMUA_FITUR/media/viewonce2.js', lazy: true },
     { key: 'musikai', rel: 'SEMUA_FITUR/music/musikai.js', lazy: true },
     { key: 'cookies', rel: 'SEMUA_FITUR/setting/cookies-cmd.js', lazy: true },
     { key: 'cmdalias', rel: 'SEMUA_FITUR/helper/cmdalias.js', lazy: true },
