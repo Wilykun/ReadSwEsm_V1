@@ -261,27 +261,45 @@ async function prosesVideo(inputBuf, ext) {
     const dipotong = Boolean(durasi && durasi > MAKS_DETIK);
     const durasiEfektif = durasi ? Math.min(durasi, MAKS_DETIK) : 0;
 
+    // Tangga kompresi: utamakan GERAKAN HALUS (fps) daripada resolusi. Video
+    // panjang/sibuk yang dipaksa 512px jatuh ke 6 fps — gerakannya patah-patah
+    // (tiap frame diam 167ms) dan kelihatan delay terhadap suara yang mengalir
+    // terus (keluhan 25 Nov: mode URL tidak realtime, suara vs gerakan delay).
+    // Diukur di Shorts 4r4sy5coS7s 14,88 dtk: timing suara vs gerakan sebenarnya
+    // PAS (offset 0,00–0,01 dtk, durasi WebP 14,83 vs Opus 14,89) — yang rusak
+    // hanya fps-nya (efektif 5,0). Tiap anak tangga: fps, skala, daftar quality.
+    // Stiker pendek/sederhana tetap 512px 12fps (tangga pertama langsung muat).
+    const TANGGA = [
+      { fps: 12, skala: 512, quality: [80, 50, 30] },
+      { fps: 12, skala: 384, quality: [50, 30] },
+      { fps: 9, skala: 384, quality: [50, 30] },
+      { fps: 9, skala: 320, quality: [50, 30] },
+      { fps: 6, skala: 320, quality: [50, 30] }
+    ];
     let stickerBuf = null;
-    let quality = 80;
-    let fps = 12;
-    while (true) {
-      const tmpOut = tmpNama('sa_vid_out', 'webp');
-      try {
-        await execFileAsync('ffmpeg', [
-          '-y', '-hide_banner', '-loglevel', 'error', '-i', tmpIn,
-          '-vf', `fps=${fps},scale=512:512:force_original_aspect_ratio=increase,crop=512:512,format=rgba`,
-          '-c:v', 'libwebp_anim', '-lossless', '0', '-quality', String(quality), '-loop', '0', '-an', '-t', String(MAKS_DETIK), tmpOut
-        ], { timeout: 180000 });
-        stickerBuf = fs.readFileSync(tmpOut);
-      } finally {
-        hapusFile(tmpOut);
+    let fpsDipakai = 12;
+    let skalaDipakai = 512;
+    for (const anak of TANGGA) {
+      for (const q of anak.quality) {
+        const tmpOut = tmpNama('sa_vid_out', 'webp');
+        try {
+          await execFileAsync('ffmpeg', [
+            '-y', '-hide_banner', '-loglevel', 'error', '-i', tmpIn,
+            '-vf', `fps=${anak.fps},scale=${anak.skala}:${anak.skala}:force_original_aspect_ratio=increase,crop=${anak.skala}:${anak.skala},format=rgba`,
+            '-c:v', 'libwebp_anim', '-lossless', '0', '-quality', String(q), '-loop', '0', '-an', '-t', String(MAKS_DETIK), tmpOut
+          ], { timeout: 180000 });
+          stickerBuf = fs.readFileSync(tmpOut);
+        } finally {
+          hapusFile(tmpOut);
+        }
+        if (!stickerBuf || stickerBuf.length === 0) throw new Error('Konversi video ke stiker gagal, output kosong');
+        fpsDipakai = anak.fps;
+        skalaDipakai = anak.skala;
+        if (stickerBuf.length <= MAKS_STIKER_BYTE) break;
       }
-      if (!stickerBuf || stickerBuf.length === 0) throw new Error('Konversi video ke stiker gagal, output kosong');
-      if (stickerBuf.length <= MAKS_STIKER_BYTE) break;
-      if (quality > 30) quality -= 15;
-      else if (fps > 8) { fps -= 3; quality = 50; }
-      else break;
+      if (stickerBuf && stickerBuf.length <= MAKS_STIKER_BYTE) break;
     }
+    // Bila semua tangga masih >500 KB, kirim yang paling kecil anyway (sama seperti dulu).
 
     let opusBuf = null;
     if (adaAudio) {
@@ -296,7 +314,7 @@ async function prosesVideo(inputBuf, ext) {
         hapusFile(tmpAu);
       }
     }
-    return { stickerBuf, opusBuf, durasi: durasiEfektif, dipotong };
+    return { stickerBuf, opusBuf, durasi: durasiEfektif, dipotong, fps: fpsDipakai, skala: skalaDipakai };
   } finally {
     hapusFile(tmpIn);
   }
@@ -498,7 +516,7 @@ async function handleSticAudio(ctx) {
         await tolak(hisoka, m, '❌ Gagal download video yang di-reply.');
         return;
       }
-      const { stickerBuf, opusBuf, durasi, dipotong } = await prosesVideo(videoBuf, extDariMime(sumberVideo.mime));
+      const { stickerBuf, opusBuf, durasi, dipotong, fps } = await prosesVideo(videoBuf, extDariMime(sumberVideo.mime));
       const webp = parseWebp(stickerBuf);
       const hasil = await kirimStikerAudio(hisoka, m, {
         stickerBuf, webp,
@@ -509,7 +527,7 @@ async function handleSticAudio(ctx) {
       const durasiTeks = durasi ? ` (${Math.round(durasi)} dtk)` : '';
       const potongTeks = dipotong ? ' — video asli lebih dari 30 dtk, dipotong ke 30 dtk' : '';
       const judulTeks = judulYt ? `\nJudul: *${judulYt}*` : '';
-      await tolak(hisoka, m, `*${hasil.adaAudio ? 'Audio sticker' : 'Stiker animasi'} terkirim ✅*${judulTeks}\nStiker: *${webp.width}x${webp.height} WebP${webp.isAnimated ? ' animasi' : ''}* (${Math.round(stickerBuf.length / 1024)} KB)${durasiTeks}${potongTeks}${hasil.adaAudio ? '\nAudio: *suara video* nempel di stiker' : '\n> _Video ini tidak punya suara, jadi stikernya tanpa audio._'}${hasil.messageId ? `\nID: \`${hasil.messageId}\`` : ''}\n\n> _Buka stikernya di HP — audionya ikut berbunyi bila HP mendukung audio sticker._`);
+      await tolak(hisoka, m, `*${hasil.adaAudio ? 'Audio sticker' : 'Stiker animasi'} terkirim ✅*${judulTeks}\nStiker: *${webp.width}x${webp.height} WebP${webp.isAnimated ? ' animasi' : ''}* (${Math.round(stickerBuf.length / 1024)} KB, ${fps || 12} fps)${durasiTeks}${potongTeks}${hasil.adaAudio ? '\nAudio: *suara video* nempel di stiker' : '\n> _Video ini tidak punya suara, jadi stikernya tanpa audio._'}${hasil.messageId ? `\nID: \`${hasil.messageId}\`` : ''}\n\n> _Buka stikernya di HP — audionya ikut berbunyi bila HP mendukung audio sticker._`);
       logCommand(m, hisoka, m.command || 'sticaudio');
       return;
     }

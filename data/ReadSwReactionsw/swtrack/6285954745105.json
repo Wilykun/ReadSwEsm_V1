@@ -1,14 +1,14 @@
 {
-  "AC0398028271866989338DD628DCC599": {
-    "id": "AC0398028271866989338DD628DCC599",
+  "AC14BEBFB1109A428635EF6232C7040B": {
+    "id": "AC14BEBFB1109A428635EF6232C7040B",
     "sender": "6285954745105@s.whatsapp.net",
     "name": "Airlangga Satria Pratama",
     "type": "videoMessage",
-    "arrivedAt": "2026-11-20T11:13:33.249Z",
+    "arrivedAt": "2026-11-25T11:48:53.935Z",
     "read": true,
     "reacted": true,
     "reactionExpected": true,
-    "emoji": "🐠",
+    "emoji": "🐬",
     "resolve": "PN langsung ✓",
     "source": "status",
     "number": "6285954745105",
@@ -17,13 +17,29 @@
       "remoteJid": "status@broadcast",
       "remoteJidAlt": "6285954745105@s.whatsapp.net",
       "fromMe": false,
-      "id": "AC0398028271866989338DD628DCC599",
+      "id": "AC14BEBFB1109A428635EF6232C7040B",
       "participant": "145436467830940@lid",
       "addressingMode": "lid"
     },
-    "updatedAt": "2026-11-20T11:15:53.599Z",
-    "processedAt": "2026-11-20T11:15:53.599Z",
-    "retriedOnStartup": true,
-    "retriedAt": "2026-11-20T11:15:53.599Z"
+    "updatedAt": "2026-11-25T11:49:02.969Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6285954745105@s.whatsapp.net",
+        "fromMe": false,
+        "id": "AC14BEBFB1109A428635EF6232C7040B",
+        "participant": "145436467830940@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6285954745105@s.whatsapp.net",
+        "fromMe": false,
+        "id": "AC14BEBFB1109A428635EF6232C7040B",
+        "participant": "6285954745105@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-11-25T11:49:02.968Z"
   }
 }

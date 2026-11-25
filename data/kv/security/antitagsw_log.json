@@ -58,5 +58,25 @@
     "maxWarn": 1,
     "method": "Caption/Reply",
     "ts": 1793283842885
+  },
+  {
+    "gid": "120363417172696585@g.us",
+    "senderJid": "6285323817922@s.whatsapp.net@s.whatsapp.net",
+    "senderNum": "6285323817922",
+    "action": "warn",
+    "warnCount": 1,
+    "maxWarn": 10,
+    "method": "Status WA",
+    "ts": 1795607714761
+  },
+  {
+    "gid": "120363417172696585@g.us",
+    "senderJid": "6285323817922@s.whatsapp.net@s.whatsapp.net",
+    "senderNum": "6285323817922",
+    "action": "warn",
+    "warnCount": 2,
+    "maxWarn": 10,
+    "method": "Status WA",
+    "ts": 1795607719934
   }
 ]

@@ -7,7 +7,7 @@ _📅 Jumat, 23 Oktober 2026_
 ━━━━━━━━━━━━━━━━━━━━━━
 🤖 *WILY BOT* — `V27.5`
 ✨ *9 Fitur Baru*
-🐛 *16 Fix Bug*
+🐛 *17 Fix Bug*
 🛠️ *4 Fix Error*
 🚀 *16 Perubahan*
 ⚠️ *1 Hapus Fitur*
@@ -174,6 +174,12 @@ _📅 Jumat, 23 Oktober 2026_
    • Penyebab: ketiga tombol itu diproses sesudah guard owner (pesan tap tidak punya command), dan pending-nya tidak mencatat siapa peminta — `.animgif`/`.tts` pakai token acak, `.animquote` pakai ID tombol tetap + kunci chat — jadi siapa pun di grup bisa menekan tombolnya dan bot merespon ke bukan-owner.
    • Fix: pending entry kini menyimpan `peminta` (pengirim yang menjalankan command); callback return false diam-diam bila penekan bukan peminta. Pola yang sama dengan gate alias.
 > _Hasil: bukan-owner menekan tombol format .animgif → bot diam total (0 pesan); owner menekan tombol yang sama → video MP4 terkirim. Terverifikasi sim 8/8 (kode asli + Tenor API asli): gate tercatat di ketiga file, logika gate benar, end-to-end .animgif jalan. Handler lain sudah dicek satu-satu dan AMAN (setbrowser, wilyai, semua callback notif, listgc, cekauto, dan semua pending choice sudah owner-only atau kunci-pengirim; antitagsw/antilink/doujinnotif memang sengaja mengizinkan admin grup — itu desain, bukan bug)._
+
+17. *.sticaudio — Mode URL: Suara vs Gerakan Tidak Realtime (Kelihatan Delay)*
+   • Penyebab: BUKAN timing-nya yang miring — diukur di Shorts 4r4sy5coS7s (15 dtk): offset beep vs kilat 0,00–0,01 dtk, durasi WebP 14,83 vs Opus 14,89 dtk, onset suara sama persis (0,10 dtk). Yang rusak frame rate-nya: video panjang/sibuk yang dipaksa 512px jatuh ke 6 fps (tiap frame diam 167ms) supaya muat 500 KB — gerakan patah-patah, kelihatan ketinggalan dari suara yang mengalir terus.
+   • Fix: tangga kompresi baru di prosesVideo — utamakan fps daripada resolusi: 12fps 512px → 12fps 384px → 9fps 384px → 9fps 320px → 6fps 320px (paling akhir). Video pendek/sederhana tetap 512px 12fps seperti biasa.
+   • Balasan kini menyebut fps stikernya (mis. "9 fps"); entri hotReload `voCache` yang tertinggal dari penghapusan .rvo juga dibersihkan (sebelumnya tiap restart log "1 gagal").
+> _Hasil: Shorts 15 dtk yang sama kini 9 fps (109 frame, dulu 74 frame 6 fps) dengan ukuran tetap ≤500 KB; suara vs gerakan sinkron. Terverifikasi sim 6/6 (video sintetis beep+kilat + file nyata Shorts) + sim .sticaudio 19/19._
 
 ━━━━━━━━━━━━━━━━━━━━━━
 🛠️ *FIX ERROR*

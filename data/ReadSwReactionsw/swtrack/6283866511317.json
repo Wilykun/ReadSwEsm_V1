@@ -41,5 +41,48 @@
       }
     ],
     "processedAt": "2026-11-24T09:24:44.284Z"
+  },
+  "A5C76B7FD36F1ACC9E328DA787A6C529": {
+    "id": "A5C76B7FD36F1ACC9E328DA787A6C529",
+    "sender": "6283866511317@s.whatsapp.net",
+    "name": "( 𝗫𝗫𝗜𝗫.𝗩𝗜 )  Dynasty — : : Lulu : : 优雅\nImperial Regalicy  —",
+    "type": "videoMessage",
+    "arrivedAt": "2026-11-25T01:34:22.006Z",
+    "read": true,
+    "reacted": true,
+    "reactionExpected": true,
+    "emoji": "🐋",
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "6283866511317",
+    "resolvedPn": "6283866511317@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "6283866511317@s.whatsapp.net",
+      "fromMe": false,
+      "id": "A5C76B7FD36F1ACC9E328DA787A6C529",
+      "participant": "56024157405184@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-11-25T01:34:27.530Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6283866511317@s.whatsapp.net",
+        "fromMe": false,
+        "id": "A5C76B7FD36F1ACC9E328DA787A6C529",
+        "participant": "56024157405184@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6283866511317@s.whatsapp.net",
+        "fromMe": false,
+        "id": "A5C76B7FD36F1ACC9E328DA787A6C529",
+        "participant": "6283866511317@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-11-25T01:34:27.530Z"
   }
 }

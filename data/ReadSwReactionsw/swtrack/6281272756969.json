@@ -41,5 +41,48 @@
       }
     ],
     "processedAt": "2026-11-24T15:09:19.533Z"
+  },
+  "ACA458C160B33FE158524884AD9DDED9": {
+    "id": "ACA458C160B33FE158524884AD9DDED9",
+    "sender": "6281272756969@s.whatsapp.net",
+    "name": "ennécy୨ৎ",
+    "type": "videoMessage",
+    "arrivedAt": "2026-11-25T11:42:51.473Z",
+    "read": true,
+    "reacted": true,
+    "reactionExpected": true,
+    "emoji": "🐠",
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "6281272756969",
+    "resolvedPn": "6281272756969@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "6281272756969@s.whatsapp.net",
+      "fromMe": false,
+      "id": "ACA458C160B33FE158524884AD9DDED9",
+      "participant": "174586561863914@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-11-25T11:43:02.775Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6281272756969@s.whatsapp.net",
+        "fromMe": false,
+        "id": "ACA458C160B33FE158524884AD9DDED9",
+        "participant": "174586561863914@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6281272756969@s.whatsapp.net",
+        "fromMe": false,
+        "id": "ACA458C160B33FE158524884AD9DDED9",
+        "participant": "6281272756969@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-11-25T11:43:02.775Z"
   }
 }
