@@ -274,11 +274,12 @@ _📅 Jumat, 23 Oktober 2026_
    • Pesan tombol & loading auto-hapus setelah terkirim.
 > _Hasil: download YouTube simple 1 tap._
 
-14. *.alqanimenotif — Header & Source Dihilangkan*
+14. *.alqanimenotif — Tampilan Notifikasi Dirapikan*
    • Pesan notifikasi tak lagi menampilkan nama "ALQANIME" di header (`RILISAN BARU!`, `EPISODE BARU!`, `BATCH RELEASE!`, `MOVIE BARU!`/`OVA BARU!`, `LAGI HANGAT!`).
    • Baris `🔗 Source : alqanime.net` dihapus dari semua notifikasi — tampilan lebih bersih.
    • Link `▶️ Tonton` tetap ada seperti semula.
-> _Hasil: notifikasi .alqanimenotif lebih rapi tanpa branding & baris source._
+   • Notif minimal (fetch detail gagal sehingga info/sinopsis/download kosong) tidak lagi mencetak dua garis pemisah berurutan dan baris kosong nyasar — caption dirapikan otomatis, tampilan penuh tidak berubah.
+> _Hasil: notifikasi .alqanimenotif lebih rapi tanpa branding, baris source, dan garis ganda saat datanya kosong._
 
 15. *.play/.ytmp3/.ytmp4 — Anti "Sign in to confirm you're not a bot"*
    • Fallback otomatis 3 level (android → android+impersonate → ios+impersonate) bila kena bot-check.

@@ -664,6 +664,24 @@ function deteksiStatusSeri(statusRaw) {
     return 'unknown';
 }
 
+// ── Rapikan caption: buang baris kosong ganda dan garis pemisah ganda ─────────
+// Saat info, sinopsis, dan download kosong (notif minimal karena fetch detail
+// gagal), template di atas tetap mencetak SEP di sekeliling seksi yang hilang
+// sehingga muncul dua garis berurutan plus baris kosong nyasar. Normalisasi ini
+// hanya membuang yang ganda, jadi bila semua seksi terisi hasilnya tidak berubah.
+function rapikanCaption(teks) {
+    const hasil = [];
+    for (const b of teks.split('\n')) {
+        const isi = b.trim();
+        const prev = hasil.length ? hasil[hasil.length - 1].trim() : '';
+        if (isi === '' && (!hasil.length || prev === '' || prev === SEP)) continue;
+        if (isi === SEP && prev === SEP) continue;
+        hasil.push(b);
+    }
+    while (hasil.length && hasil[hasil.length - 1].trim() === '') hasil.pop();
+    return hasil.join('\n');
+}
+
 // ── Caption GABUNGAN — gambar + sinopsis + download dalam 1 pesan ─────────────
 function buatCaptionGabung(data) {
     const {
@@ -783,7 +801,7 @@ function buatCaptionGabung(data) {
         dlBlok ? dlBlok : null,
     ];
 
-    return baris.filter(b => b !== null).join('\n');
+    return rapikanCaption(baris.filter(b => b !== null).join('\n'));
 }
 
 // ── Monitor perubahan "Lagi Hangat Saat Ini" ─────────────────────────────────

@@ -8,7 +8,7 @@
 ════════════════════════════════════════════════════════════════════════
   FILE     : infoerror.txt
   Bot      : Wily Bot
-  Update   : 25/11/2026, 13.50.04  (realtime — diperbarui otomatis setiap ada error)
+  Update   : 26/11/2026, 07.26.02  (realtime — diperbarui otomatis setiap ada error)
 ════════════════════════════════════════════════════════════════════════
 
   RINGKASAN
@@ -26,21 +26,21 @@
 │  #001  —  AlqanimeNotif
 ├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
 │  PESAN ERROR
-│  [AlqanimeNotif] ❌ Gagal fetch homepage: Request failed with status code 429
+│  [AlqanimeNotif] ❌ Gagal fetch homepage: Request failed with status code 401
 │
 │  DETAIL
 │  Sumber      : AlqanimeNotif
 │  Frekuensi   : 1x (baru terjadi)
-│  Pertama     : 25/11/2026, 13.50.04
-│  Terakhir    : 25/11/2026, 13.50.04
+│  Pertama     : 26/11/2026, 07.26.01
+│  Terakhir    : 26/11/2026, 07.26.01
 │
 │  STACK TRACE (3 baris pertama)
-│  ▶  Error: [AlqanimeNotif] ❌ Gagal fetch homepage: Request failed with status code 429
+│  ▶  Error: [AlqanimeNotif] ❌ Gagal fetch homepage: Request failed with status code 401
 │     at console.error (file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/index.js:343:27)
-│     at Module.cariEpisodeBaru (file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/SEMUA_FITUR/anime/alqanime-monitor.js?t=1793840261412.5967:268:17)
+│     at Module.cariEpisodeBaru (file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/SEMUA_FITUR/anime/alqanime-monitor.js?t=1795654792238.4153:268:17)
 └───────────────────────────────────────────────────────────────────────
 
 ════════════════════════════════════════════════════════════════════════
   End of Report  —  Total: 1 jenis, 1 kejadian
-  Terakhir diperbarui: 25/11/2026, 13.50.04
+  Terakhir diperbarui: 26/11/2026, 07.26.02
 ════════════════════════════════════════════════════════════════════════

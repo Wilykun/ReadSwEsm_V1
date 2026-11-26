@@ -2,6 +2,78 @@
   "events": [
     {
       "type": "connected",
+      "connectedAt": "2026-11-26T06:50:03.196Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-11-26T04:40:04.595Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-11-26T02:40:02.814Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-11-26T00:30:02.919Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-11-25T23:11:55.639Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-11-25T22:30:03.892Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-11-25T21:49:30.532Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-11-25T20:50:58.407Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-11-25T20:30:04.659Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-11-25T19:00:02.912Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-11-25T17:58:32.320Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-11-25T17:27:57.315Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-11-25T17:00:08.117Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-11-25T16:46:12.573Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-11-25T16:40:19.715Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-11-25T15:50:12.191Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-11-25T15:00:04.339Z"
+    },
+    {
+      "type": "connected",
+      "connectedAt": "2026-11-25T14:40:22.045Z"
+    },
+    {
+      "type": "connected",
       "connectedAt": "2026-11-25T13:50:14.214Z"
     },
     {
@@ -127,37 +199,8 @@
     {
       "type": "connected",
       "connectedAt": "2026-11-20T11:05:38.523Z"
-    },
-    {
-      "type": "connected",
-      "connectedAt": "2026-11-20T10:58:07.155Z"
-    },
-    {
-      "type": "connected",
-      "connectedAt": "2026-11-20T10:27:09.466Z"
-    },
-    {
-      "type": "connected",
-      "connectedAt": "2026-11-20T10:17:12.700Z"
-    },
-    {
-      "type": "connected",
-      "connectedAt": "2026-11-20T09:59:50.358Z"
-    },
-    {
-      "type": "connected",
-      "connectedAt": "2026-11-20T09:43:16.096Z"
-    },
-    {
-      "type": "pairing",
-      "code": "AAAA-AAAA",
-      "number": "6289681008411",
-      "startAt": "2026-11-20T09:42:11.897Z",
-      "expireAt": "2026-11-20T09:45:11.897Z",
-      "durationSeconds": 180,
-      "sessionExpireAt": "2026-11-20T09:45:11.897Z"
     }
   ],
-  "lastUpdated": "2026-11-25T13:50:14.219Z",
+  "lastUpdated": "2026-11-26T06:50:03.198Z",
   "sessionStart": "2026-11-20T09:42:11.944Z"
 }
