@@ -1,0 +1,45 @@
+{
+  "AC07E340B7D247591A076A15F1AFA6A5": {
+    "id": "AC07E340B7D247591A076A15F1AFA6A5",
+    "sender": "6283159318193@s.whatsapp.net",
+    "name": "Raihan Konno",
+    "type": "videoMessage",
+    "arrivedAt": "2026-11-25T11:50:41.944Z",
+    "read": true,
+    "reacted": true,
+    "reactionExpected": true,
+    "emoji": "🐠",
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "6283159318193",
+    "resolvedPn": "6283159318193@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "6283159318193@s.whatsapp.net",
+      "fromMe": false,
+      "id": "AC07E340B7D247591A076A15F1AFA6A5",
+      "participant": "180848791969875@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-11-25T11:51:02.181Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6283159318193@s.whatsapp.net",
+        "fromMe": false,
+        "id": "AC07E340B7D247591A076A15F1AFA6A5",
+        "participant": "180848791969875@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6283159318193@s.whatsapp.net",
+        "fromMe": false,
+        "id": "AC07E340B7D247591A076A15F1AFA6A5",
+        "participant": "6283159318193@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-11-25T11:51:02.181Z"
+  }
+}

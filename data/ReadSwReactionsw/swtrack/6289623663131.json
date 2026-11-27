@@ -1,0 +1,45 @@
+{
+  "ACEFB7CA1DBD9DC015192F5155CDC901": {
+    "id": "ACEFB7CA1DBD9DC015192F5155CDC901",
+    "sender": "6289623663131@s.whatsapp.net",
+    "name": "AKBAR P MANDALA",
+    "type": "videoMessage",
+    "arrivedAt": "2026-11-25T11:45:55.444Z",
+    "read": true,
+    "reacted": true,
+    "reactionExpected": true,
+    "emoji": "🐠",
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "6289623663131",
+    "resolvedPn": "6289623663131@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "6289623663131@s.whatsapp.net",
+      "fromMe": false,
+      "id": "ACEFB7CA1DBD9DC015192F5155CDC901",
+      "participant": "222638806982897@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-11-25T11:46:02.899Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6289623663131@s.whatsapp.net",
+        "fromMe": false,
+        "id": "ACEFB7CA1DBD9DC015192F5155CDC901",
+        "participant": "222638806982897@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6289623663131@s.whatsapp.net",
+        "fromMe": false,
+        "id": "ACEFB7CA1DBD9DC015192F5155CDC901",
+        "participant": "6289623663131@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-11-25T11:46:02.899Z"
+  }
+}

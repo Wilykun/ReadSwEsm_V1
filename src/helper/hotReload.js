@@ -157,6 +157,7 @@ const WATCHED_FILES = [
     // Media
     { key: 'stickerCmd', rel: 'SEMUA_FITUR/media/sticker-cmd.js', lazy: true },
     { key: 'sticaudio', rel: 'SEMUA_FITUR/media/sticaudio-cmd.js', lazy: true },
+    { key: 'reactstiker', rel: 'SEMUA_FITUR/media/reactstiker-cmd.js', lazy: true },
     { key: 'stickerai', rel: 'SEMUA_FITUR/media/stickerai.js', lazy: true },
     { key: 'smeme', rel: 'SEMUA_FITUR/media/smeme.js', lazy: true },
     { key: 'wm', rel: 'SEMUA_FITUR/media/wm.js', lazy: true },

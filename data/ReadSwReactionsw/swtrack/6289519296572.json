@@ -1,0 +1,45 @@
+{
+  "ACA7919B52B79AFDBB07AC48683E211F": {
+    "id": "ACA7919B52B79AFDBB07AC48683E211F",
+    "sender": "6289519296572@s.whatsapp.net",
+    "name": "salsa",
+    "type": "conversation",
+    "arrivedAt": "2026-11-14T00:45:58.432Z",
+    "read": true,
+    "reacted": true,
+    "reactionExpected": true,
+    "emoji": "🦈",
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "6289519296572",
+    "resolvedPn": "6289519296572@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "6289519296572@s.whatsapp.net",
+      "fromMe": false,
+      "id": "ACA7919B52B79AFDBB07AC48683E211F",
+      "participant": "243336220831856@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-11-14T00:46:23.861Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6289519296572@s.whatsapp.net",
+        "fromMe": false,
+        "id": "ACA7919B52B79AFDBB07AC48683E211F",
+        "participant": "243336220831856@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "6289519296572@s.whatsapp.net",
+        "fromMe": false,
+        "id": "ACA7919B52B79AFDBB07AC48683E211F",
+        "participant": "6289519296572@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-11-14T00:46:23.860Z"
+  }
+}

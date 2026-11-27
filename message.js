@@ -419,6 +419,14 @@ export default async function ({ message, type: messagesType }, hisoka) {
                 // Guard me-return semua pesan @newsletter, jadi hook harus jalan dulu.
                 try { await handleAutoReactChannel({ hisoka, m }); } catch (_) {}
 
+                // ── Auto-add stiker ke pack .reacts (bila config reacts.addAuto aktif) ──
+                // Stiker dari owner langsung masuk pack tanpa `.reacts add` manual.
+                // Hook jalan sebelum dispatcher, jadi stiker tanpa command pun ketangkap.
+                try {
+                        const { handleReactAddAuto } = await importLazy(path.resolve('./SEMUA_FITUR/media/reactstiker-cmd.js'));
+                        if (typeof handleReactAddAuto === 'function') await handleReactAddAuto({ hisoka, m, loadConfig, getMediaTypeFromMessage });
+                } catch (_) {}
+
                 // Pesan channel tetap diblokir, kecuali command cekjidch yang memang
                 // dipakai untuk membaca JID channel tempat command tersebut dikirim.
                 if (m.from?.endsWith('@newsletter') && m.command !== 'cekjidch') return;
@@ -970,6 +978,8 @@ export default async function ({ message, type: messagesType }, hisoka) {
                 {
                         const { handleAliasCallbacks } = await importLazy(path.resolve('./SEMUA_FITUR/setting/alias-cmd.js'));
                         if (await handleAliasCallbacks({ hisoka, m, tolak, logCommand, loadConfig, saveConfig })) return;
+                        const { handleReactAddAutoCallbacks } = await importLazy(path.resolve('./SEMUA_FITUR/media/reactstiker-cmd.js'));
+                        if (await handleReactAddAutoCallbacks({ hisoka, m, tolak, logCommand, loadConfig, saveConfig })) return;
                 }
 
                 // ── Handle pending hentaidad confirm (Lanjutkan/Tidak) → hentaidad.js ──

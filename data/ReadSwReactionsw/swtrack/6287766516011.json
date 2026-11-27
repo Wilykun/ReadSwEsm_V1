@@ -1,14 +1,14 @@
 {
-  "A5C18B09098112E1EA3712CA2C8EA418": {
-    "id": "A5C18B09098112E1EA3712CA2C8EA418",
+  "A556B116573349112A8AA24ADBB0BC4B": {
+    "id": "A556B116573349112A8AA24ADBB0BC4B",
     "sender": "6287766516011@s.whatsapp.net",
     "name": "Abauu'u",
     "type": "videoMessage",
-    "arrivedAt": "2026-11-25T11:53:25.839Z",
+    "arrivedAt": "2026-11-27T08:00:34.583Z",
     "read": true,
     "reacted": true,
     "reactionExpected": true,
-    "emoji": "🐬",
+    "emoji": "🐳",
     "resolve": "PN langsung ✓",
     "source": "status",
     "number": "6287766516011",
@@ -17,17 +17,17 @@
       "remoteJid": "status@broadcast",
       "remoteJidAlt": "6287766516011@s.whatsapp.net",
       "fromMe": false,
-      "id": "A5C18B09098112E1EA3712CA2C8EA418",
+      "id": "A556B116573349112A8AA24ADBB0BC4B",
       "participant": "248627335299292@lid",
       "addressingMode": "lid"
     },
-    "updatedAt": "2026-11-25T11:53:44.641Z",
+    "updatedAt": "2026-11-27T08:00:44.753Z",
     "receiptKeys": [
       {
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6287766516011@s.whatsapp.net",
         "fromMe": false,
-        "id": "A5C18B09098112E1EA3712CA2C8EA418",
+        "id": "A556B116573349112A8AA24ADBB0BC4B",
         "participant": "248627335299292@lid",
         "addressingMode": "lid"
       },
@@ -35,11 +35,11 @@
         "remoteJid": "status@broadcast",
         "remoteJidAlt": "6287766516011@s.whatsapp.net",
         "fromMe": false,
-        "id": "A5C18B09098112E1EA3712CA2C8EA418",
+        "id": "A556B116573349112A8AA24ADBB0BC4B",
         "participant": "6287766516011@s.whatsapp.net",
         "addressingMode": "lid"
       }
     ],
-    "processedAt": "2026-11-25T11:53:44.641Z"
+    "processedAt": "2026-11-27T08:00:44.753Z"
   }
 }

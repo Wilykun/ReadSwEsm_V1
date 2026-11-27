@@ -1,0 +1,45 @@
+{
+  "A579C1684F451BD6D1362DAB817B58ED": {
+    "id": "A579C1684F451BD6D1362DAB817B58ED",
+    "sender": "628116361003@s.whatsapp.net",
+    "name": "Munawir_Ahmadr",
+    "type": "videoMessage",
+    "arrivedAt": "2026-11-27T08:00:11.173Z",
+    "read": true,
+    "reacted": true,
+    "reactionExpected": true,
+    "emoji": "🐡",
+    "resolve": "PN langsung ✓",
+    "source": "status",
+    "number": "628116361003",
+    "resolvedPn": "628116361003@s.whatsapp.net",
+    "messageKey": {
+      "remoteJid": "status@broadcast",
+      "remoteJidAlt": "628116361003@s.whatsapp.net",
+      "fromMe": false,
+      "id": "A579C1684F451BD6D1362DAB817B58ED",
+      "participant": "213301615194118@lid",
+      "addressingMode": "lid"
+    },
+    "updatedAt": "2026-11-27T08:00:29.207Z",
+    "receiptKeys": [
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "628116361003@s.whatsapp.net",
+        "fromMe": false,
+        "id": "A579C1684F451BD6D1362DAB817B58ED",
+        "participant": "213301615194118@lid",
+        "addressingMode": "lid"
+      },
+      {
+        "remoteJid": "status@broadcast",
+        "remoteJidAlt": "628116361003@s.whatsapp.net",
+        "fromMe": false,
+        "id": "A579C1684F451BD6D1362DAB817B58ED",
+        "participant": "628116361003@s.whatsapp.net",
+        "addressingMode": "lid"
+      }
+    ],
+    "processedAt": "2026-11-27T08:00:29.207Z"
+  }
+}

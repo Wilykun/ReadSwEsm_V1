@@ -54,40 +54,40 @@
     },
     "dilihat": {
       "120363407772408064@newsletter": {
-        "terakhirPost": 1795673814000,
-        "jumlahPost": 96
+        "terakhirPost": 1795771104000,
+        "jumlahPost": 102
       },
       "120363427810079465@newsletter": {
         "terakhirPost": 1794412274000,
         "jumlahPost": 38
       },
       "120363422614794709@newsletter": {
-        "terakhirPost": 1795637025000,
-        "jumlahPost": 77
+        "terakhirPost": 1795736140000,
+        "jumlahPost": 78
       },
       "120363311886084441@newsletter": {
         "terakhirPost": 1794410641000,
         "jumlahPost": 1
       },
       "120363380388430434@newsletter": {
-        "terakhirPost": 1795673833000,
-        "jumlahPost": 128
+        "terakhirPost": 1795768488000,
+        "jumlahPost": 130
       },
       "120363408975923153@newsletter": {
-        "terakhirPost": 1795675174000,
-        "jumlahPost": 16
+        "terakhirPost": 1795766378000,
+        "jumlahPost": 17
       },
       "120363400911374213@newsletter": {
-        "terakhirPost": 1795672273000,
-        "jumlahPost": 44
+        "terakhirPost": 1795763817000,
+        "jumlahPost": 45
       },
       "120363425281725693@newsletter": {
-        "terakhirPost": 1795660998000,
-        "jumlahPost": 37
+        "terakhirPost": 1795768429000,
+        "jumlahPost": 40
       },
       "120363312297133690@newsletter": {
-        "terakhirPost": 1795666589000,
-        "jumlahPost": 20
+        "terakhirPost": 1795760394000,
+        "jumlahPost": 21
       },
       "120363399226798445@newsletter": {
         "terakhirPost": 1795656846000,
@@ -114,28 +114,28 @@
         "jumlahPost": 8
       },
       "120363426504310215@newsletter": {
-        "terakhirPost": 1795674746000,
-        "jumlahPost": 14
+        "terakhirPost": 1795766372000,
+        "jumlahPost": 15
       },
       "120363427226572683@newsletter": {
         "terakhirPost": 1794572118000,
         "jumlahPost": 1
       },
       "120363420385250482@newsletter": {
-        "terakhirPost": 1795655034000,
-        "jumlahPost": 12
+        "terakhirPost": 1795766717000,
+        "jumlahPost": 15
       },
       "120363407749680764@newsletter": {
-        "terakhirPost": 1795655334000,
-        "jumlahPost": 3
+        "terakhirPost": 1795711116000,
+        "jumlahPost": 4
       },
       "120363423707467155@newsletter": {
         "terakhirPost": 1795306102000,
         "jumlahPost": 2
       },
       "120363415378917362@newsletter": {
-        "terakhirPost": 1795477904000,
-        "jumlahPost": 2
+        "terakhirPost": 1795766355000,
+        "jumlahPost": 3
       },
       "120363421092816069@newsletter": {
         "terakhirPost": 1795541455000,
@@ -282,8 +282,8 @@
         "diubahPada": 1784879213001
       },
       "120363383540766761@g.us": {
-        "enabled": true,
-        "diubahPada": 1793622807006
+        "enabled": false,
+        "diubahPada": 1795766605659
       },
       "120363419402989015@g.us": {
         "enabled": false,
@@ -393,5 +393,11 @@
   "alias": {
     "enabled": true,
     "sejak": 1795520211492
+  },
+  "reacts": {
+    "addAuto": {
+      "enabled": true,
+      "sejak": 1795771720156
+    }
   }
 }

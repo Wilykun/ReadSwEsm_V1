@@ -8,7 +8,7 @@
 ════════════════════════════════════════════════════════════════════════
   FILE     : infoerror.txt
   Bot      : Wily Bot
-  Update   : 26/11/2026, 07.26.02  (realtime — diperbarui otomatis setiap ada error)
+  Update   : 27/11/2026, 09.24.02  (realtime — diperbarui otomatis setiap ada error)
 ════════════════════════════════════════════════════════════════════════
 
   RINGKASAN
@@ -23,24 +23,24 @@
 ────────────────────────────────────────────────────────────────────────
 
 ┌───────────────────────────────────────────────────────────────────────
-│  #001  —  AlqanimeNotif
+│  #001  —  console.error
 ├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
 │  PESAN ERROR
-│  [AlqanimeNotif] ❌ Gagal fetch homepage: Request failed with status code 401
+│  [31m[HotReload] ✗ Gagal reload 'SEMUA_FITUR/media/reactstiker-cmd.js', pakai versi lama.[39m
 │
 │  DETAIL
-│  Sumber      : AlqanimeNotif
+│  Sumber      : console.error
 │  Frekuensi   : 1x (baru terjadi)
-│  Pertama     : 26/11/2026, 07.26.01
-│  Terakhir    : 26/11/2026, 07.26.01
+│  Pertama     : 27/11/2026, 09.24.02
+│  Terakhir    : 27/11/2026, 09.24.02
 │
 │  STACK TRACE (3 baris pertama)
-│  ▶  Error: [AlqanimeNotif] ❌ Gagal fetch homepage: Request failed with status code 401
+│  ▶  Error: [31m[HotReload] ✗ Gagal reload 'SEMUA_FITUR/media/reactstiker-cmd.js', pakai versi lama.[39m
 │     at console.error (file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/index.js:343:27)
-│     at Module.cariEpisodeBaru (file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/SEMUA_FITUR/anime/alqanime-monitor.js?t=1795654792238.4153:268:17)
+│     at Timeout._onTimeout (file:///home/hatch/workspace/readswesm-v2/ReadSwEsm_V1-ReadSwEsm_V2/src/helper/hotReload.js:303:29)
 └───────────────────────────────────────────────────────────────────────
 
 ════════════════════════════════════════════════════════════════════════
   End of Report  —  Total: 1 jenis, 1 kejadian
-  Terakhir diperbarui: 26/11/2026, 07.26.02
+  Terakhir diperbarui: 27/11/2026, 09.24.02
 ════════════════════════════════════════════════════════════════════════
